@@ -1,0 +1,40 @@
+syntax: glob
+
+#projects
+.settings/*
+.project
+.pydevproject
+.externalToolBuilders*
+.cache/*
+nbproject/*
+.buildpath
+build.properties
+MANIFEST.MF
+
+#temp files
+*.pyc
+*.orig
+*~
+
+#os files
+.DS_Store
+Thumbs.db
+
+#hosting files
+.bash_history
+.bash_profile
+.bash_logout
+.bashrc
+.viminfo
+.lesshst
+.ssh
+
+#settings
+
+#project-specific files
+stuff
+*.sqlite
+*.utf8.mrd
+*.pickle
+*.shelve
+*.log-psyco

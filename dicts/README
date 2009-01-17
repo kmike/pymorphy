@@ -1,0 +1,8 @@
+Dictionaries in "src" folder are the ones found on http://www.aot.ru/download.php
+You should convert and encode them using encode_dicts.py utility:
+
+python encode_dicts.py
+
+This can take a long time depending on your hardware.
+
+See copying for details about their license (LGPL).
