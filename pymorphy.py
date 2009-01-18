@@ -339,7 +339,6 @@ class Morph:
         vars.append((word,'',))
         return vars
 
-
     def _static_prefix_graminfo(self, variants, require_prefix=''):
         gram = []
         if self.check_prefixes:
@@ -468,3 +467,10 @@ def get_pickle_morph(lang, check_prefixes = True, predict_by_prefix = True,
     data_source = PickledDict(file)
     return Morph(lang, data_source, check_prefixes, predict_by_prefix, predict_by_suffix, handle_EE, use_psyco)
 
+if __name__ == '__main__':
+
+    m = get_shelve_morph('ru')
+    for form in m.get_graminfo(u'ХАБРАХАБРА'):
+        for v in form:
+            print v, form[v]
+        print '----'

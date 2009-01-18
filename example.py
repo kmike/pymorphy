@@ -99,45 +99,20 @@ texts.append(u'''
 раньше "Обнаженная" была продана почти за 40 миллионов. Бэкон является одним
 из самых востребованных и дорогих художников второй половины XX века.
     ''')
-r = re.compile('\W+',re.U)
+r = re.compile('[\W+-]',re.U)
 words = []
 for text in texts:
     words.extend(r.split(text.upper()))
 
-#    word = u'МЕГАБЕГЕМОТ'
-#    word = u'НЕБЕСКОНЕЧЕН'
-#    word = u'РАЗКВАКАЛИСЬ'
-#    word = u'триждычерезпилюлюокнами'.upper()
-#    word = u'депыртаментов'.upper()
-#    word = u'ПУТИН'
-#    word = u'НАИВНЕЙШИЙ'
-#    word = u'РАКЕТНЫЕ'
-#    word = u"Я"
-#    word = u"ЫТВРАТЬ"
-#    word = u"НАИНЕВЕРОЯТНЕЙШИЙ"
+morph = pymorphy.get_shelve_morph('ru')
+#morph = pymorphy.get_pickle_morph('ru', predict_by_prefix = True)
 
-#    word = u"ЕГО"
-#    word=u"ЛЮДЕЙ"
-#    word=u"КОТЕНОК"
-#    word= u"МЕГАСВЕРХНАИСТАРЕЙШЕМУ"
-#    word = u'НЕДОКОТ'
-#    word = u'МАШИНОСТРОЕНИЕ'
-#    word = u'МЫМРЕНОК'
-#    word = u'ИЗОБРЫСТОРИЯ'
-#    word = u'КАШИВАРНЕЕ'
-#    word = u'ИЗМОХРАТИТЬСЯ'
-#    word = u'БУТЯВКОЙ'
-#    word = u'САПАЮТ'
-#    word = u'ВЫЧУЧИЛИ'
-#    word = u'МЕГАКОТУ'
-
-morph = pymorphy.get_shelve_morph('ru', predict_by_prefix = False)
-
+print len(words)
 def prof(words):
     for word in words:
         if word:
             forms = ' '.join(morph.normalize(word))
-            print forms
+#            print forms
 
 cProfile.run('prof(words)', sort='time')
 
