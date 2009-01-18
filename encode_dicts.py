@@ -9,13 +9,6 @@ def convert_file(in_file, out_file, in_charset, out_charset):
     text = codecs.open(in_file, 'r', in_charset).read()
     codecs.open(out_file, 'w', out_charset ).write(text)
 
-#    fileObj = codecs.open(in_file, "r", in_charset)
-#    u = fileObj.read()
-#    codecs.encode(u,out_charset)
-#    out = open(out_file, 'wb')
-#    out.write(u)
-#    out.close()
-
 def create_shelf_and_pickle(lang):
     dir = 'dicts/converted/'+lang
 
