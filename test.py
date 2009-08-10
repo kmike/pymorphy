@@ -92,3 +92,4 @@ class TestMorphPickle(TestMorphShelve):
 
 if __name__ == '__main__':
     unittest.main()
+

@@ -32,13 +32,13 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
 
-NOUNS = ('NOUN','С',)
-PRONOUNS = ('PN','МС',)
-PRONOUNS_ADJ = ('PN_ADJ','МС-П',)
-VERBS = ('Г','VERB',)
-ADJECTIVE = ('ADJECTIVE', 'П',)
+NOUNS = (u'NOUN',u'С',)
+PRONOUNS = (u'PN',u'МС',)
+PRONOUNS_ADJ = (u'PN_ADJ',u'МС-П',)
+VERBS = (u'Г',u'VERB',)
+ADJECTIVE = (u'ADJECTIVE', u'П',)
 
-PRODUCTIVE_CLASSES = ('С', 'П', 'Г', 'Н', 'ИНФИНИТИВ', 'NOUN','VERB', 'ADJECTIVE',) #for predictor
+PRODUCTIVE_CLASSES = (u'С', u'П', u'Г', u'Н', u'ИНФИНИТИВ', u'NOUN',u'VERB', u'ADJECTIVE',) #for predictor
 
 class DictDataSource(object):
     ''' Absctract base class for dictionary data source.
@@ -474,3 +474,4 @@ if __name__ == '__main__':
         for v in form:
             print v, form[v]
         print '----'
+
