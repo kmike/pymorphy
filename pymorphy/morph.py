@@ -102,37 +102,50 @@ class Morph:
             info['method'] = info['method'].replace(u'Ё', u'Е')
         return gram
 
-    def _predict_by_suffix(self, word):
-        deep = 0
+    def predict_by_suffix(self, word):
+        """ Предсказать грамматическую форму и парадигму неизвестного слова
+            по последним 5 буквам.
+
+            self.data.endings - все возможные 5,4,3,2,1-буквенные завершения
+            слов.
+        """
         gram=[]
         for i in (5,4,3,2,1):
             end = word[-i:]
             if end in self.data.endings:
-                ending_rules = self.data.endings[end]
-                for rule_id in ending_rules:
-                    paradigm_ids = ending_rules[rule_id]
-                    rule_row = self.data.rules[rule_id]
-                    for num in paradigm_ids:
-                        rule = rule_row[num]
-                        suffix = rule[0]
-                        suffix_len = len(suffix)
-                        ancode = rule[1]
-                        graminfo = self.data.gramtab[ancode]
-                        norm_form = word[0:-suffix_len]+rule_row[0][0]
-                        if graminfo[0] in PRODUCTIVE_CLASSES:
-                            gram.append({'norm': norm_form,'class':graminfo[0],
-                                   'info': graminfo[1],
-                                   'rule':rule_id, 'ancode': ancode,
-                                   'method': 'predict(...%s)' % end
-                                   })
 
-    #            print endings[variant[1]]
+                # парадигмы, по которым могут образовываться слова с таким
+                # завершением
+                paradigms = self.data.endings[end]
+
+                for paradigm_id in paradigms:
+
+                    # номера возможных правил
+                    rules_id_list = paradigms[paradigm_id]
+                    # lookup-словарь для правил
+                    rules_list = self.data.rules[paradigm_id]
+
+                    # для всех правил определяем часть речи, если она
+                    # продуктивная, то добавляем вариант слова
+                    for id in rules_id_list:
+                        rule = rules_list[id]
+                        suffix, ancode = rule[0], rule[1]
+                        graminfo = self.data.gramtab[ancode]
+                        if graminfo[0] in PRODUCTIVE_CLASSES:
+                            # норм. форма слова получается заменой суффикса
+                            # на суффикс начальной формы
+                            norm_form = word[0:-len(suffix)] + rules_list[0][0]
+                            gram.append({'norm': norm_form,
+                                         'class':graminfo[0],
+                                         'info': graminfo[1],
+                                         'rule':paradigm_id,
+                                         'ancode': ancode,
+                                         'method': 'predict(...%s)' % end
+                                       })
+
+                # нашли хотя бы одно окончание слова данной длины, больше не ищем
                 if gram:
                     break
-#                if forms:
-#                    deep+=1
-#                if deep==1:
-#                    break
         return gram
 
     def _get_lemma_graminfo(self, lemma, word_base, rule_match, require_prefix, method_format_str):
@@ -175,7 +188,7 @@ class Morph:
             gram.extend(self._predict_by_prefix_graminfo(word, require_prefix))
 
         if not gram and predict and self.predict_by_suffix:
-            gram.extend(self._predict_by_suffix(word))
+            gram.extend(self.predict_by_suffix(word))
 
         return gram
 
