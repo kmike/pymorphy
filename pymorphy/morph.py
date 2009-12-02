@@ -5,10 +5,16 @@ import os
 from pymorphy.constants import PRODUCTIVE_CLASSES
 from pymorphy.backends import PickledDict, ShelveDict
 
+def get_split_variants(word):
+    l = len(word)
+    vars = [(word[0:i], word[i:l]) for i in range(1,l)]
+    vars.append((word,'',))
+    return vars
+
 class Morph:
     def __init__(self, lang, data_source, check_prefixes = True,
                  predict_by_prefix = True, predict_by_suffix = True,
-                 handle_EE = False, use_psyco = True):
+                 handle_EE = False):
 
         self.data = data_source
         self.data.load()
@@ -20,17 +26,6 @@ class Morph:
         self.prediction_max_prefix_len = 5 #actually 5=4+1
         self.prediction_min_suffix_len = 3 #actually 3=4-1
 
-        self.use_psyco = use_psyco
-        if use_psyco:
-            try:
-                import psyco
-                import shelve_addons
-                psyco.bind(self._get_lemma_graminfo)
-                psyco.bind(shelve_addons.ShelfKeyTransform._getitem_cached)
-                psyco.bind(shelve_addons.ShelfKeyTransform.__contains__)
-                psyco.bind(self._word_split_variants)
-            except ImportError:
-                self.use_psyco=False
         self.handle_EE = handle_EE
 
     def normalize(self, word):
@@ -40,12 +35,6 @@ class Morph:
         return self._get_graminfo(word)
 
 #----------- protected methods -------------
-
-    def _word_split_variants(self,word):
-        l = len(word)
-        vars = [(word[0:i], word[i:l]) for i in range(1,l)]
-        vars.append((word,'',))
-        return vars
 
     def _static_prefix_graminfo(self, variants, require_prefix=''):
         gram = []
@@ -144,9 +133,8 @@ class Morph:
 
         gram.extend(self._flexion_graminfo(word, require_prefix))
 
-        variants = self._word_split_variants(word)
+        variants = get_split_variants(word)
         for (prefix, suffix) in variants:
-            print prefix, suffix
             if prefix in self.data.lemmas:
                 gram.extend([info for info in self._get_lemma_graminfo(prefix, prefix, suffix, require_prefix, 'lemma(%s).suffix(%s)')])
 
@@ -165,15 +153,27 @@ class Morph:
 
 
 def get_shelve_morph(lang, check_prefixes = True, predict_by_prefix = True,
-                     predict_by_suffix = True, handle_EE = False,
-                     use_psyco = True):
+                     predict_by_suffix = True, handle_EE = False):
     dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', 'dicts','converted',lang))
     data_source = ShelveDict(dir)
-    return Morph(lang, data_source, check_prefixes, predict_by_prefix, predict_by_suffix, handle_EE, use_psyco)
+    return Morph(lang, data_source, check_prefixes, predict_by_prefix, predict_by_suffix, handle_EE)
 
 
 def get_pickle_morph(lang, check_prefixes = True, predict_by_prefix = True,
-                     predict_by_suffix = True, handle_EE = False, use_psyco = True):
+                     predict_by_suffix = True, handle_EE = False):
     file = os.path.join(os.path.dirname(__file__),'..','dicts','converted',lang,'morphs.pickle')
     data_source = PickledDict(file)
-    return Morph(lang, data_source, check_prefixes, predict_by_prefix, predict_by_suffix, handle_EE, use_psyco)
+    return Morph(lang, data_source, check_prefixes, predict_by_prefix, predict_by_suffix, handle_EE)
+
+
+def setup_psyco():
+    ''' Попытаться оптимизировать узкие места с помощью psyco '''
+    try:
+        import psyco
+        from pymorphy.shelve_addons import ShelfKeyTransform
+        psyco.bind(Morph._get_lemma_graminfo)
+        psyco.bind(ShelfKeyTransform._getitem_cached)
+        psyco.bind(ShelfKeyTransform.__contains__)
+        psyco.bind(get_split_variants)
+    except ImportError:
+        pass
