@@ -6,15 +6,37 @@ from pymorphy.constants import PRODUCTIVE_CLASSES
 from pymorphy.backends import PickledDict, ShelveDict
 
 def get_split_variants(word):
+    """ Вернуть все варианты разбиения слова на 2 части """
     l = len(word)
     vars = [(word[0:i], word[i:l]) for i in range(1,l)]
     vars.append((word,'',))
     return vars
 
+
 class Morph:
+    """ Класс, реализующий морфологический анализ на основе словарей из
+        data_source
+    """
+
     def __init__(self, lang, data_source, check_prefixes = True,
                  predict_by_prefix = True, predict_by_suffix = True,
                  handle_EE = False):
+        '''
+        lang: язык, 'ru' или 'en' (еще de можно, если словарь конвертировать)
+
+        data_source: источник данных. Наследник DictDataSource, свойства должны
+            поддерживать доступ по ключу.
+
+        check_prefixes: проверять ли вообще префиксы
+
+        predict_by_prefix: предсказывать ли по префиксу
+
+        predict_by_suffix: предсказывать ли по суффиксу
+
+        handle_EE: как обрабатывать букву ё. Если True, то все буквы ё считаются
+            равными е, если False - разными буквами. Значение должно совпадать
+            с тем, которое указано при конвертации словаря.
+        '''
 
         self.data = data_source
         self.data.load()
@@ -29,10 +51,16 @@ class Morph:
         self.handle_EE = handle_EE
 
     def normalize(self, word):
+        """ Вернуть нормальную форму слова """
         return set([item['norm'] for item in self._get_graminfo(word)])
 
     def get_graminfo(self, word):
+        """ Вернуть грамматическую информацию о слове """
         return self._get_graminfo(word)
+
+    def get_word_form(self, word, form):
+        """ Вернуть слово в заданной грамматической форме """
+        raise NotImplemented
 
 #----------- protected methods -------------
 
@@ -152,18 +180,16 @@ class Morph:
         return gram
 
 
-def get_shelve_morph(lang, check_prefixes = True, predict_by_prefix = True,
-                     predict_by_suffix = True, handle_EE = False):
-    dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', 'dicts','converted',lang))
-    data_source = ShelveDict(dir)
-    return Morph(lang, data_source, check_prefixes, predict_by_prefix, predict_by_suffix, handle_EE)
+def get_shelve_morph(lang, **kwargs):
+    dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                       '..', 'dicts','converted', lang))
+    return Morph(lang, ShelveDict(dir), **kwargs)
 
 
-def get_pickle_morph(lang, check_prefixes = True, predict_by_prefix = True,
-                     predict_by_suffix = True, handle_EE = False):
-    file = os.path.join(os.path.dirname(__file__),'..','dicts','converted',lang,'morphs.pickle')
-    data_source = PickledDict(file)
-    return Morph(lang, data_source, check_prefixes, predict_by_prefix, predict_by_suffix, handle_EE)
+def get_pickle_morph(lang, **kwargs):
+    file = os.path.join(os.path.dirname(__file__),
+                        '..', 'dicts', 'converted', lang, 'morphs.pickle')
+    return Morph(lang, PickledDict(file), **kwargs)
 
 
 def setup_psyco():
