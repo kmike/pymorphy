@@ -17,8 +17,9 @@ def predict_by_suffix(word, data_source):
     """ Предсказать грамматическую форму и парадигму неизвестного слова
         по последним 5 буквам.
 
-        self.data.endings - все возможные 5,4,3,2,1-буквенные завершения
-        слов.
+        data_source.endings - все возможные 5,4,3,2,1-буквенные завершения слов
+        data_source.rules - парадигмы
+        data_source.gramtab - данные о грамматике
     """
     gram=[]
     for i in (5,4,3,2,1):
@@ -112,18 +113,42 @@ class Morph:
 #----------- protected methods -------------
 
     def _static_prefix_graminfo(self, variants, require_prefix=''):
+        """ Определить грамматическую форму слова, пробуя отбросить
+            фиксированные префиксы. В функцию передается уже подготовленный
+            список вариантов разбиения слова.
+        """
         gram = []
-        if self.check_prefixes:
-            for (prefix, suffix) in variants:
-                if prefix in self.data.prefixes:
-                    base_forms = self._get_graminfo(suffix, require_prefix=require_prefix, predict=False, predict_EE = False)
-                    for form in base_forms:
-                        form['norm'] = prefix+form['norm']
-                        form['method'] = 'prefix(%s).%s' % (prefix, form['method'])
-                    gram.extend(base_forms)
-                if prefix in self.data.possible_rule_prefixes:
-                    gram.extend(self._get_graminfo(suffix, require_prefix=prefix, predict=False, predict_EE = False))
+        if not self.check_prefixes:
+            return gram
+
+        for (prefix, suffix) in variants:
+
+            # один из фиксированных префиксов?
+            if prefix in self.data.prefixes:
+                # да, получаем рекурсивно грам. информацию про оставшуюся часть
+                # слова (с отключенным предсказателем)
+                base_forms = self._get_graminfo(suffix,
+                                                require_prefix = require_prefix,
+                                                predict = False,
+                                                predict_EE = False)
+
+                # приписываем префикс обратно к полученным нормальным формам
+                for form in base_forms:
+                    form['norm'] = prefix+form['norm']
+                    form['method'] = 'prefix(%s).%s' % (prefix, form['method'])
+                gram.extend(base_forms)
+
+            # одна из возможных приставок к лемме? (ПО- и НАИ-)
+            if prefix in self.data.possible_rule_prefixes:
+                # добавляем информацию, отбрасывая приставку, т.к. она
+                # добавляется и удаляется в зависимости от грамм. формы.
+                # например, НАИСТАРЕЙШИЙ -> СТАРЫЙ
+                gram.extend(self._get_graminfo(suffix,
+                                               require_prefix = prefix,
+                                               predict = False,
+                                               predict_EE = False))
         return gram
+
 
     def _predict_by_prefix_graminfo(self, word, require_prefix):
         gram=[]
