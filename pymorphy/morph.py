@@ -14,93 +14,6 @@ def get_split_variants(word):
     return vars
 
 
-def get_lemma_graminfo(lemma, suffix, require_prefix, method_format_str,
-                        data_source):
-    """ Получить грам. информацию по лемме и суффиксу. Для леммы перебираем все
-        правила, смотрим, есть ли среди них такие, которые приводят к
-        образованию слов с подходящими окончаниями.
-    """
-    lemma_paradigms = data_source.lemmas[lemma or '#']
-    gram = []
-    # для леммы смотрим все доступные парадигмы
-    for paradigm_id in lemma_paradigms:
-        paradigm = data_source.rules[paradigm_id]
-        # все правила в парадигме
-        for rule in paradigm:
-            rule_suffix, rule_ancode, rule_prefix = rule
-            # если по правилу выходит, что окончание такое, как надо,
-            # то значит нашли, что искали
-            if rule_suffix==suffix and rule_prefix==require_prefix:
-                graminfo = data_source.gramtab[rule_ancode]
-                norm_form = lemma + paradigm[0][0]
-                gram.append({'norm': norm_form,
-                             'class': graminfo[0],
-                             'info': graminfo[1],
-                             'rule': paradigm_id,
-                             'ancode': rule_ancode,
-                             'method': method_format_str % (lemma, suffix)
-                           })
-    return gram
-
-
-def flexion_graminfo(word, require_prefix, data_source):
-    """ Вернуть грам. информацию для слова, предполагая, что все
-        слово - это окончание, а основа пустая. Например, ЧЕЛОВЕК - ЛЮДИ.
-        У таких слов в словарях основа записывается как "#".
-    """
-    return [info for info in get_lemma_graminfo('', word,
-                                                require_prefix,
-                                               '%snobase(%s)',
-                                                data_source)]
-
-
-def predict_by_suffix(word, data_source):
-    """ Предсказать грамматическую форму и парадигму неизвестного слова
-        по последним 5 буквам.
-
-        data_source.endings - все возможные 5,4,3,2,1-буквенные завершения слов
-        data_source.rules - парадигмы
-        data_source.gramtab - данные о грамматике
-    """
-    gram=[]
-    for i in (5,4,3,2,1):
-        end = word[-i:]
-        if end in data_source.endings:
-
-            # парадигмы, по которым могут образовываться слова с таким
-            # завершением
-            paradigms = data_source.endings[end]
-
-            for paradigm_id in paradigms:
-
-                # номера возможных правил
-                rules_id_list = paradigms[paradigm_id]
-                # lookup-словарь для правил
-                rules_list = data_source.rules[paradigm_id]
-
-                # для всех правил определяем часть речи, если она
-                # продуктивная, то добавляем вариант слова
-                for id in rules_id_list:
-                    rule = rules_list[id]
-                    suffix, ancode = rule[0], rule[1]
-                    graminfo = data_source.gramtab[ancode]
-                    if graminfo[0] in PRODUCTIVE_CLASSES:
-                        # норм. форма слова получается заменой суффикса
-                        # на суффикс начальной формы
-                        norm_form = word[0:-len(suffix)] + rules_list[0][0]
-                        gram.append({'norm': norm_form,
-                                     'class':graminfo[0],
-                                     'info': graminfo[1],
-                                     'rule':paradigm_id,
-                                     'ancode': ancode,
-                                     'method': 'predict(...%s)' % end
-                                   })
-
-            # нашли хотя бы одно окончание слова данной длины, больше не ищем
-            if gram:
-                break
-    return gram
-
 
 class Morph:
     """ Класс, реализующий морфологический анализ на основе словарей из
@@ -151,7 +64,95 @@ class Morph:
         """ Вернуть слово в заданной грамматической форме """
         raise NotImplemented
 
-#----------- protected methods -------------
+
+#----------- internal methods -------------
+
+    def _get_lemma_graminfo(self, lemma, suffix, require_prefix, method_format_str):
+        """ Получить грам. информацию по лемме и суффиксу. Для леммы перебираем все
+            правила, смотрим, есть ли среди них такие, которые приводят к
+            образованию слов с подходящими окончаниями.
+        """
+        data_source = self.data
+        lemma_paradigms = data_source.lemmas[lemma or '#']
+        gram = []
+        # для леммы смотрим все доступные парадигмы
+        for paradigm_id in lemma_paradigms:
+            paradigm = data_source.rules[paradigm_id]
+            # все правила в парадигме
+            for rule in paradigm:
+                rule_suffix, rule_ancode, rule_prefix = rule
+                # если по правилу выходит, что окончание такое, как надо,
+                # то значит нашли, что искали
+                if rule_suffix==suffix and rule_prefix==require_prefix:
+                    graminfo = data_source.gramtab[rule_ancode]
+                    norm_form = lemma + paradigm[0][0]
+                    gram.append({'norm': norm_form,
+                                 'class': graminfo[0],
+                                 'info': graminfo[1],
+                                 'rule': paradigm_id,
+                                 'ancode': rule_ancode,
+                                 'method': method_format_str % (lemma, suffix)
+                               })
+        return gram
+
+
+    def _flexion_graminfo(self, word, require_prefix):
+        """ Вернуть грам. информацию для слова, предполагая, что все
+            слово - это окончание, а основа пустая. Например, ЧЕЛОВЕК - ЛЮДИ.
+            У таких слов в словарях основа записывается как "#".
+        """
+        return [info for info in self._get_lemma_graminfo('',
+                                                          word,
+                                                          require_prefix,
+                                                          '%snobase(%s)'
+                                                        )]
+
+
+    def _do_predict_by_suffix(self, word):
+        """ Предсказать грамматическую форму и парадигму неизвестного слова
+            по последним 5 буквам.
+        """
+        data_source = self.data
+
+        gram=[]
+        for i in (5,4,3,2,1):
+            end = word[-i:]
+            if end in data_source.endings:
+
+                # парадигмы, по которым могут образовываться слова с таким
+                # завершением
+                paradigms = data_source.endings[end]
+
+                for paradigm_id in paradigms:
+
+                    # номера возможных правил
+                    rules_id_list = paradigms[paradigm_id]
+                    # lookup-словарь для правил
+                    rules_list = data_source.rules[paradigm_id]
+
+                    # для всех правил определяем часть речи, если она
+                    # продуктивная, то добавляем вариант слова
+                    for id in rules_id_list:
+                        rule = rules_list[id]
+                        suffix, ancode = rule[0], rule[1]
+                        graminfo = data_source.gramtab[ancode]
+                        if graminfo[0] in PRODUCTIVE_CLASSES:
+                            # норм. форма слова получается заменой суффикса
+                            # на суффикс начальной формы
+                            norm_form = word[0:-len(suffix)] + rules_list[0][0]
+                            gram.append({'norm': norm_form,
+                                         'class':graminfo[0],
+                                         'info': graminfo[1],
+                                         'rule': paradigm_id,
+                                         'ancode': ancode,
+                                         'method': 'predict(...%s)' % end
+                                       })
+
+                # нашли хотя бы одно окончание слова данной длины, больше не ищем
+                if gram:
+                    break
+        return gram
+
 
     def _static_prefix_graminfo(self, variants, require_prefix=''):
         """ Определить грамматическую форму слова, пробуя отбросить
@@ -252,7 +253,7 @@ class Morph:
         gram = []
 
         # вариант с пустой основой слова
-        gram.extend(flexion_graminfo(word, require_prefix, self.data))
+        gram.extend(self._flexion_graminfo(word, require_prefix))
 
         # основная проверка по словарю: разбиваем слово на 2 части,
         # считаем одну из них основой, другую окончанием
@@ -262,10 +263,10 @@ class Morph:
             if lemma in self.data.lemmas:
                 gram.extend(
                     [info for info in
-                        get_lemma_graminfo(lemma, suffix,
-                                           require_prefix,
-                                           'lemma(%s).suffix(%s)',
-                                           self.data)
+                        self._get_lemma_graminfo(lemma, suffix,
+                                               require_prefix,
+                                               'lemma(%s).suffix(%s)'
+                                               )
                     ]
                 )
 
@@ -282,7 +283,7 @@ class Morph:
 
         # обработка предсказания по концу слова, если требуется
         if not gram and predict and self.predict_by_suffix:
-            gram.extend(predict_by_suffix(word, self.data))
+            gram.extend(self._do_predict_by_suffix(word))
 
         return gram
 
@@ -304,7 +305,7 @@ def setup_psyco():
     try:
         import psyco
         from pymorphy.shelve_addons import ShelfKeyTransform
-        psyco.bind(get_lemma_graminfo)
+        psyco.bind(Morph._get_lemma_graminfo)
         psyco.bind(ShelfKeyTransform._getitem_cached)
         psyco.bind(ShelfKeyTransform.__contains__)
         psyco.bind(get_split_variants)
