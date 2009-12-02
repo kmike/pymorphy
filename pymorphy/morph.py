@@ -187,8 +187,8 @@ def get_shelve_morph(lang, **kwargs):
 
 
 def get_pickle_morph(lang, **kwargs):
-    file = os.path.join(os.path.dirname(__file__),
-                        '..', 'dicts', 'converted', lang, 'morphs.pickle')
+    file = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                        '..', 'dicts', 'converted', lang, 'morphs.pickle'))
     return Morph(lang, PickledDict(file), **kwargs)
 
 
