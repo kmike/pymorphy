@@ -304,7 +304,7 @@ def setup_psyco():
     try:
         import psyco
         from pymorphy.shelve_addons import ShelfKeyTransform
-        psyco.bind(Morph._get_lemma_graminfo)
+        psyco.bind(get_lemma_graminfo)
         psyco.bind(ShelfKeyTransform._getitem_cached)
         psyco.bind(ShelfKeyTransform.__contains__)
         psyco.bind(get_split_variants)
