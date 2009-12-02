@@ -99,8 +99,8 @@ class ShelfInteger(ShelfKeyTransform):
         c2 = (key >> 8) % 256
         return chr(c1) + chr(c2)
 
-def open_unicode(filename, flag='c', protocol=None, writeback=False):
+def shelve_open_unicode(filename, flag='c', protocol=None, writeback=False):
     return ShelfUnicode(filename, flag, protocol, writeback)
 
-def open_int(filename, flag='c', protocol=None, writeback=False):
+def shelve_open_int(filename, flag='c', protocol=None, writeback=False):
     return ShelfInteger(filename, flag, protocol, writeback)

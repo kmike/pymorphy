@@ -3,7 +3,7 @@
 import codecs
 import os
 
-import pymorphy
+from pymorphy import MrdDict, ShelveDict, PickledDict
 
 def convert_file(in_file, out_file, in_charset, out_charset):
     text = codecs.open(in_file, 'r', in_charset).read()
@@ -14,28 +14,30 @@ def create_shelf_and_pickle(lang):
 
     print('removing old data...')
     try:
-        os.unlink(os.path.join(dir,'morphs.pickle'))
-        os.unlink(os.path.join(dir,'lemmas.shelve'))
-        os.unlink(os.path.join(dir,'rules.shelve'))
-        os.unlink(os.path.join(dir,'endings.shelve'))
-        os.unlink(os.path.join(dir,'misc.shelve'))
-        os.unlink(os.path.join(dir,'freq.shelve'))
+        os.unlink(os.path.join(dir, 'morphs.pickle'))
+        os.unlink(os.path.join(dir, 'lemmas.shelve'))
+        os.unlink(os.path.join(dir, 'rules.shelve'))
+        os.unlink(os.path.join(dir, 'endings.shelve'))
+        os.unlink(os.path.join(dir, 'misc.shelve'))
+        os.unlink(os.path.join(dir, 'freq.shelve'))
     except OSError:
         pass
 
     print('parsing source dictionary file...')
-    mrd_dict = pymorphy.MrdDict(os.path.join(dir,'morphs.utf8.mrd'), os.path.join(dir,'gramtab.utf8.mrd'), strip_EE=True)
+    mrd_dict = MrdDict(os.path.join(dir,'morphs.utf8.mrd'),
+                       os.path.join(dir,'gramtab.utf8.mrd'),
+                       strip_EE=True)
     mrd_dict.load()
 
     print('calculating rule frequencies...')
     mrd_dict.calculate_rule_freq()
 
     print('creating pickled dictionary...')
-    pickled_dict = pymorphy.PickledDict(os.path.join(dir,'morphs.pickle'))
+    pickled_dict = PickledDict(os.path.join(dir,'morphs.pickle'))
     pickled_dict.convert_and_save(mrd_dict)
 
     print('creating shelve dictionary...')
-    shelve_dict = pymorphy.ShelveDict(dir, protocol = -1)
+    shelve_dict = ShelveDict(dir, protocol = -1)
     shelve_dict.convert_and_save(mrd_dict)
 
     print('cleaning up...')

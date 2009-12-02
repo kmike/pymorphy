@@ -31,6 +31,15 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 import os
+import codecs
+
+try:
+    from cPickle import Pickler, Unpickler
+except ImportError:
+    from pickle import Pickler, Unpickler
+
+from pymorphy.shelve_addons import shelve_open_int, shelve_open_unicode
+
 
 NOUNS = (u'NOUN',u'С',)
 PRONOUNS = (u'PN',u'МС',)
@@ -38,30 +47,51 @@ PRONOUNS_ADJ = (u'PN_ADJ',u'МС-П',)
 VERBS = (u'Г',u'VERB',)
 ADJECTIVE = (u'ADJECTIVE', u'П',)
 
-PRODUCTIVE_CLASSES = (u'С', u'П', u'Г', u'Н', u'ИНФИНИТИВ', u'NOUN',u'VERB', u'ADJECTIVE',) #for predictor
+PRODUCTIVE_CLASSES = (u'С', u'П', u'Г', u'Н', u'ИНФИНИТИВ',
+                      u'NOUN', u'VERB', u'ADJECTIVE',) #for predictor
 
 class DictDataSource(object):
     ''' Absctract base class for dictionary data source.
-        Subclasses should make class variables (rules, lemmas, prefixes, gramtab,
-        endings, possible_rule_prefixes) accessible through dict and list syntax ("duck typing")
+        Subclasses should make class variables (rules, lemmas, prefixes,
+        gramtab, endings, possible_rule_prefixes) accessible through dict
+        or list syntax ("duck typing")
 
-        @ivar rules: {rule_num->[ (suffix, ancode, prefix) ]}
+        @ivar rules: {paradigm_id->[ (suffix, ancode, prefix) ]}
         @ivar lemmas: {base -> [rule_id]}
         @ivar prefixes: set([prefix])
         @ivar gramtab: {ancode->(type,info,letter)}
-        @ivar rule_freq: {rule_num->freq}
-        @ivar endings: {word_end->{rule_id->(possible_rule_nums)}}
+        @ivar rule_freq: {paradigm_id->freq}
+        @ivar endings: {word_end->{rule_id->(possible_paradigm_ids)}}
         @ivar possible_rule_prefixes: [prefix]
     '''
     def __init__(self):
+
+        # для каждой парадигмы - список правил (приставка, грам. информация,
+        # префикс) в формате {paradigm_id->[ (suffix, ancode, prefix) ]}
         self.rules={}
+
+        # для каждой леммы - список номеров парадигм? (способов образования слов),  #TODO: проверить, парадигм ли
+        # доступных для данной леммы (основы слова)
         self.lemmas={}
+
+        # набор возможных префиксов и приставок к леммам
         self.prefixes=set()
-        self.gramtab={}
+
+        # для каждого возможного 5 буквенного окончания - словарь, в котором
+        # ключи - номера возможных парадигм, а значения - номера возможных
+        # правил
         self.endings = {}
+
+        # грамматическая информация
+        self.gramtab={}
+
+
         self.possible_rule_prefixes = set()
 
+        # ударения
         self.accents=[]
+
+        # частоты для правил
         self.rule_freq = {}
         self.logs=[]
 
@@ -73,8 +103,9 @@ class DictDataSource(object):
 
     def calculate_rule_freq(self):
         for lemma in self.lemmas:
-            for rule_num in self.lemmas[lemma]:
-                self.rule_freq[rule_num] = self.rule_freq.get(rule_num,0)+1
+            for paradigm_id in self.lemmas[lemma]:
+                self.rule_freq[paradigm_id] = self.rule_freq.get(paradigm_id,0)+1
+
 
 class PickledDict(DictDataSource):
 
@@ -83,11 +114,6 @@ class PickledDict(DictDataSource):
         super(PickledDict, self).__init__()
 
     def load(self):
-        try:
-            from cPickle import Unpickler
-        except ImportError:
-            from pickle import Unpickler
-
         pickle_file = open(self.file,'rb')
         p = Unpickler(pickle_file)
         self.lemmas = p.load()
@@ -99,11 +125,6 @@ class PickledDict(DictDataSource):
         self.rule_freq = p.load or {}
 
     def convert_and_save(self, data_obj):
-        try:
-            from cPickle import Pickler
-        except ImportError:
-            from pickle import Pickler
-
         pickle_file = open(self.file,'wb')
         p = Pickler(pickle_file, -1)
         p.dump(data_obj.lemmas)
@@ -122,26 +143,20 @@ class ShelveDict(DictDataSource):
         super(ShelveDict, self).__init__()
 
     def load(self):
-#        import shelve
-        import shelve_addons
+        self.lemmas = shelve_open_unicode(os.path.join(self.path, 'lemmas.shelve'),'r', self.protocol)
+        self.rules = shelve_open_int(os.path.join(self.path, 'rules.shelve'),'r', self.protocol)
+        self.endings = shelve_open_unicode(os.path.join(self.path, 'endings.shelve'), 'r', self.protocol)
 
-        self.lemmas = shelve_addons.open_unicode(os.path.join(self.path,'lemmas.shelve'),'r',self.protocol)
-        self.rules = shelve_addons.open_int(os.path.join(self.path,'rules.shelve'),'r',self.protocol)
-        self.endings = shelve_addons.open_unicode(os.path.join(self.path,'endings.shelve'), 'r', self.protocol)
-
-        misc = shelve_addons.open_unicode(os.path.join(self.path,'misc.shelve'), 'r', self.protocol)
+        misc = shelve_open_unicode(os.path.join(self.path, 'misc.shelve'), 'r', self.protocol)
         self.gramtab = misc['gramtab']
         self.prefixes = misc['prefixes']
         self.possible_rule_prefixes = misc['possible_rule_prefixes']
 
     def convert_and_save(self, data_obj):
-#        import shelve
-        import shelve_addons
-
-        lemma_shelve = shelve_addons.open_unicode(os.path.join(self.path,'lemmas.shelve'), 'c', self.protocol)
-        rules_shelve = shelve_addons.open_int(os.path.join(self.path,'rules.shelve'), 'c', self.protocol)
-        endings_shelve = shelve_addons.open_unicode(os.path.join(self.path,'endings.shelve'), 'c', self.protocol)
-        misc_shelve = shelve_addons.open_unicode(os.path.join(self.path,'misc.shelve'), 'c', self.protocol)
+        lemma_shelve = shelve_open_unicode(os.path.join(self.path, 'lemmas.shelve'), 'c', self.protocol)
+        rules_shelve = shelve_open_int(os.path.join(self.path, 'rules.shelve'), 'c', self.protocol)
+        endings_shelve = shelve_open_unicode(os.path.join(self.path, 'endings.shelve'), 'c', self.protocol)
+        misc_shelve = shelve_open_unicode(os.path.join(self.path, 'misc.shelve'), 'c', self.protocol)
 
         for lemma in data_obj.lemmas:
             lemma_shelve[lemma] = data_obj.lemmas[lemma]
@@ -159,9 +174,10 @@ class ShelveDict(DictDataSource):
         del misc_shelve
 
         if data_obj.rule_freq:
-            freq_shelve = shelve_addons.open_int(os.path.join(self.path,'freq.shelve'), 'c', self.protocol)
+            freq_shelve = shelve_open_int(os.path.join(self.path,'freq.shelve'), 'c', self.protocol)
             for (rule, freq,) in data_obj.rule_freq.items():
                 freq_shelve[int(rule)] = freq
+
 
 class MrdDict(DictDataSource):
 
@@ -180,6 +196,9 @@ class MrdDict(DictDataSource):
 #----------- protected methods -------------
 
     def _section_lines(self, file):
+        """ Прочитать все строки в секции mrd-файла, заменяя Ё на Е,
+            если установлен параметр strip_EE
+        """
         lines_count = int(file.readline())
         for i in xrange(0, lines_count):
             if self.strip_EE:
@@ -188,10 +207,12 @@ class MrdDict(DictDataSource):
                 yield file.readline()
 
     def _pass_lines(self, file):
+        """ Пропустить секцию """
         for line in self._section_lines(file):
             pass
 
     def _load_rules(self, file):
+        """ Загрузить все парадигмы слов"""
         i=0
         for line in self._section_lines(file):
             line_rules = line.strip().split('%')
@@ -246,7 +267,6 @@ class MrdDict(DictDataSource):
             self.gramtab[ancode] = (type, info, letter,)
 
     def _load(self, filename, gramfile):
-        import codecs
         dict_file = codecs.open(filename, 'r', 'utf8')
         self._load_rules(dict_file)
         self._load_accents(dict_file)
@@ -297,6 +317,7 @@ class MrdDict(DictDataSource):
                 rule_id = best_rules[wc]
                 new_rules[rule_id] = tuple(rules[rule_id])
             self.endings[end] = new_rules
+
 
 class Morph:
     def __init__(self, lang, data_source, check_prefixes = True, predict_by_prefix = True,
@@ -385,9 +406,9 @@ class Morph:
             if end in self.data.endings:
                 ending_rules = self.data.endings[end]
                 for rule_id in ending_rules:
-                    rule_nums = ending_rules[rule_id]
+                    paradigm_ids = ending_rules[rule_id]
                     rule_row = self.data.rules[rule_id]
-                    for num in rule_nums:
+                    for num in paradigm_ids:
                         rule = rule_row[num]
                         suffix = rule[0]
                         suffix_len = len(suffix)
@@ -413,8 +434,8 @@ class Morph:
     def _get_lemma_graminfo(self, lemma, word_base, rule_match, require_prefix, method_format_str):
         lemma_rules = self.data.lemmas[lemma]
         gram = []
-        for rule_num in lemma_rules:
-            rules_row = self.data.rules[rule_num]
+        for paradigm_id in lemma_rules:
+            rules_row = self.data.rules[paradigm_id]
             for rule in rules_row: #rule : suffix, ancode, prefix
                 rule_suffix, rule_ancode, rule_prefix = rule
 #                print rule_suffix, rule_ancode, rule_prefix, '-', word_prefix, '-', rule_match
@@ -424,7 +445,7 @@ class Morph:
                     gram.append(
                      {'norm': norm_form,'class':graminfo[0],
                            'info': graminfo[1],
-                           'rule':rule_num, 'ancode': rule_ancode,
+                           'rule':paradigm_id, 'ancode': rule_ancode,
                            'method': method_format_str % (word_base, rule_match)})
         return gram
 
@@ -438,6 +459,7 @@ class Morph:
 
         variants = self._word_split_variants(word)
         for (prefix, suffix) in variants:
+            print prefix, suffix
             if prefix in self.data.lemmas:
                 gram.extend([info for info in self._get_lemma_graminfo(prefix, prefix, suffix, require_prefix, 'lemma(%s).suffix(%s)')])
 
@@ -456,21 +478,23 @@ class Morph:
 
 
 def get_shelve_morph(lang, check_prefixes = True, predict_by_prefix = True,
-                     predict_by_suffix = True, handle_EE = False, use_psyco = True):
-    dir = os.path.join(os.path.dirname(__file__),'dicts','converted',lang)
+                     predict_by_suffix = True, handle_EE = False,
+                     use_psyco = True):
+    dir = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', 'dicts','converted',lang))
     data_source = ShelveDict(dir)
     return Morph(lang, data_source, check_prefixes, predict_by_prefix, predict_by_suffix, handle_EE, use_psyco)
 
 def get_pickle_morph(lang, check_prefixes = True, predict_by_prefix = True,
                      predict_by_suffix = True, handle_EE = False, use_psyco = True):
-    file = os.path.join(os.path.dirname(__file__),'dicts','converted',lang,'morphs.pickle')
+    file = os.path.join(os.path.dirname(__file__),'..','dicts','converted',lang,'morphs.pickle')
     data_source = PickledDict(file)
     return Morph(lang, data_source, check_prefixes, predict_by_prefix, predict_by_suffix, handle_EE, use_psyco)
 
 if __name__ == '__main__':
 
     m = get_shelve_morph('ru')
-    for form in m.get_graminfo(u'ХАБРАХАБРА'):
+#    m.get_graminfo(u"МОСКВА")
+    for form in m.get_graminfo(u'МОСКВ'):
         for v in form:
             print v, form[v]
         print '----'
