@@ -3,7 +3,7 @@
 import codecs
 import os
 
-from pymorphy import MrdDict, ShelveDict, PickledDict
+from pymorphy.backends import MrdDict, ShelveDict, PickledDict
 
 def convert_file(in_file, out_file, in_charset, out_charset):
     text = codecs.open(in_file, 'r', in_charset).read()
