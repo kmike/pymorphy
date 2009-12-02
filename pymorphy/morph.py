@@ -5,12 +5,53 @@ import os
 from pymorphy.constants import PRODUCTIVE_CLASSES
 from pymorphy.backends import PickledDict, ShelveDict
 
+
 def get_split_variants(word):
     """ Вернуть все варианты разбиения слова на 2 части """
     l = len(word)
     vars = [(word[0:i], word[i:l]) for i in range(1,l)]
     vars.append((word,'',))
     return vars
+
+
+def get_lemma_graminfo(lemma, suffix, require_prefix, method_format_str,
+                        data_source):
+    """ Получить грам. информацию по лемме и суффиксу. Для леммы перебираем все
+        правила, смотрим, есть ли среди них такие, которые приводят к
+        образованию слов с подходящими окончаниями.
+    """
+    lemma_paradigms = data_source.lemmas[lemma or '#']
+    gram = []
+    # для леммы смотрим все доступные парадигмы
+    for paradigm_id in lemma_paradigms:
+        paradigm = data_source.rules[paradigm_id]
+        # все правила в парадигме
+        for rule in paradigm:
+            rule_suffix, rule_ancode, rule_prefix = rule
+            # если по правилу выходит, что окончание такое, как надо,
+            # то значит нашли, что искали
+            if rule_suffix==suffix and rule_prefix==require_prefix:
+                graminfo = data_source.gramtab[rule_ancode]
+                norm_form = lemma + paradigm[0][0]
+                gram.append({'norm': norm_form,
+                             'class': graminfo[0],
+                             'info': graminfo[1],
+                             'rule': paradigm_id,
+                             'ancode': rule_ancode,
+                             'method': method_format_str % (lemma, suffix)
+                           })
+    return gram
+
+
+def flexion_graminfo(word, require_prefix, data_source):
+    """ Вернуть грам. информацию для слова, предполагая, что все
+        слово - это окончание, а основа пустая. Например, ЧЕЛОВЕК - ЛЮДИ.
+        У таких слов в словарях основа записывается как "#".
+    """
+    return [info for info in get_lemma_graminfo('', word,
+                                                require_prefix,
+                                               '%snobase(%s)',
+                                                data_source)]
 
 
 def predict_by_suffix(word, data_source):
@@ -151,20 +192,37 @@ class Morph:
 
 
     def _predict_by_prefix_graminfo(self, word, require_prefix):
+        """ Предсказать грамматическую форму неизвестного слова по
+            префиксу. Если слова отличаются только тем, что к одному из них
+            приписано что-то спереди, то, скорее всего, склоняться они будут
+            однаково. Пробуем сначала одну первую букву слова считать префиксом,
+            потом 2 первых буквы и т.д. А то, что осталось, передаем
+            морфологическому анализатору.
+        """
         gram=[]
-        if self.predict_by_prefix:
-            l = len(word)
-            variants = [(word[:i], word[i:]) for i in range(1,1+min(self.prediction_max_prefix_len,
-                                                                    l-self.prediction_min_suffix_len))]
-            for (prefix, suffix) in variants:
-#                print prefix, suffix
-                base_forms = self._get_graminfo(suffix, require_prefix=require_prefix, predict=False, predict_EE = False)
-                for form in base_forms:
-                    form['norm'] = prefix+form['norm']
-                    form['method'] = 'predict-prefix(%s).%s' % (prefix, form['method'])
-                base_forms = [form for form in base_forms if form['class'] in PRODUCTIVE_CLASSES]
-#                print base_forms
-                gram.extend(base_forms)
+        if not self.predict_by_prefix:
+            return gram
+
+        # все варианты разбиений с учетом ограничений на длину префикса и окончания
+        split_indexes = range(1, 1+min(self.prediction_max_prefix_len,
+                                       len(word)-self.prediction_min_suffix_len))
+        variants = [(word[:i], word[i:]) for i in split_indexes]
+        for (prefix, suffix) in variants:
+            # оторвали префикс, смотрим, удастся ли что-то узнать
+            base_forms = self._get_graminfo(suffix,
+                                            require_prefix=require_prefix,
+                                            predict=False,
+                                            predict_EE = False)
+
+            # убираем непродуктивные части речи
+            base_forms = [form for form in base_forms
+                          if form['class'] in PRODUCTIVE_CLASSES]
+
+            # приписываем префикс обратно
+            for form in base_forms:
+                form['norm'] = prefix+form['norm']
+                form['method'] = 'predict-prefix(%s).%s' % (prefix, form['method'])
+            gram.extend(base_forms)
         return gram
 
     def _handle_EE(self, word, require_prefix):
@@ -176,39 +234,14 @@ class Morph:
             словарей (это поведение по умолчанию). Все равно в словарях
             поддержка Ё не до конца полная.
         '''
-        gram = self._get_graminfo(word.replace(u'Е', u'Ё'), require_prefix, predict_EE = False)
+        gram = self._get_graminfo(word.replace(u'Е', u'Ё'), require_prefix,
+                                  predict_EE = False)
         for info in gram:
             info['norm'] = info['norm'].replace(u'Ё', u'Е')
             info['method'] = info['method'].replace(u'Ё', u'Е')
         return gram
 
 
-    def _get_lemma_graminfo(self, lemma, word_base, rule_match, require_prefix, method_format_str):
-        lemma_rules = self.data.lemmas[lemma]
-        gram = []
-        for paradigm_id in lemma_rules:
-            rules_row = self.data.rules[paradigm_id]
-            for rule in rules_row: #rule : suffix, ancode, prefix
-                rule_suffix, rule_ancode, rule_prefix = rule
-#                print rule_suffix, rule_ancode, rule_prefix, '-', word_prefix, '-', rule_match
-                if rule_suffix==rule_match and rule_prefix==require_prefix:
-                    graminfo = self.data.gramtab[rule_ancode]
-                    norm_form = word_base+rules_row[0][0]
-                    gram.append(
-                     {'norm': norm_form,'class':graminfo[0],
-                           'info': graminfo[1],
-                           'rule':paradigm_id, 'ancode': rule_ancode,
-                           'method': method_format_str % (word_base, rule_match)})
-        return gram
-
-    def _flexion_graminfo(self, word, require_prefix):
-        """ Вернуть грам. информацию для слова, предполагая, что все
-            слово - это окончание, а основа пустая. Например, ЧЕЛОВЕК - ЛЮДИ.
-            У таких слов в словарях основа записывается как "#".
-        """
-        return [info for info in self._get_lemma_graminfo('#', '', word,
-                                                          require_prefix,
-                                                          '%snobase(%s)')]
 
     def _get_graminfo(self, word, require_prefix='', predict = True, predict_EE = True):
         """ Получить грам. информацию о слове.
@@ -219,15 +252,21 @@ class Morph:
         gram = []
 
         # вариант с пустой основой слова
-        gram.extend(self._flexion_graminfo(word, require_prefix))
+        gram.extend(flexion_graminfo(word, require_prefix, self.data))
 
         # основная проверка по словарю: разбиваем слово на 2 части,
         # считаем одну из них основой, другую окончанием
+        # (префикс считаем пустым, его обработаем отдельно)
         variants = get_split_variants(word)
-        for (prefix, suffix) in variants:
-            if prefix in self.data.lemmas:
+        for (lemma, suffix) in variants:
+            if lemma in self.data.lemmas:
                 gram.extend(
-                    [info for info in self._get_lemma_graminfo(prefix, prefix, suffix, require_prefix, 'lemma(%s).suffix(%s)')]
+                    [info for info in
+                        get_lemma_graminfo(lemma, suffix,
+                                           require_prefix,
+                                           'lemma(%s).suffix(%s)',
+                                           self.data)
+                    ]
                 )
 
         # вариант с фиксированным префиксом
