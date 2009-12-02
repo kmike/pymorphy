@@ -168,6 +168,14 @@ class Morph:
         return gram
 
     def _handle_EE(self, word, require_prefix):
+        ''' Обработка буквы Ё. Пробуем проверить, не получится ли определить
+            данные слова, если в нем Е заменить на Ё. Если получилось,
+            результат возвращаем все-таки с Е.
+
+            Буквы Ё на Е в словарях можно заменить на этапе кодирования
+            словарей (это поведение по умолчанию). Все равно в словарях
+            поддержка Ё не до конца полная.
+        '''
         gram = self._get_graminfo(word.replace(u'Е', u'Ё'), require_prefix, predict_EE = False)
         for info in gram:
             info['norm'] = info['norm'].replace(u'Ё', u'Е')
@@ -194,26 +202,46 @@ class Morph:
         return gram
 
     def _flexion_graminfo(self, word, require_prefix):
-        return [info for info in self._get_lemma_graminfo('#', '', word, require_prefix, '%snobase(%s)')]
+        """ Вернуть грам. информацию для слова, предполагая, что все
+            слово - это окончание, а основа пустая. Например, ЧЕЛОВЕК - ЛЮДИ.
+            У таких слов в словарях основа записывается как "#".
+        """
+        return [info for info in self._get_lemma_graminfo('#', '', word,
+                                                          require_prefix,
+                                                          '%snobase(%s)')]
 
     def _get_graminfo(self, word, require_prefix='', predict = True, predict_EE = True):
+        """ Получить грам. информацию о слове.
+            Внутренний вариант для поддержки рекурсии с возможностью временно
+            отключать предсказатель и возможностью требовать наличие
+            определенного префикса у результата.
+        """
         gram = []
 
+        # вариант с пустой основой слова
         gram.extend(self._flexion_graminfo(word, require_prefix))
 
+        # основная проверка по словарю: разбиваем слово на 2 части,
+        # считаем одну из них основой, другую окончанием
         variants = get_split_variants(word)
         for (prefix, suffix) in variants:
             if prefix in self.data.lemmas:
-                gram.extend([info for info in self._get_lemma_graminfo(prefix, prefix, suffix, require_prefix, 'lemma(%s).suffix(%s)')])
+                gram.extend(
+                    [info for info in self._get_lemma_graminfo(prefix, prefix, suffix, require_prefix, 'lemma(%s).suffix(%s)')]
+                )
 
+        # вариант с фиксированным префиксом
         gram.extend(self._static_prefix_graminfo(variants, require_prefix))
 
+        # обработка буквы Ё, если требуется
         if not gram and self.handle_EE and predict_EE:
             gram.extend(self._handle_EE(word, require_prefix))
 
+        # обработка предсказания по началу слова, если требуется
         if not gram and predict and self.predict_by_prefix:
             gram.extend(self._predict_by_prefix_graminfo(word, require_prefix))
 
+        # обработка предсказания по концу слова, если требуется
         if not gram and predict and self.predict_by_suffix:
             gram.extend(predict_by_suffix(word, self.data))
 
