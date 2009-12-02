@@ -1,7 +1,7 @@
 #coding: utf-8
 import unittest
 
-import pymorphy
+from pymorphy.morph import get_pickle_morph, get_shelve_morph
 
 def repeat(n):
     def repeatn(f):
@@ -13,8 +13,8 @@ def repeat(n):
     return repeatn
 
 class TestMorphShelve(unittest.TestCase):
-    morph_ru = pymorphy.get_shelve_morph('ru')
-    morph_en = pymorphy.get_shelve_morph('en')
+    morph_ru = get_shelve_morph('ru')
+    morph_en = get_shelve_morph('en')
 
 #    @repeat(10)
     def check_norm(self, input, output):
@@ -87,8 +87,8 @@ class TestMorphShelve(unittest.TestCase):
 
 
 class TestMorphPickle(TestMorphShelve):
-    morph_ru = pymorphy.get_pickle_morph('ru')#, use_psyco = False)
-    morph_en = pymorphy.get_pickle_morph('en')#, use_psyco = False)
+    morph_ru = get_pickle_morph('ru')#, use_psyco = False)
+    morph_en = get_pickle_morph('en')#, use_psyco = False)
 
 if __name__ == '__main__':
     unittest.main()
