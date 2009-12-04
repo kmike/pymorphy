@@ -32,7 +32,9 @@ class DictDataSource(object):
         # правил
         self.endings = {}
 
-        # грамматическая информация
+        # грамматическая информация: словарь, ключи которого - индексы грам.
+        # информации (анкоды), значения - кортежи
+        # (часть речи, информация о грам. форме, какая-то непонятная буква)
         self.gramtab={}
 
         # набор всех возможных приставок к леммам
@@ -46,12 +48,21 @@ class DictDataSource(object):
         self.logs=[]
 
     def load(self):
+        """ Загрузить данные """
         raise NotImplementedError
 
     def convert_and_save(self, data_obj):
+        """ Взять данные из data_obj (наследник DataDictSource)
+            и сохранить из в специфичном для класса формате.
+        """
         raise NotImplementedError
 
     def calculate_rule_freq(self):
+        """
+        Подсчитать частоту, с которой встречаются различные правила.
+        Требуется для предсказателя, чтобы выбирать наиболее распространенные
+        варианты.
+        """
         for lemma in self.lemmas:
             for paradigm_id in self.lemmas[lemma]:
                 self.rule_freq[paradigm_id] = self.rule_freq.get(paradigm_id,0)+1

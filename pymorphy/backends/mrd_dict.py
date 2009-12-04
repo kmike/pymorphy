@@ -59,6 +59,7 @@ class MrdDict(DictDataSource):
             i=i+1
 
     def _load_lemmas(self, file):
+        """ Загрузить текущую секцию как секцию с леммами """
         for line in self._section_lines(file):
             record = line.split()
             base, rule_id = record[0], record[1]
@@ -73,14 +74,17 @@ class MrdDict(DictDataSource):
         return self._pass_lines(file)
 
     def _load_logs(self, file):
+        """ Загрузить текущую секцию как секцию с логами (бесполезная штука) """
         for line in self._section_lines(file):
             self.logs.append(line.strip())
 
     def _load_prefixes(self, file):
+        """ Загрузить текущую секцию как секцию с префиксами """
         for line in self._section_lines(file):
             self.prefixes.add(line.strip())
 
     def _load_gramtab(self, file):
+        """ Загрузить грамматическую информацию из файла """
         for line in file:
             line=line.strip()
             if line.startswith('//') or line == '':

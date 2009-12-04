@@ -91,10 +91,10 @@ class ShelfInteger(ShelfKeyTransform):
         before passing to lower-level backend.
     '''
 
-    def key_to_external(self,key):
+    def key_to_external(self, key):
         return ord(str[0])+ord(str[1])*256
 
-    def key_to_internal(self,key):
+    def key_to_internal(self, key):
         c1 = key % 256
         c2 = (key >> 8) % 256
         return chr(c1) + chr(c2)
