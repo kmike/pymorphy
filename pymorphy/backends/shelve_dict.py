@@ -7,7 +7,9 @@ from pymorphy.shelve_addons import shelve_open_int, shelve_open_unicode
 class ShelveDict(DictDataSource):
     """ Источник данных для морфологического анализатора pymorphy,
         берущий информацию из key-value базы данных, используя интерфейс
-        shelve из стандартной библиотеки.
+        shelve из стандартной библиотеки. Позволяет не держать все данные
+        в памяти и в то же время обеспечивает достаточно быструю скорость
+        работы.
     """
     def __init__(self, path='', protocol=-1):
         self.path = path

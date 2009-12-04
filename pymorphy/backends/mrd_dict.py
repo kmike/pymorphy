@@ -5,6 +5,11 @@ from pymorphy.backends.base import DictDataSource
 from pymorphy.constants import PRODUCTIVE_CLASSES
 
 class MrdDict(DictDataSource):
+    """ Источник данных для морфологического анализатора pymorphy,
+        берущий информацию из оригинальных mrd-файлов (в которых кодировка
+        была изменена на с 1251 utf-8). Используется для конвертации
+        оригинальных данных в простые для обработки ShelveDict или PickledDict.
+    """
 
     def __init__(self, dict_name, gramtab_name, strip_EE=True):
         super(MrdDict, self).__init__()
@@ -109,40 +114,63 @@ class MrdDict(DictDataSource):
         gram_file.close()
 
     def _calculate_endings(self):
+        """
+        Подсчитать все возможные 5-буквенные окончания слов.
+        Перебирает все возможные формы всех слов по словарю, смотрит окончание
+        и добавляет его в словарь.
+        """
+
+        # перебираем все слова
         for lemma in self.lemmas:
-            for rule_id in self.lemmas[lemma]:
-                rule_row = self.rules[rule_id]
-                for index, rule in enumerate(rule_row):
+
+            # берем все возможные парадигмы
+            for paradigm_id in self.lemmas[lemma]:
+                paradigm = self.rules[paradigm_id]
+
+                # все правила в парадигме
+                for index, rule in enumerate(paradigm):
                     rule_suffix, rule_ancode, rule_prefix = rule
-                    word = ''.join((rule_prefix,lemma, rule_suffix))
+
+                    # формируем слово
+                    word = ''.join((rule_prefix, lemma, rule_suffix))
+
+                    # добавляем окончания и номера правил их получения в словарь
                     for i in range(1,6):  #1,2,3,4,5
                         word_end = word[-i:]
                         if word_end:
                             if word_end not in self.endings:
                                 self.endings[word_end] = {}
-                            if rule_id not in self.endings[word_end]:
-                                self.endings[word_end][rule_id]=set()
-                            self.endings[word_end][rule_id].add(index)
+                            if paradigm_id not in self.endings[word_end]:
+                                self.endings[word_end][paradigm_id]=set()
+                            self.endings[word_end][paradigm_id].add(index)
+
 
     def _cleanup_endings(self):
+        """
+        Очистка правил в словаре возможных окончаний. Правил получается много,
+        оставляем только те, которые относятся к продуктивным частям речи +
+        для каждого окончания оставляем только по 1 самому популярному правилу
+        на каждую часть речи.
+        """
         for end in self.endings:
-            rules = self.endings[end]
-            new_rules = {}
-            best_rules = {}
-            for rule_id in rules:
-                rule_row = self.rules[rule_id]
-                base_ancode = rule_row[0][1]
+            paradigms = self.endings[end]
+            result_paradigms = {}
+            best_paradigms = {}
+            for paradigm_id in paradigms:
+                paradigm = self.rules[paradigm_id]
+                base_ancode = paradigm[0][1]
                 base_gram = self.gramtab[base_ancode]
                 word_class = base_gram[0]
                 if word_class in PRODUCTIVE_CLASSES:
-                    if word_class not in best_rules:
-                        best_rules[word_class]=rule_id
+                    if word_class not in best_paradigms:
+                        best_paradigms[word_class]=paradigm_id
                     else:
-                        new_freq = self.rule_freq[rule_id]
-                        old_freq = self.rule_freq[best_rules[word_class]]
+                        new_freq = self.rule_freq[paradigm_id]
+                        old_freq = self.rule_freq[best_paradigms[word_class]]
                         if new_freq > old_freq:
-                            best_rules[word_class]=rule_id
-            for wc in best_rules:
-                rule_id = best_rules[wc]
-                new_rules[rule_id] = tuple(rules[rule_id])
-            self.endings[end] = new_rules
+                            best_paradigms[word_class]=paradigm_id
+
+            for wc in best_paradigms:
+                paradigm_id = best_paradigms[wc]
+                result_paradigms[paradigm_id] = tuple(paradigms[paradigm_id])
+            self.endings[end] = result_paradigms
