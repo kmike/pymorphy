@@ -64,7 +64,7 @@ class ShelfKeyTransform(shelve.DbfilenameShelf):
     def _get_cached(self, key, default=None):
         key_e = self.key_to_internal(key)
         if key_e in self.cache:
-             return self.cache[key_e]
+            return self.cache[key_e]
         if self.dict.has_key(key_e):
             return self[key_e]
         return default
@@ -72,7 +72,7 @@ class ShelfKeyTransform(shelve.DbfilenameShelf):
     def _getitem_cached(self, key):
         key_e = self.key_to_internal(key)
         if key_e in self.cache:
-             return self.cache[key_e]
+            return self.cache[key_e]
         f = StringIO(self.dict[key_e])
         value = Unpickler(f).load()
         self.cache[key_e]=value
