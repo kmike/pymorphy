@@ -1,5 +1,6 @@
 #coding: utf8
 import shelve
+from struct import pack, unpack
 
 try:
     from cPickle import Pickler, Unpickler
@@ -92,12 +93,11 @@ class ShelfInteger(ShelfKeyTransform):
     '''
 
     def key_to_external(self, key):
-        return ord(str[0])+ord(str[1])*256
+        return unpack('H', str)
 
     def key_to_internal(self, key):
-        c1 = key % 256
-        c2 = (key >> 8) % 256
-        return chr(c1) + chr(c2)
+        return pack("H", key)
+
 
 def shelve_open_unicode(filename, flag='c', protocol=None, writeback=False):
     return ShelfUnicode(filename, flag, protocol, writeback)
