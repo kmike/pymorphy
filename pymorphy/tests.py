@@ -95,8 +95,10 @@ class TestPluraliseRu(unittest.TestCase):
     morph = get_shelve_morph('ru')
 
     def assert_plural(self, word, plural):
-        self.assertEqual(self.morph.pluralize_ru(word), plural)
+        morphed_word = self.morph.pluralize_ru(word)
+        self.assertEqual(morphed_word, plural, u"%s != %s" % (morphed_word, plural))
 
+# работающие тесты ============================
     def testNouns(self):
         self.assert_plural(u'ГОРОД', u'ГОРОДА')
         self.assert_plural(u'СТАЛЬ', u'СТАЛИ')
@@ -109,6 +111,17 @@ class TestPluraliseRu(unittest.TestCase):
         self.assert_plural(u'ГУЛЯЛ', u'ГУЛЯЛИ')
         self.assert_plural(u'ГУЛЯЛА', u'ГУЛЯЛИ')
         self.assert_plural(u'РАСПРЫГИВАЕТСЯ', u'РАСПРЫГИВАЮТСЯ')
+
+    def testPrefix(self):
+        self.assert_plural(u'СУПЕРКОТ', u'СУПЕРКОТЫ')
+
+# падающие тесты ============================
+    def testPredictBySuffix(self):
+        self.assert_plural(u'ДЕПЫРТАМЕНТ', u'ДЕПЫРТАМЕНТЫ')
+        self.assert_plural(u'ХАБР', u'ХАБРЫ')
+
+    def testPronouns(self):
+        self.assert_plural(u'Я', u'МЫ')
 
 
 if __name__ == '__main__':
