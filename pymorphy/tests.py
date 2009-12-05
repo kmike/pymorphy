@@ -1,7 +1,7 @@
 #coding: utf-8
 import unittest
 
-from pymorphy.morph import get_pickle_morph, get_shelve_morph
+from pymorphy.morph import get_pickle_morph, get_shelve_morph, setup_psyco
 
 def repeat(n):
     def repeatn(f):
@@ -87,9 +87,31 @@ class TestMorphShelve(unittest.TestCase):
 
 
 class TestMorphPickle(TestMorphShelve):
-    morph_ru = get_pickle_morph('ru')#, use_psyco = False)
-    morph_en = get_pickle_morph('en')#, use_psyco = False)
+    morph_ru = get_pickle_morph('ru')
+    morph_en = get_pickle_morph('en')
+
+
+class TestPluraliseRu(unittest.TestCase):
+    morph = get_shelve_morph('ru')
+
+    def assert_plural(self, word, plural):
+        self.assertEqual(self.morph.pluralize_ru(word), plural)
+
+    def testNouns(self):
+        self.assert_plural(u'ГОРОД', u'ГОРОДА')
+        self.assert_plural(u'СТАЛЬ', u'СТАЛИ')
+        self.assert_plural(u'СТАЛЕВАРОМ', u'СТАЛЕВАРАМИ')
+
+    def testPredictorNouns(self):
+        self.assert_plural(u'БУТЯВКОЙ', u'БУТЯВКАМИ')
+
+    def testVerbs(self):
+        self.assert_plural(u'ГУЛЯЛ', u'ГУЛЯЛИ')
+        self.assert_plural(u'ГУЛЯЛА', u'ГУЛЯЛИ')
+        self.assert_plural(u'РАСПРЫГИВАЕТСЯ', u'РАСПРЫГИВАЮТСЯ')
+
 
 if __name__ == '__main__':
+#    setup_psyco()
     unittest.main()
 

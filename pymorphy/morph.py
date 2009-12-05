@@ -2,7 +2,7 @@
 
 import os
 
-from pymorphy.constants import PRODUCTIVE_CLASSES
+from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS
 from pymorphy.backends import PickledDict, ShelveDict
 
 
@@ -12,7 +12,6 @@ def get_split_variants(word):
     vars = [(word[0:i], word[i:l]) for i in range(1,l)]
     vars.append((word,'',))
     return vars
-
 
 
 class Morph:
@@ -60,12 +59,76 @@ class Morph:
         """ Вернуть грамматическую информацию о слове """
         return self._get_graminfo(word)
 
-    def get_word_form(self, word, form):
-        """ Вернуть слово в заданной грамматической форме """
-        raise NotImplemented
+    def attrs_match(self, attrs, filter):
+        for attr in filter:
+            if attr and attr not in attrs:
+                return False
+        return True
+
+    def decline(self, word, gram_form='', gram_class=None):
+        """
+        Вернуть слово в заданной грамматической форме.
+        """
+        requested_attrs = gram_form.split(',')
+        variants = []
+        for form in self._decline(word):
+            if gram_class:
+                if form['class'] != gram_class:
+                    continue
+            form_attrs = form['info'].split(',')
+            if self.attrs_match(form_attrs, requested_attrs):
+                variants.append(form)
+        return variants
+
+    def pluralize_ru(self, word):
+        """
+        Вернуть слово во множественном числе.
+        """
+        graminfo = self.get_graminfo(word)[0]
+        form = graminfo['info'].replace(u'ед', u'мн')
+        if graminfo['class'] in VERBS:
+            form = form.replace(u"мр", '').replace(u"жр",'').replace(u'ср','')
+        variants = self.decline(word, form, graminfo['class'])
+        if len(variants):
+            return variants[0]['norm']
+        else:
+            return word
 
 
 #----------- internal methods -------------
+
+    def _decline(self, word):
+        """ Просклонять: вернуть все грам. формы с информацией про них """
+
+        word_graminfo = self.get_graminfo(word)
+
+        forms = []
+
+        # убираем дубликаты парадигм
+        variants = dict([(form['paradigm_id'], form) for form in word_graminfo])
+
+        # перебираем все возможные парадигмы и правила в них,
+        # составляем варианты слов и возвращаем их
+        for paradigm_id in variants:
+            base_form = variants[paradigm_id]
+            lemma = base_form['lemma']
+
+            pre_prefix = ''.join([base_form.get('prefix',''),
+                                  base_form.get('predict-prefix', '')])
+
+            paradigm = self.data.rules[paradigm_id]
+            for rule in paradigm:
+                suffix, ancode, prefix = rule
+                cls, info, _letter  = self.data.gramtab[ancode]
+
+                norm = pre_prefix + prefix + lemma + suffix
+                forms.append({
+                    'norm': norm,
+                    'class': cls,
+                    'info': info,
+                    'lemma': lemma,
+                })
+        return forms
 
     def _get_lemma_graminfo(self, lemma, suffix, require_prefix, method_format_str):
         """ Получить грам. информацию по лемме и суффиксу. Для леммы перебираем все
@@ -89,8 +152,9 @@ class Morph:
                     gram.append({'norm': norm_form,
                                  'class': graminfo[0],
                                  'info': graminfo[1],
-                                 'rule': paradigm_id,
+                                 'paradigm_id': paradigm_id,
                                  'ancode': rule_ancode,
+                                 'lemma': lemma,
                                  'method': method_format_str % (lemma, suffix)
                                })
         return gram
@@ -139,12 +203,14 @@ class Morph:
                         if graminfo[0] in PRODUCTIVE_CLASSES:
                             # норм. форма слова получается заменой суффикса
                             # на суффикс начальной формы
-                            norm_form = word[0:-len(suffix)] + rules_list[0][0]
+                            predicted_lemma = word[0:-len(suffix)]
+                            norm_form = predicted_lemma + rules_list[0][0]
                             gram.append({'norm': norm_form,
                                          'class':graminfo[0],
                                          'info': graminfo[1],
-                                         'rule': paradigm_id,
+                                         'paradigm_id': paradigm_id,
                                          'ancode': ancode,
+                                         'lemma': predicted_lemma,
                                          'method': 'predict(...%s)' % end
                                        })
 
@@ -177,6 +243,7 @@ class Morph:
                 # приписываем префикс обратно к полученным нормальным формам
                 for form in base_forms:
                     form['norm'] = prefix+form['norm']
+                    form['prefix'] = prefix
                     form['method'] = 'prefix(%s).%s' % (prefix, form['method'])
                 gram.extend(base_forms)
 
@@ -222,6 +289,7 @@ class Morph:
             # приписываем префикс обратно
             for form in base_forms:
                 form['norm'] = prefix+form['norm']
+                form['predict-prefix'] = prefix
                 form['method'] = 'predict-prefix(%s).%s' % (prefix, form['method'])
             gram.extend(base_forms)
         return gram
