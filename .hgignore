@@ -4,12 +4,10 @@ syntax: glob
 .settings/*
 .project
 .pydevproject
-.externalToolBuilders*
 .cache/*
 nbproject/*
 .buildpath
 build.properties
-MANIFEST.MF
 
 #temp files
 *.pyc
@@ -20,18 +18,8 @@ MANIFEST.MF
 .DS_Store
 Thumbs.db
 
-#hosting files
-.bash_history
-.bash_profile
-.bash_logout
-.bashrc
-.viminfo
-.lesshst
-.ssh
-
-#settings
-
 #project-specific files
+pymorphy/my_tests.py
 stuff
 *.sqlite
 *.utf8.mrd
