@@ -1,6 +1,7 @@
 #coding: utf8
 import shelve
 from struct import pack, unpack
+import simplejson
 
 try:
     from cPickle import Pickler, Unpickler
@@ -62,20 +63,20 @@ class ShelfKeyTransform(shelve.DbfilenameShelf):
         del self.dict[self.key_to_internal(key)]
 
     def _get_cached(self, key, default=None):
+        if key in self.cache:
+            return self.cache[key]
         key_e = self.key_to_internal(key)
-        if key_e in self.cache:
-            return self.cache[key_e]
         if self.dict.has_key(key_e):
             return self[key_e]
         return default
 
     def _getitem_cached(self, key):
+        if key in self.cache:
+            return self.cache[key]
         key_e = self.key_to_internal(key)
-        if key_e in self.cache:
-            return self.cache[key_e]
         f = StringIO(self.dict[key_e])
         value = Unpickler(f).load()
-        self.cache[key_e]=value
+        self.cache[key]=value
         return value
 
 
