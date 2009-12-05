@@ -13,6 +13,7 @@ build.properties
 *.pyc
 *.orig
 *~
+pip-log.txt
 
 #os files
 .DS_Store

@@ -78,6 +78,8 @@ class ShelfKeyTransform(shelve.DbfilenameShelf):
         self.cache[key_e]=value
         return value
 
+
+
 class ShelfUnicode(ShelfKeyTransform):
     ''' Shelf that accepts unicode keys and encode them to utf8 before passing to lower-level backend.
     '''
@@ -98,6 +100,8 @@ class ShelfInteger(ShelfKeyTransform):
     def key_to_internal(self, key):
         return pack("H", key)
 
+#from pytc_shelve import shelve_open_int, shelve_open_unicode
+#from cdb_shelve import shelve_open_int, shelve_open_unicode
 
 def shelve_open_unicode(filename, flag='c', protocol=None, writeback=False):
     return ShelfUnicode(filename, flag, protocol, writeback)

@@ -115,9 +115,9 @@ def prof(words):
             forms = ' '.join(morph.normalize(word))
 #            print forms
 
-#for x in range(0,10):
-#prof(words)
+#for x in range(0,20):
+prof(words)
 
-cProfile.run('prof(words)', sort='time')
+#cProfile.run('prof(words)', sort='time')
 
-#    time.sleep(15)
+time.sleep(10)
