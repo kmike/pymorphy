@@ -86,9 +86,9 @@ class TestMorphShelve(unittest.TestCase):
         self.check_norm(u'САПАЮТ',[u'САПАТЬ']) # и никаких местоимений!
 
 
-class TestMorphPickle(TestMorphShelve):
-    morph_ru = get_pickle_morph('ru')
-    morph_en = get_pickle_morph('en')
+#class TestMorphPickle(TestMorphShelve):
+#    morph_ru = get_pickle_morph('ru')
+#    morph_en = get_pickle_morph('en')
 
 
 class TestPluraliseRu(unittest.TestCase):

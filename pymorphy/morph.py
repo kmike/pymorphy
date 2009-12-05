@@ -13,6 +13,15 @@ def get_split_variants(word):
     vars.append((word,'',))
     return vars
 
+def array_match(arr, filter):
+    ''' Возврящает True, если все элементы из списка filter
+        присутствуют в attrs
+    '''
+    for item in filter:
+        if item and item not in arr:
+            return False
+    return True
+
 
 class Morph:
     """ Класс, реализующий морфологический анализ на основе словарей из
@@ -59,12 +68,6 @@ class Morph:
         """ Вернуть грамматическую информацию о слове """
         return self._get_graminfo(word)
 
-    def attrs_match(self, attrs, filter):
-        for attr in filter:
-            if attr and attr not in attrs:
-                return False
-        return True
-
     def decline(self, word, gram_form='', gram_class=None):
         """
         Вернуть слово в заданной грамматической форме.
@@ -76,7 +79,7 @@ class Morph:
                 if form['class'] != gram_class:
                     continue
             form_attrs = form['info'].split(',')
-            if self.attrs_match(form_attrs, requested_attrs):
+            if array_match(form_attrs, requested_attrs):
                 variants.append(form)
         return variants
 
