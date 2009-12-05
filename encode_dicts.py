@@ -15,6 +15,10 @@ def create_shelf_and_pickle(lang):
     print('removing old data...')
     try:
         os.unlink(os.path.join(dir, 'morphs.pickle'))
+    except OSError:
+        pass
+    
+    try:
         os.unlink(os.path.join(dir, 'lemmas.shelve'))
         os.unlink(os.path.join(dir, 'rules.shelve'))
         os.unlink(os.path.join(dir, 'endings.shelve'))
