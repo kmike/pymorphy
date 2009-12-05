@@ -1,17 +1,7 @@
 #coding: utf8
 import shelve
 from struct import pack, unpack
-import simplejson
-
-try:
-    from cPickle import Pickler, Unpickler
-except ImportError:
-    from pickle import Pickler, Unpickler
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+import marshal
 
 
 class ShelfKeyTransform(shelve.DbfilenameShelf):
@@ -25,7 +15,6 @@ class ShelfKeyTransform(shelve.DbfilenameShelf):
 
     def __init__(self, filename, flag, protocol=None, writeback=False, cached=True):
         ''' use cached=True only for read-only databases!!! '''
-#        if cached is None:
         cached = (flag is 'r') and cached
 
         shelve.DbfilenameShelf.__init__(self, filename, flag, protocol, writeback)
@@ -50,14 +39,10 @@ class ShelfKeyTransform(shelve.DbfilenameShelf):
 
     def __getitem__(self, key):
         key_e = self.key_to_internal(key)
-        f = StringIO(self.dict[key_e])
-        return Unpickler(f).load()
+        return marshal.loads(self.dict[key_e])
 
     def __setitem__(self, key, value):
-        f = StringIO()
-        p = Pickler(f)
-        p.dump(value)
-        self.dict[self.key_to_internal(key)] = f.getvalue()
+        self.dict[self.key_to_internal(key)] = marshal.dumps(value)
 
     def __delitem__(self, key):
         del self.dict[self.key_to_internal(key)]
@@ -74,8 +59,7 @@ class ShelfKeyTransform(shelve.DbfilenameShelf):
         if key in self.cache:
             return self.cache[key]
         key_e = self.key_to_internal(key)
-        f = StringIO(self.dict[key_e])
-        value = Unpickler(f).load()
+        value = marshal.loads(self.dict[key_e])
         self.cache[key]=value
         return value
 
