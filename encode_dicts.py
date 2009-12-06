@@ -28,21 +28,21 @@ def create_shelf_and_pickle(lang):
         pass
 
     print('parsing source dictionary file...')
-    mrd_dict = MrdDataSource(os.path.join(dir,'morphs.utf8.mrd'),
+    mrd_source = MrdDataSource(os.path.join(dir,'morphs.utf8.mrd'),
                        os.path.join(dir,'gramtab.utf8.mrd'),
                        strip_EE=True)
-    mrd_dict.load()
+    mrd_source.load()
 
     print('calculating rule frequencies...')
-    mrd_dict.calculate_rule_freq()
+    mrd_source.calculate_rule_freq()
 
     print('creating pickled dictionary...')
-    pickled_dict = PickleDataSource(os.path.join(dir,'morphs.pickle'))
-    pickled_dict.convert_and_save(mrd_dict)
+    pickle_source = PickleDataSource(os.path.join(dir,'morphs.pickle'))
+    pickle_source.convert_and_save(mrd_source)
 
     print('creating shelve dictionary...')
-    shelve_dict = ShelveDataSource(dir, protocol = -1)
-    shelve_dict.convert_and_save(mrd_dict)
+    shelve_source = ShelveDataSource(dir, protocol = -1)
+    shelve_source.convert_and_save(mrd_source)
 
     print('cleaning up...')
     os.unlink(os.path.join(dir,'morphs.utf8.mrd'))
