@@ -375,10 +375,10 @@ def setup_psyco():
     ''' Попытаться оптимизировать узкие места с помощью psyco '''
     try:
         import psyco
-        from pymorphy.shelve_addons import ShelfKeyTransform
+        from pymorphy.backends.shelve_source.shelf_with_hooks import ShelfWithHooks
         psyco.bind(Morph._get_lemma_graminfo)
-        psyco.bind(ShelfKeyTransform._getitem__cached)
-        psyco.bind(ShelfKeyTransform._contains__cached)
+        psyco.bind(ShelfWithHooks._getitem__cached)
+        psyco.bind(ShelfWithHooks._contains__cached)
         psyco.bind(get_split_variants)
     except ImportError:
         pass

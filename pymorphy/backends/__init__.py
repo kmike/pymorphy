@@ -1,3 +1,3 @@
-from pymorphy.backends.pickled_dict import PickleDataSource
-from pymorphy.backends.shelve_dict import ShelveDataSource
-from pymorphy.backends.mrd_dict import MrdDataSource
+from pymorphy.backends.pickle_source import PickleDataSource
+from pymorphy.backends.shelve_source import ShelveDataSource
+from pymorphy.backends.mrd_source import MrdDataSource

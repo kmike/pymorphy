@@ -17,7 +17,7 @@ def create_shelf_and_pickle(lang):
         os.unlink(os.path.join(dir, 'morphs.pickle'))
     except OSError:
         pass
-    
+
     try:
         os.unlink(os.path.join(dir, 'lemmas.shelve'))
         os.unlink(os.path.join(dir, 'rules.shelve'))
@@ -41,7 +41,7 @@ def create_shelf_and_pickle(lang):
     pickle_source.convert_and_save(mrd_source)
 
     print('creating shelve dictionary...')
-    shelve_source = ShelveDataSource(dir, protocol = -1)
+    shelve_source = ShelveDataSource(dir)
     shelve_source.convert_and_save(mrd_source)
 
     print('cleaning up...')
