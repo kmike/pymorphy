@@ -3,7 +3,7 @@
 import codecs
 import os
 
-from pymorphy.backends import MrdDict, ShelveDict, PickledDict
+from pymorphy.backends import MrdDataSource, ShelveDataSource, PickleDataSource
 
 def convert_file(in_file, out_file, in_charset, out_charset):
     text = codecs.open(in_file, 'r', in_charset).read()
@@ -28,7 +28,7 @@ def create_shelf_and_pickle(lang):
         pass
 
     print('parsing source dictionary file...')
-    mrd_dict = MrdDict(os.path.join(dir,'morphs.utf8.mrd'),
+    mrd_dict = MrdDataSource(os.path.join(dir,'morphs.utf8.mrd'),
                        os.path.join(dir,'gramtab.utf8.mrd'),
                        strip_EE=True)
     mrd_dict.load()
@@ -37,11 +37,11 @@ def create_shelf_and_pickle(lang):
     mrd_dict.calculate_rule_freq()
 
     print('creating pickled dictionary...')
-    pickled_dict = PickledDict(os.path.join(dir,'morphs.pickle'))
+    pickled_dict = PickleDataSource(os.path.join(dir,'morphs.pickle'))
     pickled_dict.convert_and_save(mrd_dict)
 
     print('creating shelve dictionary...')
-    shelve_dict = ShelveDict(dir, protocol = -1)
+    shelve_dict = ShelveDataSource(dir, protocol = -1)
     shelve_dict.convert_and_save(mrd_dict)
 
     print('cleaning up...')

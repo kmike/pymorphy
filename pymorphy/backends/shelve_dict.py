@@ -4,7 +4,7 @@ import os
 from pymorphy.backends.base import DictDataSource
 from pymorphy.shelve_addons import shelve_open_int, shelve_open_unicode
 
-class ShelveDict(DictDataSource):
+class ShelveDataSource(DictDataSource):
     """ Источник данных для морфологического анализатора pymorphy,
         берущий информацию из key-value базы данных, используя интерфейс
         shelve из стандартной библиотеки. Позволяет не держать все данные
@@ -13,10 +13,11 @@ class ShelveDict(DictDataSource):
 
         Грамматическая информация и префиксы загружаются в память сразу.
     """
+
     def __init__(self, path='', protocol=-1):
         self.path = path
         self.protocol = protocol
-        super(ShelveDict, self).__init__()
+        super(ShelveDataSource, self).__init__()
 
     def _path(self, name):
         return os.path.join(self.path, name)

@@ -3,7 +3,7 @@
 import os
 
 from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS
-from pymorphy.backends import PickledDict, ShelveDict
+from pymorphy.backends import PickleDataSource, ShelveDataSource
 
 
 def get_split_variants(word):
@@ -362,13 +362,13 @@ class Morph:
 def get_shelve_morph(lang, **kwargs):
     dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                        '..', 'dicts','converted', lang))
-    return Morph(lang, ShelveDict(dir), **kwargs)
+    return Morph(lang, ShelveDataSource(dir), **kwargs)
 
 
 def get_pickle_morph(lang, **kwargs):
     file = os.path.abspath(os.path.join(os.path.dirname(__file__),
                         '..', 'dicts', 'converted', lang, 'morphs.pickle'))
-    return Morph(lang, PickledDict(file), **kwargs)
+    return Morph(lang, PickleDataSource(file), **kwargs)
 
 
 def setup_psyco():
@@ -377,8 +377,8 @@ def setup_psyco():
         import psyco
         from pymorphy.shelve_addons import ShelfKeyTransform
         psyco.bind(Morph._get_lemma_graminfo)
-        psyco.bind(ShelfKeyTransform._getitem_cached)
-        psyco.bind(ShelfKeyTransform.__contains__)
+        psyco.bind(ShelfKeyTransform._getitem__cached)
+        psyco.bind(ShelfKeyTransform._contains__cached)
         psyco.bind(get_split_variants)
     except ImportError:
         pass

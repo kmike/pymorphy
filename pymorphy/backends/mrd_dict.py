@@ -4,7 +4,7 @@ import codecs
 from pymorphy.backends.base import DictDataSource
 from pymorphy.constants import PRODUCTIVE_CLASSES
 
-class MrdDict(DictDataSource):
+class MrdDataSource(DictDataSource):
     """ Источник данных для морфологического анализатора pymorphy,
         берущий информацию из оригинальных mrd-файлов (в которых кодировка
         была изменена на с 1251 utf-8). Используется для конвертации
@@ -12,7 +12,7 @@ class MrdDict(DictDataSource):
     """
 
     def __init__(self, dict_name, gramtab_name, strip_EE=True):
-        super(MrdDict, self).__init__()
+        super(MrdDataSource, self).__init__()
         self.dict_name = dict_name
         self.gramtab_name = gramtab_name
         self.strip_EE = strip_EE

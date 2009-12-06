@@ -6,7 +6,7 @@ except ImportError:
 
 from pymorphy.backends.base import DictDataSource
 
-class PickledDict(DictDataSource):
+class PickleDataSource(DictDataSource):
     """ Источник данных для морфологического анализатора pymorphy,
         берущий информацию из файлов, куда с помощью pickle были
         сохранены данные. Самый быстрый, но ест уйму памяти (> 100 MB).
@@ -14,7 +14,7 @@ class PickledDict(DictDataSource):
 
     def __init__(self, file):
         self.file = file
-        super(PickledDict, self).__init__()
+        super(PickleDataSource, self).__init__()
 
     def load(self):
         pickle_file = open(self.file,'rb')

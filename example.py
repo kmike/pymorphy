@@ -104,9 +104,9 @@ words = []
 for text in texts:
     words.extend(r.split(text.upper()))
 
-#pymorphy.setup_psyco()
+pymorphy.setup_psyco()
 morph = pymorphy.get_shelve_morph('ru')
-#morph = pymorphy.get_pickle_morph('ru', predict_by_prefix = True)
+#morph = pymorphy.get_pickle_morph('ru')
 
 print len(words)
 def prof(words):
@@ -116,8 +116,8 @@ def prof(words):
 #            print forms
 
 #for x in range(0,20):
-prof(words)
+#prof(words)
 
-#cProfile.run('prof(words)', sort='time')
+cProfile.run('prof(words)', sort='time')
 
 time.sleep(10)

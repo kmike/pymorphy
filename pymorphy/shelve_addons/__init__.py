@@ -1,77 +1,73 @@
 #coding: utf8
-import shelve
+from shelve import DbfilenameShelf
 from struct import pack, unpack
 import marshal
 
-
-class ShelfKeyTransform(shelve.DbfilenameShelf):
+class ShelfKeyTransform(DbfilenameShelf):
     ''' Shelf class with key transform hooks.
         You should override key_to_internal and key_to_external methods in subclasses.
     '''
-    def key_to_internal(self,key):
+    @staticmethod
+    def key_to_internal(key):
         return key
-    def key_to_external(self,key):
+
+    @staticmethod
+    def key_to_external(key):
         return key
 
     def __init__(self, filename, flag, protocol=None, writeback=False, cached=True):
-        ''' use cached=True only for read-only databases!!! '''
+        ''' Use cached=True only for read-only databases. '''
         cached = (flag is 'r') and cached
-
-        shelve.DbfilenameShelf.__init__(self, filename, flag, protocol, writeback)
+        DbfilenameShelf.__init__(self, filename, flag, protocol, writeback)
         if cached:
-            self.__getitem__ = self._getitem_cached
-            self.get = self._get_cached
+            self.__getitem__ = self._getitem__cached
+            self.__contains__ = self._contains__cached
 
-    def keys(self):
-        return [self.key_to_external(key) for key in self.dict.keys()]
-
-    def __contains__(self, key):
-        return self.dict.has_key(self.key_to_internal(key))
-
-    def has_key(self, key):
-        return self.dict.has_key(self.key_to_internal(key))
-
-    def get(self, key, default=None):
-        key_e = self.key_to_internal(key)
-        if self.dict.has_key(key_e):
-            return self[key_e]
-        return default
-
-    def __getitem__(self, key):
-        key_e = self.key_to_internal(key)
-        return marshal.loads(self.dict[key_e])
 
     def __setitem__(self, key, value):
         self.dict[self.key_to_internal(key)] = marshal.dumps(value)
 
-    def __delitem__(self, key):
-        del self.dict[self.key_to_internal(key)]
 
-    def _get_cached(self, key, default=None):
+    def __contains__(self, key):
+        return self.dict.has_key(self.key_to_internal(key))
+
+    def __getitem__(self, key):
+        return marshal.loads(self.dict[self.key_to_internal(key)])
+
+    def _contains__cached(self, key):
+        if key in self.cache:
+            return True
+        return self.dict.has_key(self.key_to_internal(key))
+
+    def _getitem__cached(self, key):
         if key in self.cache:
             return self.cache[key]
-        key_e = self.key_to_internal(key)
-        if self.dict.has_key(key_e):
-            return self[key_e]
-        return default
-
-    def _getitem_cached(self, key):
-        if key in self.cache:
-            return self.cache[key]
-        key_e = self.key_to_internal(key)
-        value = marshal.loads(self.dict[key_e])
-        self.cache[key]=value
+        value = marshal.loads(self.dict[self.key_to_internal(key)])
+        self.cache[key] = value
         return value
+
+
+    # а эти методы нам не нужны
+    def keys(self):
+        raise NotImplementedError
+    def has_key(self, key):
+        raise NotImplementedError
+    def get(self, key, default=None):
+        raise NotImplementedError
+    def __delitem__(self, key):
+        raise NotImplementedError
 
 
 
 class ShelfUnicode(ShelfKeyTransform):
     ''' Shelf that accepts unicode keys and encode them to utf8 before passing to lower-level backend.
     '''
-    def key_to_external(self,key):
+    @staticmethod
+    def key_to_external(key):
         return unicode(key,'utf8')
 
-    def key_to_internal(self,key):
+    @staticmethod
+    def key_to_internal(key):
         return unicode(key).encode('utf8')
 
 class ShelfInteger(ShelfKeyTransform):
@@ -79,10 +75,12 @@ class ShelfInteger(ShelfKeyTransform):
         before passing to lower-level backend.
     '''
 
-    def key_to_external(self, key):
+    @staticmethod
+    def key_to_external(key):
         return unpack('H', str)
 
-    def key_to_internal(self, key):
+    @staticmethod
+    def key_to_internal(key):
         return pack("H", key)
 
 #from pytc_shelve import shelve_open_int, shelve_open_unicode
@@ -93,3 +91,4 @@ def shelve_open_unicode(filename, flag='c', protocol=None, writeback=False):
 
 def shelve_open_int(filename, flag='c', protocol=None, writeback=False):
     return ShelfInteger(filename, flag, protocol, writeback)
+
