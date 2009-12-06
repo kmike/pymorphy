@@ -31,3 +31,4 @@ stuff
 *.tch
 *.tmp
 *.log-psyco
+docs/_*

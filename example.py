@@ -113,11 +113,11 @@ def prof(words):
     for word in words:
         if word:
             norm_forms = morph.normalize(word)
-            try:
-                plural_forms = morph.pluralize_ru(word)
-            except KeyError:
-                print word
-                raise
+#            try:
+#                plural_forms = morph.pluralize_ru(word)
+#            except KeyError:
+#                print word
+#                raise
 #            print forms
 
 #for x in range(0,20):

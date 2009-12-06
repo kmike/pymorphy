@@ -1,3 +1,4 @@
+# coding: utf-8
 from shelve import Shelf
 import pytc
 from shelf_with_hooks import ShelfWithHooks

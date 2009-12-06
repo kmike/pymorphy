@@ -1,8 +1,5 @@
 #coding: utf-8
 
-""" Интерфейс к CDB
-"""
-
 import cdb
 from shelf_with_hooks import ShelfWithHooks
 from shelve import Shelf
