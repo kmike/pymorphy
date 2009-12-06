@@ -70,7 +70,8 @@ class Morph:
 
     def decline(self, word, gram_form='', gram_class=None):
         """
-        Вернуть слово в заданной грамматической форме.
+        Вернуть все варианты слова, соответствующие заданной
+        грамматической форме и части речи.
         """
         requested_attrs = gram_form.split(',')
         variants = []
@@ -173,7 +174,6 @@ class Morph:
                                                           require_prefix,
                                                           '%snobase(%s)'
                                                         )]
-
 
     def _do_predict_by_suffix(self, word):
         """ Предсказать грамматическую форму и парадигму неизвестного слова
@@ -359,10 +359,10 @@ class Morph:
         return gram
 
 
-def get_shelve_morph(lang, **kwargs):
+def get_shelve_morph(lang, backend='shelve', cached=True, **kwargs):
     dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                        '..', 'dicts','converted', lang))
-    return Morph(lang, ShelveDataSource(dir), **kwargs)
+    return Morph(lang, ShelveDataSource(dir, backend, cached=cached), **kwargs)
 
 
 def get_pickle_morph(lang, **kwargs):

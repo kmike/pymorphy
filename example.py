@@ -105,14 +105,19 @@ for text in texts:
     words.extend(r.split(text.upper()))
 
 pymorphy.setup_psyco()
-morph = pymorphy.get_shelve_morph('ru')
+morph = pymorphy.get_shelve_morph('ru')#, 'cdb', cached=True)
 #morph = pymorphy.get_pickle_morph('ru')
 
 print len(words)
 def prof(words):
     for word in words:
         if word:
-            forms = ' '.join(morph.normalize(word))
+            norm_forms = morph.normalize(word)
+            try:
+                plural_forms = morph.pluralize_ru(word)
+            except KeyError:
+                print word
+                raise
 #            print forms
 
 #for x in range(0,20):

@@ -2,6 +2,7 @@
 from shelve import DbfilenameShelf
 from struct import pack, unpack
 import marshal
+import simplejson
 
 class ShelfWithHooks(DbfilenameShelf):
     ''' Shelf class with key and value transform hooks. '''
@@ -10,6 +11,10 @@ class ShelfWithHooks(DbfilenameShelf):
         'marshal': {
            'loads': marshal.loads,
            'dumps': marshal.dumps
+        },
+        'json':  {
+           'loads': simplejson.loads,
+           'dumps': simplejson.dumps
         },
     }
 
@@ -78,4 +83,7 @@ class ShelfWithHooks(DbfilenameShelf):
         raise NotImplementedError
     def __delitem__(self, key):
         raise NotImplementedError
+
+    def close(self):
+        pass
 

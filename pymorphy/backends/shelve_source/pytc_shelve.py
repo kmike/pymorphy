@@ -3,11 +3,14 @@ import pytc
 from shelf_with_hooks import ShelfWithHooks
 
 
-class PytcShelf(ShelfWithHooks):
+class PytcHashShelf(ShelfWithHooks):
+
+    DB_CLASS = pytc.HDB
+
     def __init__(self, filename, flag, key_type='str', dump_method='marshal',
                  cached=True, writeback=False):
 
-        db = pytc.BDB()
+        db = self.DB_CLASS()
         if flag == 'r':
             flags = pytc.BDBOREADER
         elif flag == 'c':
@@ -17,11 +20,17 @@ class PytcShelf(ShelfWithHooks):
 
         db.open(filename, flags)
         Shelf.__init__(self, db, -1, writeback)
-
         self._setup_methods(cached, key_type, dump_method)
 
     def __delitem__(self, key):
         pass
 
     def __del__(self):
-        pass
+        self.close()
+
+    def close(self):
+        self.dict.close()
+
+
+class PytcBtreeShelf(PytcHashShelf):
+    DB_CLASS = pytc.BDB

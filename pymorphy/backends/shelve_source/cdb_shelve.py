@@ -30,6 +30,9 @@ class CdbReadDict(object):
     def has_key(self, key):
         return self.db.has_key(key)
 
+    def close(self):
+        pass
+
 
 class CdbShelf(ShelfWithHooks):
 
@@ -40,3 +43,6 @@ class CdbShelf(ShelfWithHooks):
         elif flag=='c':
             Shelf.__init__(self, CdbWriteDict(filename), -1, writeback)
         self._setup_methods(cached, key_type, dump_method)
+
+    def close(self):
+        self.dict.close()

@@ -26,4 +26,8 @@ stuff
 *.utf8.mrd
 *.pickle
 *.shelve
+*.cdb
+*.tcb
+*.tch
+*.tmp
 *.log-psyco
