@@ -5,6 +5,8 @@ import os
 from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS
 from pymorphy.backends import PickleDataSource, ShelveDataSource
 
+from utils import mprint
+
 
 def _get_split_variants(word):
     """ Вернуть все варианты разбиения слова на 2 части """
@@ -206,7 +208,8 @@ class Morph:
                         if graminfo[0] in PRODUCTIVE_CLASSES:
                             # норм. форма слова получается заменой суффикса
                             # на суффикс начальной формы
-                            predicted_lemma = word[0:-len(suffix)]
+                            suffix_len = len(suffix)
+                            predicted_lemma = word[0:-suffix_len] if suffix_len else word
                             norm_form = predicted_lemma + rules_list[0][0]
                             gram.append({'norm': norm_form,
                                          'class':graminfo[0],
@@ -381,3 +384,5 @@ def setup_psyco():
         psyco.bind(_get_split_variants)
     except ImportError:
         pass
+
+

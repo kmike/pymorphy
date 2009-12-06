@@ -115,11 +115,11 @@ class TestPluraliseRu(unittest.TestCase):
     def testPrefix(self):
         self.assert_plural(u'СУПЕРКОТ', u'СУПЕРКОТЫ')
 
-# падающие тесты ============================
     def testPredictBySuffix(self):
         self.assert_plural(u'ДЕПЫРТАМЕНТ', u'ДЕПЫРТАМЕНТЫ')
         self.assert_plural(u'ХАБР', u'ХАБРЫ')
 
+# падающие тесты ============================
     def testPronouns(self):
         self.assert_plural(u'Я', u'МЫ')
 
