@@ -6,14 +6,14 @@ from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS
 from pymorphy.backends import PickleDataSource, ShelveDataSource
 
 
-def get_split_variants(word):
+def _get_split_variants(word):
     """ Вернуть все варианты разбиения слова на 2 части """
     l = len(word)
     vars = [(word[0:i], word[i:l]) for i in range(1,l)]
     vars.append((word,'',))
     return vars
 
-def array_match(arr, filter):
+def _array_match(arr, filter):
     ''' Возврящает True, если все элементы из списка filter
         присутствуют в attrs
     '''
@@ -79,11 +79,11 @@ class Morph:
                 if form['class'] != gram_class:
                     continue
             form_attrs = form['info'].split(',')
-            if array_match(form_attrs, requested_attrs):
+            if _array_match(form_attrs, requested_attrs):
                 variants.append(form)
         return variants
 
-    def pluralize_ru(self, word):
+    def pluralize_ru(self, word, gram_form='', gram_class=None):
         """
         Вернуть слово во множественном числе.
         """
@@ -328,7 +328,7 @@ class Morph:
         # основная проверка по словарю: разбиваем слово на 2 части,
         # считаем одну из них основой, другую окончанием
         # (префикс считаем пустым, его обработаем отдельно)
-        variants = get_split_variants(word)
+        variants = _get_split_variants(word)
         for (lemma, suffix) in variants:
             if lemma in self.data.lemmas:
                 gram.extend(
@@ -378,6 +378,6 @@ def setup_psyco():
         psyco.bind(Morph._get_lemma_graminfo)
         psyco.bind(ShelfWithHooks._getitem__cached)
         psyco.bind(ShelfWithHooks._contains__cached)
-        psyco.bind(get_split_variants)
+        psyco.bind(_get_split_variants)
     except ImportError:
         pass
