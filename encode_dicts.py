@@ -15,7 +15,6 @@ def _unlink(fn):
     except OSError:
         pass
 
-
 def convert_file(in_file, out_file, in_charset, out_charset):
     text = codecs.open(in_file, 'r', in_charset).read()
     codecs.open(out_file, 'w', out_charset ).write(text)

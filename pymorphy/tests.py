@@ -123,6 +123,10 @@ class TestPluraliseRu(unittest.TestCase):
     def testPronouns(self):
         self.assert_plural(u'Я', u'МЫ')
 
+    def testInvalidGraminfo(self):
+        self.assert_plural(u'НАЧАЛО', u'НАЧАЛА')
+
+
 
 if __name__ == '__main__':
 #    setup_psyco()

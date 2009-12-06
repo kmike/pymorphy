@@ -20,7 +20,7 @@ pip-log.txt
 Thumbs.db
 
 #project-specific files
-pymorphy/my_tests.py
+my_tests.py
 stuff
 *.sqlite
 *.utf8.mrd

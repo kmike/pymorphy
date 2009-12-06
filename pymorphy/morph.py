@@ -22,7 +22,6 @@ def array_match(arr, filter):
             return False
     return True
 
-
 class Morph:
     """ Класс, реализующий морфологический анализ на основе словарей из
         data_source
@@ -121,6 +120,7 @@ class Morph:
                                   base_form.get('predict-prefix', '')])
 
             paradigm = self.data.rules[paradigm_id]
+
             for rule in paradigm:
                 suffix, ancode, prefix = rule
                 cls, info, _letter  = self.data.gramtab[ancode]
@@ -312,7 +312,6 @@ class Morph:
             info['norm'] = info['norm'].replace(u'Ё', u'Е')
             info['method'] = info['method'].replace(u'Ё', u'Е')
         return gram
-
 
 
     def _get_graminfo(self, word, require_prefix='', predict = True, predict_EE = True):

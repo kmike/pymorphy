@@ -54,6 +54,7 @@ class MrdDataSource(DictDataSource):
                 if len(parts)==2:
                     parts.append('')
 
+                parts[1] = parts[1][:2]
                 (suffix, ancode, prefix) = parts
                 if i not in self.rules:
                     self.rules[i]=[]
