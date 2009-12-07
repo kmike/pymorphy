@@ -3,7 +3,7 @@
 import os
 
 from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS
-from pymorphy.constants import RU_CASES, RU_NUMBERS, RU_GENDERS
+from pymorphy.constants import RU_CASES, RU_NUMBERS, RU_GENDERS, RU_PERSONS, RU_TENSES, RU_VOICES
 from pymorphy.backends import PickleDataSource, ShelveDataSource
 
 from utils import mprint
@@ -51,18 +51,48 @@ class GramForm(object):
         ''' убрать информацию о роде '''
         self.form.difference_update(RU_GENDERS)
 
+    def clear_person(self):
+        ''' убрать информацию о лице '''
+        self.form.difference_update(RU_PERSONS)
+
+    def clear_tense(self):
+        ''' убрать информацию о времени '''
+        self.form.difference_update(RU_TENSES)
+
+    def clear_voice(self):
+        ''' убрать информацию о залоге '''
+        self.form.difference_update(RU_VOICES)
+
     def update(self, form_string):
         """ Обновляет параметры, по возможности оставляя все, что можно. """
         requested_form = self.parse_str(form_string)
+
         for item in requested_form:
+
             if item in RU_NUMBERS:
                 self.clear_number()
                 if item==u'мн':
                     self.clear_gender()
+
             if item in RU_CASES:
                 self.clear_case()
+
             if item in RU_GENDERS:
                 self.clear_gender()
+
+            if item in RU_TENSES:
+                self.clear_tense()
+                if item != u"нст":
+                    self.clear_person()
+                if item != u"прш":
+                    self.clear_gender()
+
+            if item in RU_PERSONS:
+                self.clear_person()
+
+            if item in RU_VOICES:
+                self.clear_voice()
+
         self.form.update(requested_form)
         return self
 

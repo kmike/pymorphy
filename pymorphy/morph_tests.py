@@ -169,3 +169,6 @@ class TestInflectRu(unittest.TestCase):
         self.assert_inflect(u"СУСЛИКА", "дт", u"СУСЛИКУ")
         self.assert_inflect(u"СУСЛИК", "мн,дт", u"СУСЛИКАМ")
 
+    def testVerbs(self):
+        self.assert_inflect(u"ГУЛЯЮ", "прш", u"ГУЛЯЛ")
+        self.assert_inflect(u"ГУЛЯЛ", "нст", u"ГУЛЯЮ")
