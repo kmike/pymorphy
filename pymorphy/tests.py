@@ -94,8 +94,8 @@ class TestMorphShelve(unittest.TestCase):
 class TestPluraliseRu(unittest.TestCase):
     morph = get_shelve_morph('ru')
 
-    def assert_plural(self, word, plural):
-        morphed_word = self.morph.pluralize_ru(word)
+    def assert_plural(self, word, plural, *args, **kwargs):
+        morphed_word = self.morph.pluralize_ru(word, *args, **kwargs)
         self.assertEqual(morphed_word, plural, u"%s != %s" % (morphed_word, plural))
 
 # работающие тесты ============================
@@ -119,12 +119,15 @@ class TestPluraliseRu(unittest.TestCase):
         self.assert_plural(u'ДЕПЫРТАМЕНТ', u'ДЕПЫРТАМЕНТЫ')
         self.assert_plural(u'ХАБР', u'ХАБРЫ')
 
+    def testInvalidWord(self):
+        self.assert_plural(u'123', u'123')
+
 # падающие тесты ============================
     def testPronouns(self):
         self.assert_plural(u'Я', u'МЫ')
 
     def testInvalidGraminfo(self):
-        self.assert_plural(u'НАЧАЛО', u'НАЧАЛА')
+        self.assert_plural(u'НАЧАЛО', u'НАЧАЛА', gram_class=u'С')
 
 
 

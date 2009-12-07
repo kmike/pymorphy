@@ -89,7 +89,10 @@ class Morph:
         """
         Вернуть слово во множественном числе.
         """
-        graminfo = self.get_graminfo(word)[0]
+        forms = self.get_graminfo(word)
+        if not forms:
+            return word
+        graminfo = forms[0]
         form = graminfo['info'].replace(u'ед', u'мн')
         if graminfo['class'] in VERBS:
             form = form.replace(u"мр", '').replace(u"жр",'').replace(u'ср','')
