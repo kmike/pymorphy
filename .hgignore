@@ -32,3 +32,4 @@ stuff
 *.tmp
 *.log-psyco
 docs/_*
+bench/do.py
