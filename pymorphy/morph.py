@@ -134,7 +134,7 @@ class Morph:
         forms = self.get_graminfo(word)
         if not forms:
             return word
-        graminfo = forms[0]
+        graminfo = forms[0]    #FIXME: первая форма в списке не обязательно самая лучшая
 
         form = GramForm(graminfo['info'])
         form.update(gram_form)
@@ -215,7 +215,7 @@ class Morph:
                 # то значит нашли, что искали
                 if rule_suffix==suffix and rule_prefix==require_prefix:
                     graminfo = data_source.gramtab[rule_ancode]
-                    norm_form = lemma + paradigm[0][0]
+                    norm_form = lemma + paradigm[0][0]   #FIXME: первая по порядку форма не обязательно нормальная!
                     gram.append({'norm': norm_form,
                                  'class': graminfo[0],
                                  'info': graminfo[1],
