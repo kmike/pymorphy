@@ -1,11 +1,4 @@
 #coding: utf-8
-
-from django.conf import settings
-
-from django.core.exceptions import ImproperlyConfigured
-
-from pymorphy.morph import get_morph
-
 """
 Пример настроек словарей в settings.py::
 
@@ -22,6 +15,13 @@ from pymorphy.morph import get_morph
         },
     }
 """
+
+from django.conf import settings
+
+from django.core.exceptions import ImproperlyConfigured
+
+from pymorphy.morph import get_morph
+
 
 default_morph = None
 try:

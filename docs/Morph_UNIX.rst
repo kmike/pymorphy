@@ -1,5 +1,5 @@
-Описание библиотеки с aot.ru
-============================
+Описание оригинальной библиотеки с aot.ru (может оказаться полезным)
+====================================================================
 
 This is a program of moprhological analysis (Russian, German, and English languages).
 
@@ -217,15 +217,18 @@ reference  to a line in this section.
 Section of possible accentual models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    Each record of this section is a comma-delimited list of numbers, where
+Each record of this section is a comma-delimited list of numbers, where
 each number is an index of a stressed  vowel of a word form(counting
 from the end). The whole list contains a position for each word
 form in the paradigm.
-    If an item of an accentual model of word is equal to 255, then it
+
+If an item of an accentual model of word is equal to 255, then it
 is undefined, and it means that this word  form is unstressed.
-    Each word in the dictionary should have a reference  to
+
+Each word in the dictionary should have a reference  to
 an accentual model, even though this model can consist only of empty items.
-    For one word, the number and the order of items in the  accentual model
+
+For one word, the number and the order of items in the  accentual model
 should be equal to the number and the order of items  in the flexion and
 prefix model. For example we can ascribe to word "leaf" with the paradigm::
 
@@ -251,13 +254,14 @@ sessions.
 Section of prefix sets
 ^^^^^^^^^^^^^^^^^^^^^^
 
-    Each record of this section is a comma-delimited list of strings, where
+Each record of this section is a comma-delimited list of strings, where
 each string is a prefix, which can be prefixed to the whole word. If a prefix
 set is ascribed to a word, it means, that the words with these prefixes
 can also exist  in the language. For example, if "leaf" has
 the prefix  set "anti,contra", it follows the existence of  words "antileaf",
 "contraleaf".
-    A flexion and prefix model can contain
+
+A flexion and prefix model can contain
 also a reference to a prefix, but this prefix is for
 one separate word form, while a prefix set  is ascribed to the whole word
 paradigm.
