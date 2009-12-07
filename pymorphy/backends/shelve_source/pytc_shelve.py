@@ -8,7 +8,7 @@ class PytcHashShelf(ShelfWithHooks):
 
     DB_CLASS = pytc.HDB
 
-    def __init__(self, filename, flag, key_type='str', dump_method='marshal',
+    def __init__(self, filename, flag, key_type='str', dump_method='json',
                  cached=True, writeback=False):
 
         db = self.DB_CLASS()

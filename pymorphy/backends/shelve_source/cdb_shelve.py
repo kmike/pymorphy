@@ -33,7 +33,7 @@ class CdbReadDict(object):
 
 class CdbShelf(ShelfWithHooks):
 
-    def __init__(self, filename, flag, key_type='str', dump_method='marshal',
+    def __init__(self, filename, flag, key_type='str', dump_method='json',
                  cached=True, writeback=False):
         if flag=='r':
             Shelf.__init__(self, CdbReadDict(filename), -1, writeback)

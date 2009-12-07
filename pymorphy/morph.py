@@ -105,6 +105,13 @@ class Morph:
 
 #----------- internal methods -------------
 
+    def _drop_cache(self):
+        """ Освободить память, выделенную под внутренний кэш """
+        self.data.lemmas.cache = {}
+        self.data.rules.cache = {}
+        self.data.endings.cache = {}
+
+
     def _decline(self, word):
         """ Просклонять: вернуть все грам. формы с информацией про них """
 

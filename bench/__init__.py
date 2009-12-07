@@ -20,9 +20,11 @@ def do_normalize(words, morph):
         forms = morph.normalize(word)
 
 
+
 def do_pluralize(words, morph):
     for word in words:
         forms = morph.pluralize_ru(word)
+
 
 def do_all(words, morph):
     do_normalize(words, morph)
