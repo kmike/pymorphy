@@ -2,10 +2,46 @@
 import unittest
 import os
 
-from pymorphy.morph import get_morph, setup_psyco
+from pymorphy.morph import get_morph
+from pymorphy.morph import GramForm
+
 
 DICT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '..', 'dicts', 'converted'))
+
+class GramFormTest(unittest.TestCase):
+
+    def testFromStr(self):
+        form = GramForm(u'мн,рд')
+        self.assertTrue(u'рд' in form.form)
+        self.assertTrue(u'мн' in form.form)
+
+    def testFormChange(self):
+        form = GramForm(u'мн,рд,мр')
+        form.update(u'дт')
+        self.assertTrue(u'дт' in form.form)
+        self.assertTrue(u'мн' in form.form)
+        self.assertFalse(u'рд' in form.form)
+
+    def testFormMultiChange(self):
+        form = GramForm(u'мн,рд,мр')
+        form.update(u'дт,ед')
+        self.assertTrue(u'дт' in form.form)
+        self.assertTrue(u'ед' in form.form)
+        self.assertFalse(u'рд' in form.form)
+        self.assertFalse(u'мн' in form.form)
+
+    def testFormStr(self):
+        form = GramForm(u'мр,мн,рд')
+        self.assertTrue(form.get_form_string().count(u'мр') == 1)
+        self.assertTrue(form.get_form_string().count(u'мн') == 1)
+        self.assertTrue(form.get_form_string().count(u'рд') == 1)
+        self.assertTrue(len(form.get_form_string()) == (2*3)+2)
+        form.update(u'дт')
+        self.assertTrue(form.get_form_string().count(u'мр') == 1)
+        self.assertTrue(form.get_form_string().count(u'мн') == 1)
+        self.assertTrue(form.get_form_string().count(u'дт') == 1)
+        self.assertTrue(len(form.get_form_string()) == (2*3)+2)
 
 
 class TestMorph(unittest.TestCase):
@@ -118,10 +154,4 @@ class TestPluraliseRu(unittest.TestCase):
 
     def testInvalidGraminfo(self):
         self.assert_plural(u'НАЧАЛО', u'НАЧАЛА', gram_class=u'С')
-
-
-
-if __name__ == '__main__':
-    setup_psyco()
-    unittest.main()
 

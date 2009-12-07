@@ -3,6 +3,7 @@
 import os
 
 from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS
+from pymorphy.constants import RU_CASES, RU_NUMBERS, RU_GENDERS
 from pymorphy.backends import PickleDataSource, ShelveDataSource
 
 from utils import mprint
@@ -23,6 +24,45 @@ def _array_match(arr, filter):
         if item and item not in arr:
             return False
     return True
+
+
+class GramForm(object):
+    """ Класс для работы с грамматической формой """
+
+    def __init__(self, form_string):
+        self.form = self.parse_str(form_string)
+
+    def parse_str(self, form_string):
+        attrs = [a for a in form_string.split(',') if a]
+        return set(attrs)
+
+    def get_form_string(self):
+        return ",".join(self.form)
+
+    def clear_number(self):
+        ''' убрать информацию о числе '''
+        self.form.difference_update(RU_NUMBERS)
+
+    def clear_case(self):
+        ''' убрать информацию о падеже '''
+        self.form.difference_update(RU_CASES)
+
+    def clear_gender(self):
+        ''' убрать информацию о роде '''
+        self.form.difference_update(RU_GENDERS)
+
+    def update(self, form_string):
+        """ Обновляет параметры, по возможности оставляя все, что можно. """
+        requested_form = self.parse_str(form_string)
+        for item in requested_form:
+            if item in RU_NUMBERS:
+                self.clear_number()
+            if item in RU_CASES:
+                self.clear_case()
+            if item in RU_GENDERS:
+                self.clear_gender()
+        self.form.update(requested_form)
+
 
 class Morph:
     """ Класс, реализующий морфологический анализ на основе словарей из
@@ -91,10 +131,14 @@ class Morph:
         if not forms:
             return word
         graminfo = forms[0]
-        form = graminfo['info'].replace(u'ед', u'мн')
+
+        form = GramForm(graminfo['info'])
+        form.update(u'мн')
+
         if graminfo['class'] in VERBS:
-            form = form.replace(u"мр", '').replace(u"жр",'').replace(u'ср','')
-        variants = self.decline(word, form, graminfo['class'])
+            form.clear_gender()
+
+        variants = self.decline(word, form.get_form_string(), graminfo['class'])
         if len(variants):
             return variants[0]['word']
         else:
