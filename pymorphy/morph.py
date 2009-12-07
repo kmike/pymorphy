@@ -57,6 +57,8 @@ class GramForm(object):
         for item in requested_form:
             if item in RU_NUMBERS:
                 self.clear_number()
+                if item==u'мн':
+                    self.clear_gender()
             if item in RU_CASES:
                 self.clear_case()
             if item in RU_GENDERS:
@@ -147,22 +149,8 @@ class Morph:
         """
         Вернуть слово во множественном числе.
         """
-        forms = self.get_graminfo(word)
-        if not forms:
-            return word
-        graminfo = forms[0]
-
-        form = GramForm(graminfo['info'])
-        form.update(u'мн')
-
-        if graminfo['class'] in VERBS:
-            form.clear_gender()
-
-        variants = self.decline(word, form.get_form_string(), graminfo['class'])
-        if len(variants):
-            return variants[0]['word']
-        else:
-            return word
+        form = GramForm(gram_form).update(u'мн')
+        return self.inflect_ru(word, form.get_form_string(), gram_class)
 
 
 #----------- internal methods -------------
