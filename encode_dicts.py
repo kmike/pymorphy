@@ -87,6 +87,7 @@ def cleanup_after_convert(dir):
 
 
 if __name__ == '__main__':
+    MrdDataSource.setup_psyco()
 
     src_dir = 'dicts/src/Dicts'
     dest_dir = 'dicts/converted'

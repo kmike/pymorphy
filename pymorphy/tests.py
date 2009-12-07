@@ -132,6 +132,6 @@ class TestPluraliseRu(unittest.TestCase):
 
 
 if __name__ == '__main__':
-#    setup_psyco()
+    setup_psyco()
     unittest.main()
 

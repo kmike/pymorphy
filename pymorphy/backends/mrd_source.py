@@ -4,6 +4,7 @@ import codecs
 from pymorphy.backends.base import DictDataSource
 from pymorphy.constants import PRODUCTIVE_CLASSES
 
+
 class MrdDataSource(DictDataSource):
     """ Источник данных для морфологического анализатора pymorphy,
         берущий информацию из оригинальных mrd-файлов (в которых кодировка
@@ -175,3 +176,17 @@ class MrdDataSource(DictDataSource):
                 paradigm_id = best_paradigms[wc]
                 result_paradigms[paradigm_id] = tuple(paradigms[paradigm_id])
             self.endings[end] = result_paradigms
+
+    @staticmethod
+    def setup_psyco():
+        """ Оптимизировать узкие места в MrdDataSource с помощью psyco """
+        try:
+            import psyco
+            psyco.bind(MrdDataSource._calculate_endings)
+            psyco.bind(MrdDataSource._load_lemmas)
+            psyco.bind(MrdDataSource._cleanup_endings)
+            psyco.bind(MrdDataSource._section_lines)
+            psyco.bind(DictDataSource.calculate_rule_freq)
+        except ImportError:
+            pass
+
