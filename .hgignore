@@ -33,3 +33,4 @@ stuff
 *.log-psyco
 docs/_*
 bench/do.py
+build/*
