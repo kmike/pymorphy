@@ -155,3 +155,17 @@ class TestPluraliseRu(unittest.TestCase):
     def testInvalidGraminfo(self):
         self.assert_plural(u'НАЧАЛО', u'НАЧАЛА', gram_class=u'С')
 
+
+class TestInflectRu(unittest.TestCase):
+    morph = get_morph(os.path.join(DICT_PATH, 'ru'))
+
+    def assert_inflect(self, word, form, result, *args, **kwargs):
+        morphed_word = self.morph.inflect_ru(word, form, *args, **kwargs)
+        self.assertEqual(morphed_word, result, u"%s != %s" % (morphed_word, result))
+
+    def testInflect(self):
+        self.assert_inflect(u"СУСЛИКОВ", "дт", u"СУСЛИКАМ")
+        self.assert_inflect(u"СУСЛИК", "дт", u"СУСЛИКУ")
+        self.assert_inflect(u"СУСЛИКА", "дт", u"СУСЛИКУ")
+        self.assert_inflect(u"СУСЛИК", "мн,дт", u"СУСЛИКАМ")
+

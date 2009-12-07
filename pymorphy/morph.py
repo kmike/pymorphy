@@ -123,6 +123,26 @@ class Morph:
                 variants.append(form)
         return variants
 
+    def inflect_ru(self, word, gram_form, gram_class=None):
+        """
+        Вернуть вариант слова, который соотвествует данной грамматической
+        форме и части речи, а также менее всего отличается от исходного.
+        """
+        forms = self.get_graminfo(word)
+        if not forms:
+            return word
+        graminfo = forms[0]
+
+        form = GramForm(graminfo['info'])
+        form.update(gram_form)
+
+        variants = self.decline(word, form.get_form_string(), graminfo['class'])
+        if len(variants):
+            return variants[0]['word']
+        else:
+            return word
+
+
     def pluralize_ru(self, word, gram_form='', gram_class=None):
         """
         Вернуть слово во множественном числе.
