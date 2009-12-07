@@ -29,9 +29,9 @@ class ShelveDataSource(DictDataSource):
 
         misc = self._get_shelf('misc', 'r', 'unicode')
         self.gramtab = misc['gramtab']
-#        self.prefixes = set(misc['prefixes'])
-        self.prefixes = misc['prefixes']
-        self.possible_rule_prefixes = misc['possible_rule_prefixes']
+
+        self.prefixes = set(misc['prefixes'])
+        self.possible_rule_prefixes = set(misc['possible_rule_prefixes'])
 
     def convert_and_save(self, data_obj):
         lemma_shelve = self._get_shelf('lemmas', 'c', 'unicode')
@@ -48,10 +48,9 @@ class ShelveDataSource(DictDataSource):
             endings_shelve[end] = data_obj.endings[end]
 
         misc_shelve = self._get_shelf('misc', 'c', 'unicode')
-#        misc_shelve['prefixes'] = list(data_obj.prefixes)
-        misc_shelve['prefixes'] = data_obj.prefixes
         misc_shelve['gramtab'] = data_obj.gramtab
-        misc_shelve['possible_rule_prefixes'] = data_obj.possible_rule_prefixes
+        misc_shelve['prefixes'] = list(data_obj.prefixes)
+        misc_shelve['possible_rule_prefixes'] = list(data_obj.possible_rule_prefixes)
 
         if data_obj.rule_freq:
             freq_shelve = self._get_shelf('freq', 'c', 'int')

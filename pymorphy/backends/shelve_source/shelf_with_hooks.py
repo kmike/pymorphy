@@ -24,7 +24,7 @@ class ShelfWithHooks(DbfilenameShelf):
              'decode': lambda key: unicode(key, 'utf8'),
           },
          'int': {
-             'encode': lambda key: pack("H", key),
+             'encode': lambda key: pack("H", int(key)),
              'decode': lambda key: unpack('H', key),
           },
           'str': {
@@ -33,7 +33,7 @@ class ShelfWithHooks(DbfilenameShelf):
           }
     }
 
-    def __init__(self, filename, flag, key_type='str', dump_method='marshal',
+    def __init__(self, filename, flag, key_type='str', dump_method='json',
                  cached=True, writeback=False):
 
         DbfilenameShelf.__init__(self, filename, flag, -1, writeback)
