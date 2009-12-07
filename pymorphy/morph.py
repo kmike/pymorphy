@@ -64,6 +64,7 @@ class GramForm(object):
             if item in RU_GENDERS:
                 self.clear_gender()
         self.form.update(requested_form)
+        return self
 
 
 class Morph:
