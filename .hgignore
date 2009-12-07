@@ -34,6 +34,7 @@ stuff
 *.cdb
 *.tcb
 *.tch
+*.zip
 *.tmp
 *.log-psyco
 docs/_*
