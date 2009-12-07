@@ -381,6 +381,7 @@ def setup_psyco():
     try:
         import psyco
         from pymorphy.backends.shelve_source.shelf_with_hooks import ShelfWithHooks
+        psyco.bind(Morph._get_graminfo)
         psyco.bind(Morph._get_lemma_graminfo)
         psyco.bind(ShelfWithHooks._getitem__cached)
         psyco.bind(ShelfWithHooks._contains__cached)
