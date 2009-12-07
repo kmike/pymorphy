@@ -7,6 +7,7 @@ from pymorphy.morph import get_morph, setup_psyco
 DICT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '..', 'dicts', 'converted'))
 
+
 class TestMorph(unittest.TestCase):
     morph_ru = get_morph(os.path.join(DICT_PATH, 'ru'))
     morph_en = get_morph(os.path.join(DICT_PATH, 'en'))
