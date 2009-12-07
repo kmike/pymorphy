@@ -8,7 +8,7 @@ readme = open(os.path.join(os.path.dirname(__file__), 'README')).read()
 
 setup(
     name     = 'pymorphy',
-    version  = '0.1.1c',
+    version  = '0.2',
     author='Mikhail Korobov',
     author_email='kmike84@gmail.com',
     url='http://bitbucket.org/kmike/pymorphy/',
@@ -18,7 +18,10 @@ setup(
     long_description = readme,
 
     license = 'MIT license',
-    packages = ['pymorphy', 'pymorphy.backends', 'pymorphy.backends.shelve_source'],
+    packages = ['pymorphy',
+                'pymorphy.backends',
+                'pymorphy.backends.shelve_source',
+                'pymorphy.templatetags'],
     requires = ['python (>=2.5)'],
 
     classifiers=[
@@ -33,5 +36,5 @@ setup(
           'Topic :: Software Development :: Libraries :: Python Modules',
           'Topic :: Scientific/Engineering :: Information Analysis',
           'Topic :: Text Processing :: Linguistic',
-      ],
+    ],
 )
