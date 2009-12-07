@@ -96,7 +96,7 @@ class Morph:
             form = form.replace(u"мр", '').replace(u"жр",'').replace(u'ср','')
         variants = self.decline(word, form, graminfo['class'])
         if len(variants):
-            return variants[0]['norm']
+            return variants[0]['word']
         else:
             return word
 
@@ -110,10 +110,10 @@ class Morph:
         self.data.endings.cache = {}
 
 
-    def _decline(self, word):
+    def _decline(self, src_word):
         """ Просклонять: вернуть все грам. формы с информацией про них """
 
-        word_graminfo = self.get_graminfo(word)
+        word_graminfo = self.get_graminfo(src_word)
 
         forms = []
 
@@ -135,9 +135,9 @@ class Morph:
                 suffix, ancode, prefix = rule
                 cls, info, _letter  = self.data.gramtab[ancode]
 
-                norm = pre_prefix + prefix + lemma + suffix
+                word = pre_prefix + prefix + lemma + suffix
                 forms.append({
-                    'norm': norm,
+                    'word': word,
                     'class': cls,
                     'info': info,
                     'lemma': lemma,
