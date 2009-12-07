@@ -9,6 +9,9 @@ from pympler.muppy.muppy import get_objects, get_size
 
 import pymorphy
 
+DICT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                         '..', 'dicts', 'converted'))
+
 
 def get_words(text):
     r = re.compile('[\W+-]',re.U)
@@ -18,7 +21,6 @@ def get_words(text):
 def do_normalize(words, morph):
     for word in words:
         forms = morph.normalize(word)
-
 
 
 def do_pluralize(words, morph):
@@ -59,9 +61,9 @@ def bench(file, backend='shelve', use_psyco=True, use_cache=True):
         pymorphy.setup_psyco()
 
     if backend == 'pickle':
-        morph = pymorphy.get_pickle_morph('ru')
+        morph = pymorphy.morph.get_pickle_morph('ru')
     else:
-        morph = pymorphy.get_shelve_morph('ru', backend, cached = use_cache)
+        morph = pymorphy.get_morph(os.path.join(DICT_PATH,'ru'), backend, cached = use_cache)
 
     cProfile.runctx('do_all(words, morph)', globals = globals(), locals=locals())
     print_memory_diff()

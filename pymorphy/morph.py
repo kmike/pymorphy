@@ -29,12 +29,10 @@ class Morph:
         data_source
     """
 
-    def __init__(self, lang, data_source, check_prefixes = True,
+    def __init__(self, data_source, check_prefixes = True,
                  predict_by_prefix = True, predict_by_suffix = True,
                  handle_EE = False):
         '''
-        lang: язык, 'ru' или 'en' (еще de можно, если словарь конвертировать)
-
         data_source: источник данных. Наследник DictDataSource, свойства должны
             поддерживать доступ по ключу.
 
@@ -371,16 +369,25 @@ class Morph:
         return gram
 
 
-def get_shelve_morph(lang, backend='shelve', cached=True, **kwargs):
-    dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                       '..', 'dicts','converted', lang))
-    return Morph(lang, ShelveDataSource(dir, backend, cached=cached), **kwargs)
+def get_morph(dir, backend='shelve', cached=True, **kwargs):
+    """
+    Вернуть объект с морфологическим анализатором (Morph).
+
+    Параметры:
+
+        * dir - путь к папке с файлами словарей
+        * backend - тип словарей. Может быть 'shelve', 'tch', 'tcb', 'cdb'.
+        * cached - кешировать ли данные в оперативной памяти
+
+    Также можно указывать все параметры, которые принимает конструктор класса
+    Morph.
+
+    """
+    return Morph(ShelveDataSource(dir, backend, cached=cached), **kwargs)
 
 
-def get_pickle_morph(lang, **kwargs):
-    file = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                        '..', 'dicts', 'converted', lang, 'morphs.pickle'))
-    return Morph(lang, PickleDataSource(file), **kwargs)
+def get_pickle_morph(filename, **kwargs):
+    return Morph(PickleDataSource(filename), **kwargs)
 
 
 def setup_psyco():

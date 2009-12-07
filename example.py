@@ -23,7 +23,8 @@ text = u'''
 r = re.compile('[\W+-]',re.U)
 words = r.split(text.upper())
 
-morph = pymorphy.get_shelve_morph('ru')
+# тут нужно прописать путь до папки со словарями
+morph = pymorphy.get_morph('../dicts/converted/ru')
 
 for word in words:
     if word:

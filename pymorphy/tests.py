@@ -1,26 +1,19 @@
 #coding: utf-8
 import unittest
+import os
 
-from pymorphy.morph import get_pickle_morph, get_shelve_morph, setup_psyco
+from pymorphy.morph import get_morph, setup_psyco
 
-def repeat(n):
-    def repeatn(f):
-        def inner(*args, **kwds):
-            for i in range(n):
-                ret = f(*args, **kwds)
-            return ret
-        return inner
-    return repeatn
+DICT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                         '..', 'dicts', 'converted'))
 
-class TestMorphShelve(unittest.TestCase):
-    morph_ru = get_shelve_morph('ru')
-    morph_en = get_shelve_morph('en')
+class TestMorph(unittest.TestCase):
+    morph_ru = get_morph(os.path.join(DICT_PATH, 'ru'))
+    morph_en = get_morph(os.path.join(DICT_PATH, 'en'))
 
-#    @repeat(10)
     def check_norm(self, input, output):
         self.assertEqual(self.morph_ru.normalize(input), set(output))
 
-#    @repeat(10)
     def check_norm_en(self, input, output):
         self.assertEqual(self.morph_en.normalize(input), set(output))
 
@@ -86,13 +79,9 @@ class TestMorphShelve(unittest.TestCase):
         self.check_norm(u'САПАЮТ',[u'САПАТЬ']) # и никаких местоимений!
 
 
-#class TestMorphPickle(TestMorphShelve):
-#    morph_ru = get_pickle_morph('ru')
-#    morph_en = get_pickle_morph('en')
-
 
 class TestPluraliseRu(unittest.TestCase):
-    morph = get_shelve_morph('ru')
+    morph = get_morph(os.path.join(DICT_PATH, 'ru'))
 
     def assert_plural(self, word, plural, *args, **kwargs):
         morphed_word = self.morph.pluralize_ru(word, *args, **kwargs)
