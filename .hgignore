@@ -13,11 +13,16 @@ build.properties
 *.pyc
 *.orig
 *~
-pip-log.txt
 
 #os files
 .DS_Store
 Thumbs.db
+
+#setup
+pip-log.txt
+build/*
+dist/*
+MANIFEST
 
 #project-specific files
 my_tests.py
@@ -33,4 +38,3 @@ stuff
 *.log-psyco
 docs/_*
 bench/do.py
-build/*
