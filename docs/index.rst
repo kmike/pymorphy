@@ -11,6 +11,7 @@
 .. toctree::
    :maxdepth: 2
 
+   intro
    algo
    gram_info_ru
    Morph_UNIX

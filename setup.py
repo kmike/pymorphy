@@ -8,13 +8,13 @@ readme = open(os.path.join(os.path.dirname(__file__), 'README')).read()
 
 setup(
     name     = 'pymorphy',
-    version  = '0.1.1',
+    version  = '0.1.1c',
     author='Mikhail Korobov',
     author_email='kmike84@gmail.com',
     url='http://bitbucket.org/kmike/pymorphy/',
     download_url = 'http://bitbucket.org/kmike/pymorphy/get/tip.zip',
 
-    description = 'Morphological analyzer for Russian and English (+ possible German) languages.',
+    description = 'Morphological analyzer for Russian and English (+perhaps German) languages.',
     long_description = readme,
 
     license = 'MIT license',

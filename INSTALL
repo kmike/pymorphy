@@ -1,0 +1,9 @@
+1. pip install pymorphy
+
+2. Download and extract dictionary pack
+from http://bitbucket.org/kmike/pymorphy/downloads/
+
+3. Use it
+
+from pymorphy import get_morph
+morph = get_morph('path/to/extracted/files')
