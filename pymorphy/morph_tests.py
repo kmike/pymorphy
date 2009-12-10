@@ -172,3 +172,37 @@ class TestInflectRu(unittest.TestCase):
     def testVerbs(self):
         self.assert_inflect(u"ГУЛЯЮ", "прш", u"ГУЛЯЛ")
         self.assert_inflect(u"ГУЛЯЛ", "нст", u"ГУЛЯЮ")
+
+
+class TestPluralizeInflected(unittest.TestCase):
+    morph = get_morph(os.path.join(DICT_PATH, 'ru'))
+
+    def assert_morph(self, word, count, result, *args, **kwargs):
+        morphed_word = self.morph.pluralize_inflected_ru(word, count, *args, **kwargs)
+        self.assertEqual(morphed_word, result, u"%s != %s" % (morphed_word, result))
+
+    def testParrots(self):
+        self.assert_morph(u"ПОПУГАЙ", 1, u"ПОПУГАЙ")
+        self.assert_morph(u"ПОПУГАЙ", 2, u"ПОПУГАЯ")
+        self.assert_morph(u"ПОПУГАЙ", 3, u"ПОПУГАЯ")
+        self.assert_morph(u"ПОПУГАЙ", 4, u"ПОПУГАЯ")
+        self.assert_morph(u"ПОПУГАЙ", 5, u"ПОПУГАЕВ")
+        self.assert_morph(u"ПОПУГАЙ", 7, u"ПОПУГАЕВ")
+        self.assert_morph(u"ПОПУГАЙ", 9, u"ПОПУГАЕВ")
+        self.assert_morph(u"ПОПУГАЙ", 0, u"ПОПУГАЕВ")
+        self.assert_morph(u"ПОПУГАЙ", 10, u"ПОПУГАЕВ")
+        self.assert_morph(u"ПОПУГАЙ", 11, u"ПОПУГАЕВ")
+        self.assert_morph(u"ПОПУГАЙ", 12, u"ПОПУГАЕВ")
+        self.assert_morph(u"ПОПУГАЙ", 15, u"ПОПУГАЕВ")
+        self.assert_morph(u"ПОПУГАЙ", 19, u"ПОПУГАЕВ")
+        self.assert_morph(u"ПОПУГАЙ", 21, u"ПОПУГАЙ")
+        self.assert_morph(u"ПОПУГАЙ", 32, u"ПОПУГАЯ")
+        self.assert_morph(u"ПОПУГАЙ", 38, u"ПОПУГАЕВ")
+        self.assert_morph(u"ПОПУГАЙ", 232, u"ПОПУГАЯ")
+        self.assert_morph(u"ПОПУГАЙ", 111, u"ПОПУГАЕВ")
+        self.assert_morph(u"ПОПУГАЙ", 101, u"ПОПУГАЙ")
+
+    def testButyavka(self):
+        self.assert_morph(u"БУТЯВКА", 1, u"БУТЯВКА")
+        self.assert_morph(u"БУТЯВКА", 2, u"БУТЯВКИ")
+        self.assert_morph(u"БУТЯВКА", 5, u"БУТЯВОК")

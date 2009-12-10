@@ -184,6 +184,28 @@ class Morph:
         return self.inflect_ru(word, form.get_form_string(), gram_class)
 
 
+    def pluralize_inflected_ru(self, word, count, gram_class=None):
+        """
+        Вернуть слово в форме, которая будет сочетаться с переданным числом.
+        Например: 1 попугай, 2 попугая, 5 попугаев.
+
+        Аналог choose_plural из pytils, для которого требуется только 1
+        начальная форма слова.
+        """
+        if count % 100 == 11: # заканчивается на 11
+            form = u"мн,рд"
+        elif count % 10 == 1: # заканчивается на 1
+            form = u"ед,им"
+        elif 11 < count % 100 < 20: # заканчивается на 12..19
+            form = u'мн,рд'
+        elif 2 <= count % 10 <= 4: # заканчивается на 2,3 или 4
+            form = u'ед,рд'
+        else:                   # заканчивается на 5..9 или 0
+            form = u'мн,рд'
+
+        return self.inflect_ru(word, form, gram_class)
+
+
 #----------- internal methods -------------
 
     def _drop_cache(self):
