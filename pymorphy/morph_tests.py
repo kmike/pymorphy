@@ -148,12 +148,13 @@ class TestPluraliseRu(unittest.TestCase):
     def testInvalidWord(self):
         self.assert_plural(u'123', u'123')
 
+    def testInvalidGraminfo(self):
+        self.assert_plural(u'НАЧАЛО', u'НАЧАЛА', gram_class=u'С')
+
 # падающие тесты ============================
     def testPronouns(self):
         self.assert_plural(u'Я', u'МЫ')
 
-    def testInvalidGraminfo(self):
-        self.assert_plural(u'НАЧАЛО', u'НАЧАЛА', gram_class=u'С')
 
 
 class TestInflectRu(unittest.TestCase):
