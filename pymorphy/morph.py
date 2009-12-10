@@ -162,9 +162,11 @@ class Morph:
         форме и части речи, а также менее всего отличается от исходного.
         """
         forms = self.get_graminfo(word)
+        if gram_class is not None:
+            forms = [form for form in forms if form['class'] == gram_class]
         if not forms:
             return word
-        graminfo = forms[0]    #FIXME: первая форма в списке не обязательно самая лучшая
+        graminfo = forms[0]  #FIXME: первая форма в списке не обязательно самая лучшая
 
         form = GramForm(graminfo['info'])
         form.update(gram_form)
