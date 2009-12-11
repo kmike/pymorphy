@@ -43,6 +43,16 @@ class GramFormTest(unittest.TestCase):
         self.assertTrue(form.get_form_string().count(u'дт') == 1)
         self.assertTrue(len(form.get_form_string()) == (2*3)+2)
 
+    def testMatch(self):
+        form = GramForm(u"мр,ед,имя")
+        self.assertTrue(form.match(GramForm(u"мр")))
+        self.assertTrue(form.match(GramForm(u"ед,мр")))
+
+    def testMatch2(self):
+        form = GramForm(u"мр,ед,имя")
+        self.assertFalse(form.match(GramForm(u"мр,!имя")))
+        self.assertTrue(form.match(GramForm(u"ед,!тв")))
+
 
 class TestMorph(unittest.TestCase):
     morph_ru = get_morph(os.path.join(DICT_PATH, 'ru'))

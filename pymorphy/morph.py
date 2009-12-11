@@ -29,12 +29,13 @@ def _array_match(arr, filter):
 class GramForm(object):
     """ Класс для работы с грамматической формой """
 
-    def __init__(self, form_string):
-        self.form = self.parse_str(form_string)
+    def __init__(self, form_string,):
+        self.form, self.denied_form = self.parse_str(form_string)
 
     def parse_str(self, form_string):
-        attrs = [a for a in form_string.split(',') if a]
-        return set(attrs)
+        form = [a for a in form_string.split(',') if a and a[0]!='!']
+        denied_form = [a[1:] for a in form_string.split(',') if a and a[0]=='!']
+        return set(form), set(denied_form)
 
     def get_form_string(self):
         return u",".join(self.form)
@@ -65,7 +66,7 @@ class GramForm(object):
 
     def update(self, form_string):
         """ Обновляет параметры, по возможности оставляя все, что можно. """
-        requested_form = self.parse_str(form_string)
+        requested_form, denied_form = self.parse_str(form_string)
 
         for item in requested_form:
 
@@ -95,6 +96,14 @@ class GramForm(object):
 
         self.form.update(requested_form)
         return self
+
+    def match(self, gram_form):
+        if not self.form.issuperset(gram_form.form): # не все параметры из gram_form есть тут
+            return False
+        if self.form.intersection(gram_form.denied_form):
+            return False
+        return True
+
 
 
 class Morph:
