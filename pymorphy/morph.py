@@ -2,7 +2,7 @@
 
 import os
 
-from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS
+from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS, NOUNS
 from pymorphy.constants import RU_CASES, RU_NUMBERS, RU_GENDERS, RU_PERSONS, RU_TENSES, RU_VOICES
 from pymorphy.backends import PickleDataSource, ShelveDataSource
 
@@ -37,7 +37,7 @@ class GramForm(object):
         return set(attrs)
 
     def get_form_string(self):
-        return ",".join(self.form)
+        return u",".join(self.form)
 
     def clear_number(self):
         ''' убрать информацию о числе '''
@@ -280,6 +280,24 @@ class Morph:
                 })
         return forms
 
+    def _get_paradigm_normal_forms(self, paradigm):
+        """
+        Вернуть все нормальные формы для парадигмы.
+        Если форма по умолчанию - сущ. мр,ед,им, то ищется также вариант
+        слова женского рода
+        """
+        first_form = paradigm[0]
+        norm_forms = [first_form[0]]
+        gramtab = self.data.gramtab
+        graminfo = gramtab[first_form[1]]
+        if graminfo[0] in NOUNS:
+            for rule in paradigm[1:]:
+                gram = gramtab[rule[1]]
+                if gram[0] in NOUNS and "ед,им" in gram[1]:
+                    norm_forms.append(rule[0])
+        return norm_forms
+
+
     def _get_lemma_graminfo(self, lemma, suffix, require_prefix, method_format_str):
         """ Получить грам. информацию по лемме и суффиксу. Для леммы перебираем все
             правила, смотрим, есть ли среди них такие, которые приводят к
@@ -291,22 +309,27 @@ class Morph:
         # для леммы смотрим все доступные парадигмы
         for paradigm_id in lemma_paradigms:
             paradigm = data_source.rules[paradigm_id]
-            # все правила в парадигме
-            for rule in paradigm:
-                rule_suffix, rule_ancode, rule_prefix = rule
-                # если по правилу выходит, что окончание такое, как надо,
-                # то значит нашли, что искали
-                if rule_suffix==suffix and rule_prefix==require_prefix:
-                    graminfo = data_source.gramtab[rule_ancode]
-                    norm_form = lemma + paradigm[0][0]   #FIXME: первая по порядку форма не обязательно нормальная!
-                    gram.append({'norm': norm_form,
-                                 'class': graminfo[0],
-                                 'info': graminfo[1],
-                                 'paradigm_id': paradigm_id,
-                                 'ancode': rule_ancode,
-                                 'lemma': lemma,
-                                 'method': method_format_str % (lemma, suffix)
-                               })
+            # оставляем только те правила, по которым можно слово составить
+            valid_rules = [rule for rule in paradigm if rule[0]==suffix and rule[2]==require_prefix]
+            if not valid_rules:
+                continue
+            normal_forms = self._get_paradigm_normal_forms(paradigm)
+            for rule in valid_rules:
+                ancode = rule[1]
+                graminfo = data_source.gramtab[ancode]
+                for norm_form in normal_forms:
+                    gram_form = {
+                             'norm': lemma+norm_form,
+                             'class': graminfo[0],
+                             'info': graminfo[1],
+                             'paradigm_id': paradigm_id,
+                             'ancode': ancode,
+                             'lemma': lemma,
+                             'method': method_format_str % (lemma, suffix)
+                            }
+                    # не допускаем дубликатов
+                    if not gram_form in gram:
+                        gram.append(gram_form)
         return gram
 
 

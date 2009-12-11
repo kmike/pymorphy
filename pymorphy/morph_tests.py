@@ -49,7 +49,11 @@ class TestMorph(unittest.TestCase):
     morph_en = get_morph(os.path.join(DICT_PATH, 'en'))
 
     def check_norm(self, input, output):
-        self.assertEqual(self.morph_ru.normalize(input), set(output))
+        norm_forms = self.morph_ru.normalize(input)
+        correct_norm_forms = set(output)
+
+        msg = u"[%s] != [%s]" % (u", ".join(norm_forms), u", ".join(correct_norm_forms))
+        self.assertEqual(norm_forms, correct_norm_forms, msg)
 
     def check_norm_en(self, input, output):
         self.assertEqual(self.morph_en.normalize(input), set(output))
@@ -115,6 +119,15 @@ class TestMorph(unittest.TestCase):
         self.check_norm(u'БУТЯВКОЙ',[u'БУТЯВКА']) # и никаких местоимений!
         self.check_norm(u'САПАЮТ',[u'САПАТЬ']) # и никаких местоимений!
 
+    def testFemale(self):
+        self.check_norm(u'КЛЮЕВУ', [u'КЛЮЕВ', u'КЛЮЕВА'])
+        self.check_norm(u'КЛЮЕВА', [u'КЛЮЕВА', u'КЛЮЕВ'])
+
+    def testFemaleInvalidGramforms(self):
+        graminfo = self.morph_ru.get_graminfo(u"КЛЮЕВА")
+        for form in graminfo:
+            self.assertFalse(form['info']==u'жр,ед,им' and
+                             form['norm']== u'КЛЮЕВ', form['norm'])
 
 
 class TestPluraliseRu(unittest.TestCase):
