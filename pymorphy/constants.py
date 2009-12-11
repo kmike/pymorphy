@@ -15,7 +15,7 @@ RU_PERSONS = (u'1л', u'2л', u'3л')
 RU_TENSES = (u'нст', u'прш', u'буд')
 RU_VOICES = (u'дст', u'стр')
 
-NORMAL_FORMS = {
+NORMAL_FORMS_RU = {
     u'С':               (u'им,ед',          u'С'),
     u'П':               (u'им,ед,!прев,!сравн',    u'П'),
     u'МС':              (u'им,ед',          u'МС'),
@@ -37,5 +37,30 @@ NORMAL_FORMS = {
     u'КР_ПРИЛ':         (u'ед',             u'П'),
     u'КР_ПРИЧАСТИЕ':    (u'',               u'КР_ПРИЧАСТИЕ'),
 }
+
+NORMAL_FORMS_EN = {
+    'ADJECTIVE': ('','ADJECTIVE'),
+    'NUMERAL': ('','NUMERAL'),
+    'ADVERB': ('','ADVERB'),
+    'VERB': ('','VERB'),
+    'MOD': ('','MOD'),
+    'VBE': ('','VBE'),
+    'PN': ('','PN'),
+    'PN_ADJ': ('','PN_ADJ'),
+    'PRON': ('','PRON'),
+    'NOUN': ('','NOUN'),
+    'CONJ': ('','CONJ'),
+    'INT': ('','INT'),
+    'PREP': ('','PREP'),
+    'PART': ('','PART'),
+    'ARTICLE': ('','ARTICLE'),
+    'ORDNUM': ('','ORDNUM'),
+    'POSS': ('','POSS'),
+    '*': ('','*'),
+}
+
+NORMAL_FORMS = {}
+NORMAL_FORMS.update(NORMAL_FORMS_RU)
+NORMAL_FORMS.update(NORMAL_FORMS_EN)
 
 KEEP_GENDER_CLASSES = NOUNS+PRONOUNS+PRONOUNS_ADJ+ADJECTIVE+(u'КР_ПРИЛ',)

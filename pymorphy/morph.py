@@ -1,8 +1,8 @@
 #coding: utf-8
 
-from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS, NOUNS, NORMAL_FORMS
+from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS, NOUNS
 from pymorphy.constants import RU_CASES, RU_NUMBERS, RU_GENDERS, RU_PERSONS, RU_TENSES, RU_VOICES
-from pymorphy.constants import KEEP_GENDER_CLASSES
+from pymorphy.constants import KEEP_GENDER_CLASSES, NORMAL_FORMS, NORMAL_FORMS_EN
 from pymorphy.backends import PickleDataSource, ShelveDataSource
 
 from utils import mprint
@@ -259,6 +259,13 @@ class Morph:
                     correct_genders.add(gender)
 
         correct_classes = set([NORMAL_FORMS[form['class']][1] for form in base_forms])
+
+        # для англ. языка просто возвращаем первую форму
+        if correct_classes.issubset(set(NORMAL_FORMS_EN.keys())):
+            base_form = base_forms[0]
+            norm_form = base_form['lemma']+self.data.rules[base_form['paradigm_id']][0][0]
+            return [{'word': norm_form}]
+
         variants = [variant for variant in self._decline(word) if variant['class'] in correct_classes]
 
         def form_is_normal(form):
@@ -316,26 +323,6 @@ class Morph:
                     'lemma': lemma,
                 })
         return forms
-
-#    def _get_paradigm_normal_forms(self, paradigm):
-#        """
-#        Вернуть все нормальные формы для парадигмы.
-#        Если форма по умолчанию - сущ. мр,ед,им, то ищется также вариант
-#        слова женского рода
-#        """
-#        first_form = paradigm[0]
-#        norm_forms = [first_form[0]]
-#        return norm_forms
-#        gramtab = self.data.gramtab
-#        graminfo = gramtab[first_form[1]]
-#        if graminfo[0] in NOUNS:
-#            for rule in paradigm[1:]:
-#                gram = gramtab[rule[1]]
-#                if gram[0] in NOUNS and "ед,им" in gram[1]:
-#                    mprint(rule)
-#                    norm_forms.append(rule[0])
-#        return norm_forms
-
 
 
     def _get_lemma_graminfo(self, lemma, suffix, require_prefix, method_format_str):
