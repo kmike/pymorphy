@@ -1,7 +1,8 @@
 #coding: utf-8
 
-from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS, NOUNS
+from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS, NOUNS, NORMAL_FORMS
 from pymorphy.constants import RU_CASES, RU_NUMBERS, RU_GENDERS, RU_PERSONS, RU_TENSES, RU_VOICES
+from pymorphy.constants import KEEP_GENDER_CLASSES
 from pymorphy.backends import PickleDataSource, ShelveDataSource
 
 from utils import mprint
@@ -102,6 +103,7 @@ class GramForm(object):
             return False
         return True
 
+NORMAL_GRAM_FORMS = dict([(cls, GramForm(NORMAL_FORMS[cls][0]),) for cls in NORMAL_FORMS])
 
 
 class Morph:
@@ -147,11 +149,6 @@ class Morph:
         self.prediction_min_suffix_len = 3 #actually 3=4-1
 
         self.handle_EE = handle_EE
-
-    def normalize(self, word):
-        """ Вернуть нормальную форму слова """
-        raise NotImplementedError
-#        return set([item['norm'] for item in self._get_graminfo(word)])
 
     def get_graminfo(self, word):
         """ Вернуть грамматическую информацию о слове """
@@ -245,6 +242,39 @@ class Morph:
         return self.inflect_ru(word, form, gram_class)
 
 
+    def normalize(self, word):
+        """ Вернуть список нормальных форм слова """
+        forms = self.get_normal_forms(word)
+        return set(form['word'] for form in forms)
+
+
+    def get_normal_forms(self, word):
+        """ Вернуть список нормальных форм слова с грам. информацией """
+        base_forms = self.get_graminfo(word)
+
+        correct_genders = set()
+        for form in base_forms:
+            for gender in RU_GENDERS:
+                if gender in GramForm(form['info']).form:
+                    correct_genders.add(gender)
+
+        correct_classes = set([NORMAL_FORMS[form['class']][1] for form in base_forms])
+        variants = [variant for variant in self._decline(word) if variant['class'] in correct_classes]
+
+        def form_is_normal(form):
+            gram_form = GramForm(form['info'])
+            normal_form = NORMAL_GRAM_FORMS[form['class']]
+            if form['class'] in KEEP_GENDER_CLASSES:
+                if correct_genders:
+                    if not set(gram_form.form).intersection(correct_genders):
+                        return False
+            return gram_form.match(normal_form)
+        normal_forms = [form for form in variants if form_is_normal(form)]
+
+#        mprint(normal_forms)
+        return normal_forms
+
+
 #----------- internal methods -------------
 
     def _drop_cache(self):
@@ -258,7 +288,6 @@ class Morph:
         """ Просклонять: вернуть все грам. формы с информацией про них """
 
         word_graminfo = self.get_graminfo(src_word)
-
         forms = []
 
         # убираем дубликаты парадигм
