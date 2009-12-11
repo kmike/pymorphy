@@ -14,3 +14,9 @@ RU_GENDERS = (u'мр', u'жр', u'ср', u'мр-жр')
 RU_PERSONS = (u'1л', u'2л', u'3л')
 RU_TENSES = (u'нст', u'прш', u'буд')
 RU_VOICES = (u'дст', u'стр')
+
+
+NORMAL_FORMS = {
+    u'С': u'им,ед',
+    u'П': u'им,ед,!прев',
+}

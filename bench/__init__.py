@@ -34,6 +34,7 @@ def do_all(words, morph):
 
 
 def print_memory_diff():
+    return
     usage = get_size(get_objects())
     if print_memory_diff._usage:
         print u"Memory usage diff: %d Kb" % ((usage-print_memory_diff._usage)/1024)

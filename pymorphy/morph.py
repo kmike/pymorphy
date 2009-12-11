@@ -1,7 +1,5 @@
 #coding: utf-8
 
-import os
-
 from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS, NOUNS
 from pymorphy.constants import RU_CASES, RU_NUMBERS, RU_GENDERS, RU_PERSONS, RU_TENSES, RU_VOICES
 from pymorphy.backends import PickleDataSource, ShelveDataSource
@@ -152,7 +150,8 @@ class Morph:
 
     def normalize(self, word):
         """ Вернуть нормальную форму слова """
-        return set([item['norm'] for item in self._get_graminfo(word)])
+        raise NotImplementedError
+#        return set([item['norm'] for item in self._get_graminfo(word)])
 
     def get_graminfo(self, word):
         """ Вернуть грамматическую информацию о слове """
@@ -289,22 +288,25 @@ class Morph:
                 })
         return forms
 
-    def _get_paradigm_normal_forms(self, paradigm):
-        """
-        Вернуть все нормальные формы для парадигмы.
-        Если форма по умолчанию - сущ. мр,ед,им, то ищется также вариант
-        слова женского рода
-        """
-        first_form = paradigm[0]
-        norm_forms = [first_form[0]]
-        gramtab = self.data.gramtab
-        graminfo = gramtab[first_form[1]]
-        if graminfo[0] in NOUNS:
-            for rule in paradigm[1:]:
-                gram = gramtab[rule[1]]
-                if gram[0] in NOUNS and "ед,им" in gram[1]:
-                    norm_forms.append(rule[0])
-        return norm_forms
+#    def _get_paradigm_normal_forms(self, paradigm):
+#        """
+#        Вернуть все нормальные формы для парадигмы.
+#        Если форма по умолчанию - сущ. мр,ед,им, то ищется также вариант
+#        слова женского рода
+#        """
+#        first_form = paradigm[0]
+#        norm_forms = [first_form[0]]
+#        return norm_forms
+#        gramtab = self.data.gramtab
+#        graminfo = gramtab[first_form[1]]
+#        if graminfo[0] in NOUNS:
+#            for rule in paradigm[1:]:
+#                gram = gramtab[rule[1]]
+#                if gram[0] in NOUNS and "ед,им" in gram[1]:
+#                    mprint(rule)
+#                    norm_forms.append(rule[0])
+#        return norm_forms
+
 
 
     def _get_lemma_graminfo(self, lemma, suffix, require_prefix, method_format_str):
@@ -322,23 +324,20 @@ class Morph:
             valid_rules = [rule for rule in paradigm if rule[0]==suffix and rule[2]==require_prefix]
             if not valid_rules:
                 continue
-            normal_forms = self._get_paradigm_normal_forms(paradigm)
             for rule in valid_rules:
                 ancode = rule[1]
                 graminfo = data_source.gramtab[ancode]
-                for norm_form in normal_forms:
-                    gram_form = {
-                             'norm': lemma+norm_form,
-                             'class': graminfo[0],
-                             'info': graminfo[1],
-                             'paradigm_id': paradigm_id,
-                             'ancode': ancode,
-                             'lemma': lemma,
-                             'method': method_format_str % (lemma, suffix)
-                            }
-                    # не допускаем дубликатов
-                    if not gram_form in gram:
-                        gram.append(gram_form)
+                gram_form = {
+                         'class': graminfo[0],
+                         'info': graminfo[1],
+                         'paradigm_id': paradigm_id,
+                         'ancode': ancode,
+                         'lemma': lemma,
+                         'method': method_format_str % (lemma, suffix)
+                        }
+                # не допускаем дубликатов
+                if not gram_form in gram:
+                    gram.append(gram_form)
         return gram
 
 
@@ -386,8 +385,7 @@ class Morph:
                             # на суффикс начальной формы
                             suffix_len = len(suffix)
                             predicted_lemma = word[0:-suffix_len] if suffix_len else word
-                            norm_form = predicted_lemma + rules_list[0][0]
-                            gram.append({'norm': norm_form,
+                            gram.append({
                                          'class':graminfo[0],
                                          'info': graminfo[1],
                                          'paradigm_id': paradigm_id,
@@ -424,7 +422,6 @@ class Morph:
 
                 # приписываем префикс обратно к полученным нормальным формам
                 for form in base_forms:
-                    form['norm'] = prefix+form['norm']
                     form['prefix'] = prefix
                     form['method'] = 'prefix(%s).%s' % (prefix, form['method'])
                 gram.extend(base_forms)
@@ -470,7 +467,6 @@ class Morph:
 
             # приписываем префикс обратно
             for form in base_forms:
-                form['norm'] = prefix+form['norm']
                 form['predict-prefix'] = prefix
                 form['method'] = 'predict-prefix(%s).%s' % (prefix, form['method'])
             gram.extend(base_forms)
@@ -488,7 +484,6 @@ class Morph:
         gram = self._get_graminfo(word.replace(u'Е', u'Ё'), require_prefix,
                                   predict_EE = False)
         for info in gram:
-            info['norm'] = info['norm'].replace(u'Ё', u'Е')
             info['method'] = info['method'].replace(u'Ё', u'Е')
         return gram
 
