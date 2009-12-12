@@ -21,7 +21,6 @@
 Указатели и поиск
 =================
 
-* :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
 
