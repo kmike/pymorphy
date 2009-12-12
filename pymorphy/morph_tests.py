@@ -108,7 +108,7 @@ class TestMorph(unittest.TestCase):
         self.check_norm(u'ЕЙ', [u'ОНА'])
         self.check_norm(u'Я', [u'Я'])
         self.check_norm(u'МНЕ', [u'Я'])
-        self.check_norm(u'ЕГО', [u'ОН', u'ОНО', u'ЕГО'])
+        self.check_norm(u'ЕГО', [u'ОН', u'ОНО'])
         self.check_norm(u'ЕМУ', [u'ОН', u'ОНО'])
 
     def testNoBase(self):
