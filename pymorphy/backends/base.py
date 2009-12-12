@@ -6,48 +6,64 @@ class DictDataSource(object):
         gramtab, endings, possible_rule_prefixes) accessible through dict
         or list syntax ("duck typing")
 
-        @ivar rules: {paradigm_id->[ (suffix, ancode, prefix) ]}
-        @ivar lemmas: {base -> [rule_id]}
-        @ivar prefixes: set([prefix])
-        @ivar gramtab: {ancode->(type,info,letter)}
-        @ivar rule_freq: {paradigm_id->freq}
-        @ivar endings: {word_end->{rule_id->(possible_paradigm_ids)}}
-        @ivar possible_rule_prefixes: [prefix]
+        Абстрактный базовый класс для источников данных pymorphy.
+        У подклассов должны быть свойства rules, lemmas, prefixes,
+        gramtab, endings, possible_rule_prefixes, к которым можно было бы
+        обращаться как к словарям, спискам или множествам.
+
+        .. glossary::
+
+            rules
+                для каждой парадигмы - список правил (приставка, грам. информация,
+                префикс)::
+
+                    {paradigm_id->[ (suffix, ancode, prefix) ]}
+
+            lemmas
+                для каждой леммы - список номеров парадигм (способов
+                образования слов), доступных для данной леммы (основы слова)::
+
+                    {base -> [rule_id]}
+
+            prefixes
+                фиксированые префиксы::
+
+                    set([prefix])
+
+            gramtab
+                грамматическая информация: словарь, ключи которого - индексы грам.
+                информации (анкоды), значения - кортежи
+                (часть речи, информация о грам. форме, какая-то непонятная буква)::
+
+                    {ancode->(type,info,letter)}
+
+            rule_freq
+                частоты для правил, используется при подготовке словарей::
+
+                    {paradigm_id->freq}
+
+            endings
+                для каждого возможного 5 буквенного окончания - словарь, в котором
+                ключи - номера возможных парадигм, а значения - номера возможных
+                правил::
+
+                    {word_end->{rule_id->(possible_paradigm_ids)}}
+
+            possible_rule_prefixes
+                набор всех возможных приставок к леммам::
+
+                    [prefix]
     '''
     def __init__(self):
-
-        # для каждой парадигмы - список правил (приставка, грам. информация,
-        # префикс) в формате {paradigm_id->[ (suffix, ancode, prefix) ]}
         self.rules={}
-
-        # для каждой леммы - список номеров парадигм? (способов образования слов),  #TODO: проверить, парадигм ли
-        # доступных для данной леммы (основы слова)
         self.lemmas={}
-
-        # фиксированые префиксы
         self.prefixes=set()
-
-        # для каждого возможного 5 буквенного окончания - словарь, в котором
-        # ключи - номера возможных парадигм, а значения - номера возможных
-        # правил
         self.endings = {}
-
-        # грамматическая информация: словарь, ключи которого - индексы грам.
-        # информации (анкоды), значения - кортежи
-        # (часть речи, информация о грам. форме, какая-то непонятная буква)
         self.gramtab={}
-
-        # набор всех возможных приставок к леммам
         self.possible_rule_prefixes = set()
-
-        # ударения, не используется
-        self.accents=[]
-
-        # частоты для правил, используется при подготовке словарей
         self.rule_freq = {}
-
-        # логи работы с оригинальной программой от aot, не используется
-        self.logs=[]
+        self.accents=[] # ударения, не используется
+        self.logs=[] # логи работы с оригинальной программой от aot, не используется
 
     def load(self):
         """ Загрузить данные """

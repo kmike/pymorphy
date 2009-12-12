@@ -4,14 +4,23 @@ API-документация
 Морфологический анализатор
 --------------------------
 
-.. automodule:: pymorphy
-    :members:
-    :undoc-members:
-
 .. automodule:: pymorphy.morph
-    :members:
-    :undoc-members:
 
+    .. autofunction:: get_morph
+
+    .. autofunction:: setup_psyco
+
+    .. autofunction:: get_pickle_morph
+
+    .. autoclass:: Morph
+        :members:
+        :undoc-members:
+
+        .. automethod:: __init__
+
+    .. autoclass:: GramForm
+        :members:
+        :undoc-members:
 
 Key-value - бэкенды
 -------------------
@@ -19,6 +28,7 @@ Key-value - бэкенды
 .. automodule:: pymorphy.backends
     :members:
     :undoc-members:
+    :show-inheritance:
 
 Базовый класс
 ^^^^^^^^^^^^^
@@ -26,6 +36,7 @@ Key-value - бэкенды
 .. automodule:: pymorphy.backends.base
     :members:
     :undoc-members:
+    :show-inheritance:
 
 Бэкенд для разбора исходных MRD-файлов
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -38,6 +49,7 @@ Key-value - бэкенды
 .. automodule:: pymorphy.backends.mrd_source
     :members:
     :undoc-members:
+    :show-inheritance:
 
 
 Pickle-источник данных
@@ -46,6 +58,7 @@ Pickle-источник данных
 .. automodule:: pymorphy.backends.pickle_source
     :members:
     :undoc-members:
+    :show-inheritance:
 
 
 DB-источники данных
@@ -54,6 +67,7 @@ DB-источники данных
 .. automodule:: pymorphy.backends.shelve_source
     :members:
     :undoc-members:
+    :show-inheritance:
 
 Интерфейс к Shelve (BSDDB, GDBM, DBM)
 """""""""""""""""""""""""""""""""""""
@@ -61,6 +75,7 @@ DB-источники данных
 .. automodule:: pymorphy.backends.shelve_source.shelf_with_hooks
     :members:
     :undoc-members:
+    :show-inheritance:
 
 
 Интерфейс к CDB
@@ -69,6 +84,7 @@ DB-источники данных
 .. automodule:: pymorphy.backends.shelve_source.cdb_shelve
     :members:
     :undoc-members:
+    :show-inheritance:
 
 
 Интерфейс к Tokyo Cabinet
@@ -76,3 +92,4 @@ DB-источники данных
 .. automodule:: pymorphy.backends.shelve_source.pytc_shelve
     :members:
     :undoc-members:
+    :show-inheritance:
