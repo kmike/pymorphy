@@ -28,12 +28,13 @@ def _array_match(arr, filter):
 class GramForm(object):
     """ Класс для работы с грамматической формой """
 
-    def __init__(self, form_string,):
+    def __init__(self, form_string):
         self.form, self.denied_form = self.parse_str(form_string)
 
     def parse_str(self, form_string):
-        form = [a for a in form_string.split(',') if a and a[0]!='!']
-        denied_form = [a[1:] for a in form_string.split(',') if a and a[0]=='!']
+        splitted = form_string.split(',')
+        form = [a for a in splitted if a and a[0]!='!']
+        denied_form = [a[1:] for a in splitted if a and a[0]=='!']
         return set(form), set(denied_form)
 
     def get_form_string(self):
@@ -65,7 +66,7 @@ class GramForm(object):
 
     def update(self, form_string):
         """ Обновляет параметры, по возможности оставляя все, что можно. """
-        requested_form, denied_form = self.parse_str(form_string)
+        requested_form = [a for a in form_string.split(',') if a and a[0]!='!']
 
         for item in requested_form:
 
@@ -258,8 +259,9 @@ class Morph:
 
         correct_genders = set()
         for form in base_forms:
+            gram_form = GramForm(form['info']).form
             for gender in RU_GENDERS:
-                if gender in GramForm(form['info']).form:
+                if gender in gram_form:
                     correct_genders.add(gender)
 
         correct_classes = set([NORMAL_FORMS[form['class']][1] for form in base_forms])
@@ -276,11 +278,15 @@ class Morph:
             gram_form = GramForm(form['info'])
             normal_form = NORMAL_GRAM_FORMS[form['class']]
             if form['class'] in KEEP_GENDER_CLASSES:
-                if correct_genders:
-                    if not set(gram_form.form).intersection(correct_genders):
-                        return False
+                if not set(gram_form.form).intersection(correct_genders):
+                    return False
             return gram_form.match(normal_form)
-        normal_forms = [form for form in variants if form_is_normal(form)]
+
+
+        if correct_genders:
+            normal_forms = [form for form in variants if form_is_normal(form)]
+        else:
+            normal_forms = [form for form in variants if GramForm(form['info']).match(NORMAL_GRAM_FORMS[form['class']])]
 
 #        mprint(normal_forms)
         return normal_forms
@@ -586,6 +592,8 @@ def setup_psyco():
         from pymorphy.backends.shelve_source.shelf_with_hooks import ShelfWithHooks
         psyco.bind(Morph._get_graminfo)
         psyco.bind(Morph._get_lemma_graminfo)
+        psyco.bind(Morph.get_normal_forms)
+        psyco.bind(GramForm.__init__)
         psyco.bind(ShelfWithHooks._getitem__cached)
         psyco.bind(ShelfWithHooks._contains__cached)
         psyco.bind(_get_split_variants)
