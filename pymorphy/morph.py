@@ -245,12 +245,16 @@ class Morph:
     def normalize(self, word):
         """ Вернуть список нормальных форм слова """
         forms = self.get_normal_forms(word)
+        if not forms:
+            return word
         return set(form['word'] for form in forms)
 
 
     def get_normal_forms(self, word):
         """ Вернуть список нормальных форм слова с грам. информацией """
         base_forms = self.get_graminfo(word)
+        if not base_forms:
+            return []
 
         correct_genders = set()
         for form in base_forms:
