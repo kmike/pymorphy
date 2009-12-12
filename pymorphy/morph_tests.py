@@ -133,11 +133,26 @@ class TestMorph(unittest.TestCase):
         self.check_norm(u'КЛЮЕВУ', [u'КЛЮЕВ', u'КЛЮЕВА'])
         self.check_norm(u'КЛЮЕВА', [u'КЛЮЕВА', u'КЛЮЕВ'])
 
-#    def testFemaleInvalidGramforms(self):
-#        graminfo = self.morph_ru.get_graminfo(u"КЛЮЕВА")
-#        for form in graminfo:
-#            self.assertFalse(form['info']==u'жр,ед,им' and
-#                             form['norm']== u'КЛЮЕВ', form['norm'])
+    def testVerbs(self):
+        self.check_norm(u'ГУЛЯЛ', [u'ГУЛЯТЬ'])
+        self.check_norm(u'ГУЛЯЛА', [u'ГУЛЯТЬ'])
+        self.check_norm(u'ГУЛЯЕТ', [u'ГУЛЯТЬ'])
+        self.check_norm(u'ГУЛЯЮТ', [u'ГУЛЯТЬ'])
+        self.check_norm(u'ГУЛЯЛИ', [u'ГУЛЯТЬ'])
+        self.check_norm(u'ГУЛЯТЬ', [u'ГУЛЯТЬ'])
+
+    def testVerbProducts(self):
+        self.check_norm(u'ГУЛЯЮЩИЙ', [u'ГУЛЯТЬ'])
+        self.check_norm(u'ГУЛЯВШИ', [u'ГУЛЯТЬ'])
+        self.check_norm(u'ГУЛЯЯ', [u'ГУЛЯТЬ'])
+        self.check_norm(u'ГУЛЯЮЩАЯ', [u'ГУЛЯТЬ'])
+        self.check_norm(u'ЗАГУЛЯВШИЙ', [u'ЗАГУЛЯТЬ'])
+
+    def testKeepGender(self):
+        self.check_norm(u'КРАСИВЫЙ', [u'КРАСИВЫЙ'])
+        self.check_norm(u'КРАСИВАЯ', [u'КРАСИВАЯ'])
+        self.check_norm(u'КРАСИВОМУ', [u'КРАСИВЫЙ', u'КРАСИВОЕ'])
+        self.check_norm(u'КРАСИВЫЕ', [u'КРАСИВЫЙ', u'КРАСИВАЯ', u'КРАСИВОЕ'])
 
 
 class TestPluraliseRu(unittest.TestCase):
