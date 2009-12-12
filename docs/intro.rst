@@ -17,7 +17,7 @@
         >>> print m.inflect(u"СУСЛИК", u"мн,рд") # много кого?
         СУСЛИКОВ
 
-   Есть templatetag, который позволяет делать это прямо в шаблоне django::
+   Есть template filter, который позволяет делать это прямо в шаблоне django::
 
        {% load pymorphy_tags %}
 

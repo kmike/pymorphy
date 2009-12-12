@@ -2,7 +2,7 @@
 
 from unittest import TestCase
 
-from templatetags.pymorphy_tags import inflect
+from templatetags.pymorphy_tags import inflect, plural
 
 class InflectTagTest(TestCase):
 
@@ -34,3 +34,17 @@ class InflectTagTest(TestCase):
         self.assertInflected(u'Геннадий Петрович', u'тв', u'Геннадием Петровичем')
         self.assertInflected(u'Геннадий Петрович', u'пр', u'Геннадии Петровиче')
 
+
+class PluralTagTest(TestCase):
+    def assertPlural(self, phrase, amount, result):
+        morphed = plural(phrase, amount)
+        self.assertEqual(morphed, result, u"%s != %s" % (morphed, result))
+
+    def testPluralize(self):
+        self.assertPlural(u'бутявка', 1, u'бутявка')
+        self.assertPlural(u'бутявка', 2, u'бутявки')
+        self.assertPlural(u'бутявка', 5, u'бутявок')
+        self.assertPlural(u'Бутявка', 1, u'Бутявка')
+
+    def testPhrase(self):
+        self.assertPlural(u'Геннадий Петрович', 8, u'Геннадиев Петровичей')
