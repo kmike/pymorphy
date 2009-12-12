@@ -199,14 +199,14 @@ class TestInflectRu(unittest.TestCase):
         self.assertEqual(morphed_word, result, u"%s != %s" % (morphed_word, result))
 
     def testInflect(self):
-        self.assert_inflect(u"СУСЛИКОВ", "дт", u"СУСЛИКАМ")
-        self.assert_inflect(u"СУСЛИК", "дт", u"СУСЛИКУ")
-        self.assert_inflect(u"СУСЛИКА", "дт", u"СУСЛИКУ")
-        self.assert_inflect(u"СУСЛИК", "мн,дт", u"СУСЛИКАМ")
+        self.assert_inflect(u"СУСЛИКОВ", u"дт", u"СУСЛИКАМ")
+        self.assert_inflect(u"СУСЛИК", u"дт", u"СУСЛИКУ")
+        self.assert_inflect(u"СУСЛИКА", u"дт", u"СУСЛИКУ")
+        self.assert_inflect(u"СУСЛИК", u"мн,дт", u"СУСЛИКАМ")
 
     def testVerbs(self):
-        self.assert_inflect(u"ГУЛЯЮ", "прш", u"ГУЛЯЛ")
-        self.assert_inflect(u"ГУЛЯЛ", "нст", u"ГУЛЯЮ")
+        self.assert_inflect(u"ГУЛЯЮ", u"прш", u"ГУЛЯЛ")
+        self.assert_inflect(u"ГУЛЯЛ", u"нст", u"ГУЛЯЮ")
 
 
 class TestPluralizeInflected(unittest.TestCase):
