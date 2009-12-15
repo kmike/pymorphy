@@ -52,32 +52,32 @@
 
 1. Устанавливаем pymorphy
 
-::
+   ::
 
-    pip install pymorphy
+       $ pip install pymorphy
 
-или::
+   или::
 
-    easy_install pymorphy
+       $ easy_install pymorphy
 
-или::
+   или::
 
-    hg clone http://bitbucket.org/kmike/pymorphy/
-    cd pymorphy
-    ./setup.py install
+       $ hg clone http://bitbucket.org/kmike/pymorphy/
+       $ cd pymorphy
+       $ ./setup.py install
 
 2. Скачиваем нужные словари
 
-Лежат тут: http://bitbucket.org/kmike/pymorphy/downloads/.
+   Лежат тут: http://bitbucket.org/kmike/pymorphy/downloads/.
 
-Называются по формуле ``<язык>.<тип>.zip``.
+   Называются по формуле ``<язык>.<тип>.zip``.
 
-Про то, что это за разные типы словарей, и какой выбрать, можно почитать
-:ref:`тут <supported-storages>`.
+   Про то, что это за разные типы словарей, и какой выбрать, можно почитать
+   в следующем документе: :ref:`supported-storages`.
 
-Для начала можно скачайть файл ru.shelve.zip.
+   Для начала можно скачать файл ru.shelve.zip.
 
-3. Распакуйте скачанный словарь
+3. Распаковываем скачанный словарь
 
 
 Использование
@@ -93,10 +93,21 @@
     info = morph.get_graminfo(u'Вася'.upper())
 
 
-Больше информации по доступным методам можно найти в :doc:`API-документации<api>`.
+Больше информации по доступным методам можно найти в
+:doc:`API-документации<api>`.
 
-Информацию по использованию совместно с django можно найти :doc:`тут<django_api>`.
+Информацию по использованию совместно с django можно
+найти в :doc:`документации по использованию вместе с django<django_api>`.
 
+.. note::
+
+    На данный момент морфологический анализатор может плохо работать с
+    фамилиями. С именами и отчествами - лучше, с фамилиями может выдавать не то,
+    что бы хотелось.
+
+.. note::
+
+    В pymorphy все, что не относится к django, можно использовать без django.
 
 Лицензия и т.д.
 ===============
@@ -111,4 +122,3 @@
 Репозиторий с исходным кодом: http://bitbucket.org/kmike/pymorphy/
 
 Баг-репорты оставлять здесь: http://bitbucket.org/kmike/pymorphy/issues/new/
-

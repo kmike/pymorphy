@@ -25,6 +25,12 @@ API-документация
 Key-value - бэкенды
 -------------------
 
+Ниже описаны скорее детали реализации. Чтоб использовать pymorphy, их знать
+необязательно.
+
+Если Вы не планируете участвовать в разработке pymorphy, полезнее ознакомиться
+со следующим документом: :doc:`storages`
+
 .. automodule:: pymorphy.backends
     :members:
     :undoc-members:
@@ -38,28 +44,6 @@ Key-value - бэкенды
     :undoc-members:
     :show-inheritance:
 
-Бэкенд для разбора исходных MRD-файлов
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Алгоритм работы с ним "как есть" должен быть совсем не таким,
-как в pymorphy, pymorphy с исходными MRD-файлами работает крайне неэффективно.
-
-Этот бэкенд используется только для переконвертации исходных словарей.
-
-.. automodule:: pymorphy.backends.mrd_source
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Pickle-источник данных
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: pymorphy.backends.pickle_source
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 DB-источники данных
 ^^^^^^^^^^^^^^^^^^^
@@ -68,6 +52,7 @@ DB-источники данных
     :members:
     :undoc-members:
     :show-inheritance:
+
 
 Интерфейс к Shelve (BSDDB, GDBM, DBM)
 """""""""""""""""""""""""""""""""""""
@@ -93,3 +78,27 @@ DB-источники данных
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+Бэкенд для разбора исходных MRD-файлов
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Алгоритм работы с ним "как есть" должен быть совсем не таким,
+как в pymorphy, pymorphy с исходными MRD-файлами работает крайне неэффективно.
+
+Этот бэкенд используется только для переконвертации исходных словарей.
+
+.. automodule:: pymorphy.backends.mrd_source
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Pickle-источник данных
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: pymorphy.backends.pickle_source
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

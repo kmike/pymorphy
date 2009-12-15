@@ -12,10 +12,11 @@
    :maxdepth: 2
 
    intro
-   algo
-   gram_info_ru
    django_api
    api
+   storages
+   gram_info_ru
+   algo
    Morph_UNIX
 
 Указатели и поиск

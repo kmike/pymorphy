@@ -201,7 +201,10 @@ class Morph:
             forms = [form for form in forms if form['class'] == gram_class]
         if not forms:
             return word
-        graminfo = forms[0]   #FIXME: первая форма в списке не обязательно самая лучшая
+
+        # FIXME: первая форма в списке не обязательно самая лучшая
+        # например, лучше брать "им,мн". вместо "ед,рд".
+        graminfo = forms[0]
 
         form = GramForm(graminfo['info'])
         form.update(gram_form)
@@ -229,6 +232,7 @@ class Morph:
         Аналог choose_plural из pytils, для которого требуется только 1
         начальная форма слова.
         """
+
         if num % 100 == 11: # заканчивается на 11
             form = u"мн,рд"
         elif num % 10 == 1: # заканчивается на 1
