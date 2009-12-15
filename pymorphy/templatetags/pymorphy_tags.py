@@ -3,12 +3,12 @@
 import re
 from django import template
 
-from pymorphy.django_conf import default_morph, NOINFLECT_OPEN, NOINFLECT_CLOSE
+from pymorphy.django_conf import default_morph, MARKER_OPEN, MARKER_CLOSE
 
 register = template.Library()
 
 word_split_re = re.compile('([\W+-])', re.U)
-markup_re = re.compile('(%s.+?%s)' % (NOINFLECT_OPEN, NOINFLECT_CLOSE), re.U)
+markup_re = re.compile('(%s.+?%s)' % (MARKER_OPEN, MARKER_CLOSE), re.U)
 
 def _restore_register(morphed_word, word):
     """ Восстановить регистр слова """
@@ -35,7 +35,18 @@ def _process_phrase(phrase, process_func, *args, **kwargs):
         return phrase
     return result
 
+
 def _process_marked_phrase(phrase, process_func, *args, **kwargs):
+    """ Обработать фразу. В фразе обрабатываются только куски, заключенные
+        в двойные квадратные скобки (например, "[[лошадь]] Пржевальского").
+    """
+    def process(m):
+        return _process_phrase(m.group(1)[2:-2],
+                               process_func, *args, **kwargs)
+    return re.sub(markup_re, process, phrase)
+
+
+def _process_unmarked_phrase(phrase, process_func, *args, **kwargs):
     """ Обработать фразу. В фразе не обрабатываются куски, заключенные
         в двойные квадратные скобки (например, "лошадь [[Пржевальского]]").
     """
@@ -50,9 +61,13 @@ def _process_marked_phrase(phrase, process_func, *args, **kwargs):
 
 @register.filter
 def inflect(phrase, form):
-    return _process_marked_phrase(phrase, default_morph.inflect_ru, form)
+    return _process_unmarked_phrase(unicode(phrase), default_morph.inflect_ru, form)
+
+@register.filter
+def inflect_marked(phrase, form):
+    return _process_marked_phrase(unicode(phrase), default_morph.inflect_ru, form)
 
 @register.filter
 def plural(phrase, amount):
-    return _process_marked_phrase(phrase, default_morph.pluralize_inflected_ru, amount)
+    return _process_unmarked_phrase(phrase, default_morph.pluralize_inflected_ru, amount)
 

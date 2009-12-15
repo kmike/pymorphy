@@ -2,7 +2,26 @@
 
 from unittest import TestCase
 
-from templatetags.pymorphy_tags import inflect, plural
+from templatetags.pymorphy_tags import inflect, plural, inflect_marked
+
+
+class InflectMarkedTagTest(TestCase):
+
+    def assertInflected(self, phrase, form, result):
+        inflected_word = inflect_marked(phrase, form)
+        self.assertEqual(inflected_word, result, u"%s != %s" % (inflected_word, result))
+
+    def testBasicNoinflect(self):
+        self.assertInflected(u'[[лошадь]] Пржевальского', u'дт', u'лошади Пржевальского')
+        self.assertInflected(u'Москва', u'пр', u'Москва')
+        self.assertInflected(u'[[Москва]]', u'пр', u'Москве')
+        self.assertInflected(u'[[Москва]]-сити', u'пр', u'Москве-сити')
+
+    def testTwoWordsNoinflect(self):
+        self.assertInflected(u'[[лошадь]] Пржевальского и [[красный конь]] Кузьмы Петрова-Водкина',
+                             u'дт',
+                             u'лошади Пржевальского и красному коню Кузьмы Петрова-Водкина')
+
 
 class InflectTagTest(TestCase):
 
@@ -46,6 +65,7 @@ class InflectTagTest(TestCase):
         self.assertInflected(u'лошадь [[Пржевальского]] и красный конь [[Кузьмы Петрова-Водкина]]',
                              u'дт',
                              u'лошади Пржевальского и красному коню Кузьмы Петрова-Водкина')
+
 
 
 

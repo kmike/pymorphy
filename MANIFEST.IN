@@ -1,0 +1,9 @@
+include AUTHORS
+include INSTALL
+include LICENSE
+include README
+include setup.py
+include docs/Makefile
+include docs/make.bat
+include docs/conf.py
+recursive-include docs *.rst
