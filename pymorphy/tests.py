@@ -35,6 +35,20 @@ class InflectTagTest(TestCase):
         self.assertInflected(u'Геннадий Петрович', u'пр', u'Геннадии Петровиче')
 
 
+    # тесты для несклоняемых кусков
+    def testBasicNoinflect(self):
+        self.assertInflected(u'лошадь [[Пржевальского]]', u'дт', u'лошади Пржевальского')
+        self.assertInflected(u'[[Москва]]', u'пр', u'Москва')
+        self.assertInflected(u'Москва', u'пр', u'Москве')
+        self.assertInflected(u'Москва[[-сити]]', u'пр', u'Москве-сити')
+
+    def testTwoWordsNoinflect(self):
+        self.assertInflected(u'лошадь [[Пржевальского]] и красный конь [[Кузьмы Петрова-Водкина]]',
+                             u'дт',
+                             u'лошади Пржевальского и красному коню Кузьмы Петрова-Водкина')
+
+
+
 class PluralTagTest(TestCase):
     def assertPlural(self, phrase, amount, result):
         morphed = plural(phrase, amount)

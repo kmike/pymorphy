@@ -38,3 +38,6 @@ try:
 
 except AttributeError:
     raise ImproperlyConfigured('correct settings.PYMORPHY_DICTS is required for pymorphy template tags.')
+
+NOINFLECT_OPEN = getattr(settings, 'PYMORPHY_NOINFLECT_OPEN', '\[\[')
+NOINFLECT_CLOSE = getattr(settings, 'PYMORPHY_NOINFLECT_CLOSE', '\]\]')
