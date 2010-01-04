@@ -261,6 +261,12 @@ class Morph:
         if not base_forms:
             return []
 
+        # Сохраняем род у слова. Например, если нам было передано
+        # прилагательное женского рода, то и после нормализации мы хотим
+        # прилагательное женского рода.
+        # Если этого не делать, то придется или возвращать по 3 формы на каждое
+        # прилагательное, или терять род слова, заменяя, к примеру, на мужской
+        # (что плохо для тех же фамилий).
         correct_genders = set()
         for form in base_forms:
             gram_form = GramForm(form['info']).form
@@ -268,15 +274,20 @@ class Morph:
                 if gender in gram_form:
                     correct_genders.add(gender)
 
+        # все части речи, которыми может быть слово
         correct_classes = set([NORMAL_FORMS[form['class']][1] for form in base_forms])
 
-        # для англ. языка просто возвращаем первую форму
+        # для англ. языка просто возвращаем первую попавшуюся форму
         if correct_classes.issubset(set(NORMAL_FORMS_EN.keys())):
             base_form = base_forms[0]
             norm_form = base_form['lemma']+self.data.rules[base_form['paradigm_id']][0][0]
             return [{'word': norm_form}]
 
-        variants = [variant for variant in self._decline(word) if variant['class'] in correct_classes]
+        # для русского языка получаем все возможные формы слова и ищем среди
+        # них нормальные, учитывая правила нормализации для разных частей речи
+        # и род исходного слова
+        variants = [variant for variant in self._decline(word)
+                    if variant['class'] in correct_classes]
 
         def form_is_normal(form):
             gram_form = GramForm(form['info'])
@@ -290,7 +301,8 @@ class Morph:
         if correct_genders:
             normal_forms = [form for form in variants if form_is_normal(form)]
         else:
-            normal_forms = [form for form in variants if GramForm(form['info']).match(NORMAL_GRAM_FORMS[form['class']])]
+            normal_forms = [form for form in variants
+                            if GramForm(form['info']).match(NORMAL_GRAM_FORMS[form['class']])]
 
         return normal_forms
 
