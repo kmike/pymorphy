@@ -62,9 +62,10 @@ def bench(file, backend='shelve', use_psyco=True, use_cache=True):
         pymorphy.setup_psyco()
 
     if backend == 'pickle':
-        morph = pymorphy.morph.get_pickle_morph('ru')
+        path = os.path.join(DICT_PATH, 'ru', 'morphs.pickle')
     else:
-        morph = pymorphy.get_morph(os.path.join(DICT_PATH,'ru'), backend, cached = use_cache)
+        path = os.path.join(DICT_PATH,'ru')
+    morph = pymorphy.get_morph(path, backend, cached = use_cache)
 
     cProfile.runctx('do_all(words, morph)', globals = globals(), locals=locals())
     print_memory_diff()

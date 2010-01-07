@@ -579,25 +579,17 @@ def get_morph(path, backend='sqlite', cached=True, **kwargs):
 
     Параметры:
 
-    * dir - путь к папке с файлами словарей
-    * backend - тип словарей. Может быть 'shelve', 'tch', 'tcb', 'cdb'.
+    * path - путь к папке с файлами словарей (или сам файл словаря, в случае с pickle)
+    * backend - тип словарей. Может быть 'shelve', 'tch', 'tcb', 'cdb', 'pickle', 'sqlite'.
     * cached - кешировать ли данные в оперативной памяти
 
     Также можно указывать все параметры, которые принимает конструктор класса
     Morph.
 
     """
-    return Morph(ShelveDataSource(dir, backend, cached=cached), **kwargs)
-
-
-def get_pickle_morph(filename, **kwargs):
-    """
-    Вернуть объект с морфологическим анализатором (Morph), используя
-    pickle - хранилище в качестве источника данных. Операции будут выполняться
-    быстрее, но память расходуется очень неэффективно (потребуется порядка
-    200 Мб). Так что использовать очень осторожно.
-    """
-    return Morph(PickleDataSource(filename), **kwargs)
+    if backend == 'pickle':
+        return Morph(PickleDataSource(path), **kwargs)
+    return Morph(ShelveDataSource(path, backend, cached=cached), **kwargs)
 
 
 def setup_psyco():
