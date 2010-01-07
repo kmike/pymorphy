@@ -8,7 +8,7 @@ readme = open(os.path.join(os.path.dirname(__file__), 'README')).read()
 
 setup(
     name     = 'pymorphy',
-    version  = '0.3.5',
+    version  = '0.4.0',
     author='Mikhail Korobov',
     author_email='kmike84@gmail.com',
     url='http://bitbucket.org/kmike/pymorphy/',
@@ -26,7 +26,7 @@ setup(
     requires = ['python (>=2.5)'],
 
     classifiers=[
-          'Development Status :: 2 - Pre-Alpha',
+          'Development Status :: 3 - Alpha',
           'Intended Audience :: Developers',
           'Intended Audience :: Science/Research',
           'License :: OSI Approved :: MIT License',
