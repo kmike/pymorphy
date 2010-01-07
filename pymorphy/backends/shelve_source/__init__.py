@@ -77,6 +77,9 @@ class ShelveDataSource(DictDataSource):
         elif self.db_type == 'tcb':
             from pytc_shelve import PytcBtreeShelf
             return PytcBtreeShelf
+        elif self.db_type == 'sqlite':
+            from sqlite_shelve import SqliteShelf
+            return SqliteShelf
         return ShelfWithHooks
 
     def _get_shelf(self, filename, *args, **kwargs):

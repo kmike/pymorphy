@@ -2,8 +2,8 @@
 """
 Скрипт кодирования словарей. Пока только руками его править, если какие-то
 настройки нужны.
-
 """
+
 import codecs
 import os
 
@@ -102,6 +102,7 @@ if __name__ == '__main__':
     make_shelve(en_dest, mrd, 'cdb')        # cdb
     make_shelve(en_dest, mrd, 'tch')        # tokyo cabinet hash
     make_shelve(en_dest, mrd, 'tcb')        # tokyo cabinet btree+
+    make_shelve(en_dest, mrd, 'sqlite')     # sqlite
     cleanup_after_convert(en_dest)
 
 # ======= ru ===========
@@ -114,6 +115,7 @@ if __name__ == '__main__':
     make_shelve(ru_dest, mrd, 'cdb')        # cdb
     make_shelve(ru_dest, mrd, 'tch')        # tokyo cabinet hash
     make_shelve(ru_dest, mrd, 'tcb')        # tokyo cabinet btree+
+    make_shelve(ru_dest, mrd, 'sqlite')     # sqlite
     cleanup_after_convert(ru_dest)
 
     print "done."

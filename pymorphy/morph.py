@@ -573,7 +573,7 @@ class Morph:
         return gram
 
 
-def get_morph(dir, backend='shelve', cached=True, **kwargs):
+def get_morph(path, backend='sqlite', cached=True, **kwargs):
     """
     Вернуть объект с морфологическим анализатором (Morph).
 
