@@ -579,7 +579,7 @@ def get_morph(path, backend='sqlite', cached=True, **kwargs):
 
     Параметры:
 
-    * path - путь к папке с файлами словарей (или сам файл словаря, в случае с pickle)
+    * path - путь к папке с файлами словарей (или полное имя файла со словарем, в случае pickle)
     * backend - тип словарей. Может быть 'shelve', 'tch', 'tcb', 'cdb', 'pickle', 'sqlite'.
     * cached - кешировать ли данные в оперативной памяти
 
