@@ -10,8 +10,6 @@ API-документация
 
     .. autofunction:: setup_psyco
 
-    .. autofunction:: get_pickle_morph
-
     .. autoclass:: Morph
         :members:
         :undoc-members:
@@ -49,6 +47,15 @@ DB-источники данных
 ^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: pymorphy.backends.shelve_source
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Интерфейс к SQLite
+"""""""""""""""""""""""""""""""""""""
+
+.. automodule:: pymorphy.backends.shelve_source.sqlite_shelve
     :members:
     :undoc-members:
     :show-inheritance:
