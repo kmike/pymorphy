@@ -13,7 +13,7 @@ class SqliteDict(object):
             self.conn = connection
         else:
             self.conn = sqlite3.connect(filename)
-        self.conn.text_factory = bytes
+        self.conn.text_factory = str
 
         self._table = table
 
