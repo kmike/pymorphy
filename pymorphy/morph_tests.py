@@ -84,12 +84,12 @@ class TestMorph(unittest.TestCase):
         self.check_norm(u'НАИСТАРЕЙШИЙ', [u'СТАРЫЙ'])
         self.check_norm(u'СВЕРХНАИСТАРЕЙШИЙ', [u'СВЕРХСТАРЫЙ'])
         self.check_norm(u'СВЕРХНАИСТАРЕЙШИЙ', [u'СВЕРХСТАРЫЙ'])
-        self.check_norm(u'КВАЗИПСЕВДОНАИСТАРЕЙШЕГО', [u'КВАЗИПСЕВДОСТАРЫЙ'])
+        self.check_norm(u'КВАЗИПСЕВДОНАИСТАРЕЙШЕГО', [u'КВАЗИПСЕВДОСТАРЫЙ', u'КВАЗИПСЕВДОСТАРОЕ'])
         self.check_norm(u'НЕБЕСКОНЕЧЕН', [u'НЕБЕСКОНЕЧНЫЙ'])
 
     def testPrefixPredict(self):
         self.check_norm(u'МЕГАКОТУ', [u'МЕГАКОТ'])
-        self.check_norm(u'МЕГАСВЕРХНАИСТАРЕЙШЕМУ', [u'МЕГАСВЕРХСТАРЫЙ'])
+        self.check_norm(u'МЕГАСВЕРХНАИСТАРЕЙШЕМУ', [u'МЕГАСВЕРХСТАРЫЙ', u'МЕГАСВЕРХСТАРОЕ'])
 
     def testEEbug(self):
         self.check_norm(u'КОТЕНОК', [u'КОТЕНОК'])

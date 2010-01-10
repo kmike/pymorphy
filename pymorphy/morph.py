@@ -331,8 +331,7 @@ class Morph:
             base_form = variants[paradigm_id]
             lemma = base_form['lemma']
 
-            pre_prefix = ''.join([base_form.get('prefix',''),
-                                  base_form.get('predict-prefix', '')])
+            pre_prefix = ''.join(base_form.get('prefixes', []))
 
             paradigm = self.data.rules[paradigm_id]
 
@@ -463,7 +462,7 @@ class Morph:
 
                 # приписываем префикс обратно к полученным нормальным формам
                 for form in base_forms:
-                    form['prefix'] = prefix
+                    form['prefixes'] = [prefix] + form.get('prefixes', [])
                     form['method'] = 'prefix(%s).%s' % (prefix, form['method'])
                 gram.extend(base_forms)
 
@@ -508,7 +507,7 @@ class Morph:
 
             # приписываем префикс обратно
             for form in base_forms:
-                form['predict-prefix'] = prefix
+                form['prefixes'] = [prefix] + form.get('prefixes', [])
                 form['method'] = 'predict-prefix(%s).%s' % (prefix, form['method'])
             gram.extend(base_forms)
         return gram
