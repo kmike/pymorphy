@@ -9,24 +9,34 @@
 
 1. Описываем в settings.py установленные словари::
 
-       PYMORPHY_DICTS = {
-           'ru': {
-               'dir': '/usr/share/pymorphy/ru',
-               'backend': 'tcb',
-               'use_cache': True,
-               'default': True
-           },
+        PYMORPHY_DICTS = {
+            'ru': { 'dir': '/usr/share/pymorphy/ru' },
+        }
 
-           'en': {
-               'dir': '/usr/share/pymorphy/en',
-           },
-       }
+   более сложный пример::
+
+        PYMORPHY_DICTS = {
+            'ru': {
+                'dir': '/usr/share/pymorphy/ru',
+                'backend': 'tch',
+                'use_cache': True,
+            },
+
+            'en': {
+                'dir': '/usr/share/pymorphy/en',
+                'backend': 'shelve',
+                'use_cache': True,
+                'default': True
+            },
+        }
 
    :dir: обязательный параметр, путь до папки с файлами
    :backend: используемое key-value хранилище ('sqlite' по умолчанию)
    :use_cache: использовать ли кэш (True по умолчанию),
    :default: является ли словарь словарем по умолчанию (который будет
-             использоваться в template-tag'ах). Пока довольно бесполезен.
+             использоваться в template-tag'ах). Пока довольно бесполезен,
+             т.к. поддержки нескольких словарей в тегах нет.
+
 
 2. Добавляем pymorphy в INSTALLED_APPS
 

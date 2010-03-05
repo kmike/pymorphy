@@ -89,5 +89,4 @@ doctest:
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
 ziphtml:
-	cd $(BUILDDIR)/html
-	zip -r pymorphy.zip ./* 
+	cd $(BUILDDIR)/html/; zip -r pymorphy.zip ./* 
