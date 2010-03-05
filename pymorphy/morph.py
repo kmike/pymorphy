@@ -1,8 +1,6 @@
 #coding: utf-8
 
-from pymorphy.constants import PRODUCTIVE_CLASSES, VERBS, NOUNS
-from pymorphy.constants import RU_CASES, RU_NUMBERS, RU_GENDERS, RU_PERSONS, RU_TENSES, RU_VOICES
-from pymorphy.constants import KEEP_GENDER_CLASSES, NORMAL_FORMS, NORMAL_FORMS_EN
+from pymorphy.constants import *
 from pymorphy.backends import PickleDataSource, ShelveDataSource
 
 from utils import mprint
@@ -24,6 +22,25 @@ def _array_match(arr, filter):
             return False
     return True
 
+def standard_repr(form):
+    ''' Для грам. информации, полученной от метода get_gram_info и аналогичных,
+        вернуть стандартное представление  '''
+    gram_form = GramForm(form['info'])
+    cls = form['class']
+
+    if cls in [u'ПРИЧАСТИЕ', u'КР_ПРИЧАСТИЕ']:
+        gram_form.form.add('partcp')
+    else:
+        gram_form.clear_voice()
+
+    if cls == u'ИНФИНИТИВ':
+        gram_form.form.add('inf')
+    if cls == u'ДЕЕПРИЧАСТИЕ':
+        gram_form.form.add('ger')
+
+    new_form = [RU_GRAMINFO_STANDARD[attr] for attr in gram_form.form if attr in RU_GRAMINFO_STANDARD]
+    return '\t'.join([NORMAL_FORMS[cls][2], ','.join(new_form)])
+
 
 class GramForm(object):
     """ Класс для работы с грамматической формой """
@@ -31,7 +48,8 @@ class GramForm(object):
     def __init__(self, form_string):
         self.form, self.denied_form = self.parse_str(form_string)
 
-    def parse_str(self, form_string):
+    @staticmethod
+    def parse_str(form_string):
         splitted = form_string.split(',')
         form = [a for a in splitted if a and a[0]!='!']
         denied_form = [a[1:] for a in splitted if a and a[0]=='!']
@@ -104,7 +122,9 @@ class GramForm(object):
             return False
         return True
 
-NORMAL_GRAM_FORMS = dict([(cls, GramForm(NORMAL_FORMS[cls][0]),) for cls in NORMAL_FORMS])
+NORMAL_GRAM_FORMS = dict(
+    [(cls, GramForm(NORMAL_FORMS[cls][0]),) for cls in NORMAL_FORMS]
+)
 
 
 class Morph:
