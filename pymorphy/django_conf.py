@@ -31,7 +31,7 @@ try:
         options = {'backend': 'shelve', 'use_cache': True, 'default': False}
         options.update(PYMORPHY_DICTS[dict_name])
         morphs[dict_name] = get_morph(options['dir'],
-                                      options.get('backend', 'shelve'),
+                                      options.get('backend', 'sqlite'),
                                       options.get('use_cache', True))
         if default_morph is None or options['default']:
             default_morph = morphs[dict_name]
