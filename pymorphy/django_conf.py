@@ -1,19 +1,28 @@
 #coding: utf-8
 """
-Пример настроек словарей в settings.py::
+Минимальный пример настроек словарей в settings.py::
+
+    PYMORPHY_DICTS = {
+        'ru': { 'dir': '/usr/share/pymorphy/ru' },
+    }
+
+Более сложный пример::
 
     PYMORPHY_DICTS = {
         'ru': {
             'dir': '/usr/share/pymorphy/ru',
             'backend': 'tcb',
             'use_cache': True,
-            'default': True
         },
 
         'en': {
             'dir': '/usr/share/pymorphy/en',
+            'backend': 'shelve',
+            'use_cache': True,
+            'default': True
         },
     }
+
 """
 
 from django.conf import settings
@@ -28,11 +37,9 @@ try:
     PYMORPHY_DICTS = settings.PYMORPHY_DICTS
     morphs = {}
     for dict_name in PYMORPHY_DICTS:
-        options = {'backend': 'shelve', 'use_cache': True, 'default': False}
+        options = {'backend': 'sqlite', 'use_cache': True, 'default': False}
         options.update(PYMORPHY_DICTS[dict_name])
-        morphs[dict_name] = get_morph(options['dir'],
-                                      options.get('backend', 'sqlite'),
-                                      options.get('use_cache', True))
+        morphs[dict_name] = get_morph(options['dir'], options['backend'], options['use_cache'])
         if default_morph is None or options['default']:
             default_morph = morphs[dict_name]
 
