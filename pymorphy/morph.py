@@ -122,10 +122,6 @@ class GramForm(object):
             return False
         return True
 
-NORMAL_GRAM_FORMS = dict(
-    [(cls, GramForm(NORMAL_FORMS[cls][0]),) for cls in NORMAL_FORMS]
-)
-
 
 class Morph:
     """ Класс, реализующий морфологический анализ на основе словарей из
@@ -171,9 +167,32 @@ class Morph:
 
         self.handle_EE = handle_EE
 
-    def get_graminfo(self, word):
-        """ Вернуть грамматическую информацию о слове """
-        return self._get_graminfo(word)
+    def get_graminfo(self, word, standard=False):
+        """ Вернуть грамматическую информацию о слове и его нормальную форму.
+            Если параметр standard=True, то для каждого варианта разбора
+            результаты возвращаются в стандартном виде (словарь вида
+            {'class': <class>, 'info': <info>, 'norm': <norm>}, обозначения
+            согласованы с теми, что приняты на конференции Диалог-2010. Если
+            standard = False (по умолчанию), то возвращается больше информации
+            (детальное разбиение на части речи, больше морфологических
+            признаков, информация об использованном алгоритме),
+            обозначения определяются структурой словарей.
+        """
+        forms = self._get_graminfo(word)
+        # приписываем статичные префиксы к нормальным формам слова
+        for info in forms:
+            if 'prefixes' in info:
+                info['norm'] = ''.join(info['prefixes']) + info['norm']
+
+        # преобразуем к стандартному виду, если требуется
+        if standard:
+            new_forms = []
+            for form in forms:
+                cls, info = _convert_to_standard(form['class'], form['info'])
+                new_forms.append({'class': cls, 'info': info, 'norm': form['norm']})
+            return new_forms
+        return forms
+
 
     def decline(self, word, gram_form='', gram_class=None):
         """
@@ -235,14 +254,12 @@ class Morph:
         else:
             return word
 
-
     def pluralize_ru(self, word, gram_form='', gram_class=None):
         """
         Вернуть слово во множественном числе.
         """
         form = GramForm(gram_form).update(u'мн')
         return self.inflect_ru(word, form.get_form_string(), gram_class)
-
 
     def pluralize_inflected_ru(self, word, num, gram_class=None):
         """
@@ -266,66 +283,12 @@ class Morph:
 
         return self.inflect_ru(word, form, gram_class)
 
-
     def normalize(self, word):
         """ Вернуть список нормальных форм слова """
-        forms = self.get_normal_forms(word)
+        forms = self.get_graminfo(word)
         if not forms:
             return word
-        return set(form['word'] for form in forms)
-
-
-    def get_normal_forms(self, word):
-        """ Вернуть список нормальных форм слова с грам. информацией """
-        base_forms = self.get_graminfo(word)
-        if not base_forms:
-            return []
-
-        # Сохраняем род у слова. Например, если нам было передано
-        # прилагательное женского рода, то и после нормализации мы хотим
-        # прилагательное женского рода.
-        # Если этого не делать, то придется или возвращать по 3 формы на каждое
-        # прилагательное, или терять род слова, заменяя, к примеру, на мужской
-        # (что плохо для тех же фамилий).
-        correct_genders = set()
-        for form in base_forms:
-            gram_form = GramForm(form['info']).form
-            for gender in RU_GENDERS:
-                if gender in gram_form:
-                    correct_genders.add(gender)
-
-        # все части речи, которыми может быть слово
-        correct_classes = set([NORMAL_FORMS[form['class']][1] for form in base_forms])
-
-        # для англ. языка просто возвращаем первую попавшуюся форму
-        if correct_classes.issubset(set(NORMAL_FORMS_EN.keys())):
-            base_form = base_forms[0]
-            norm_form = base_form['lemma']+self.data.rules[base_form['paradigm_id']][0][0]
-            return [{'word': norm_form}]
-
-        # для русского языка получаем все возможные формы слова и ищем среди
-        # них нормальные, учитывая правила нормализации для разных частей речи
-        # и род исходного слова
-        variants = [variant for variant in self._decline(word)
-                    if variant['class'] in correct_classes]
-
-        def form_is_normal(form):
-            gram_form = GramForm(form['info'])
-            normal_form = NORMAL_GRAM_FORMS[form['class']]
-            if form['class'] in KEEP_GENDER_CLASSES:
-                if not set(gram_form.form).intersection(correct_genders):
-                    return False
-            return gram_form.match(normal_form)
-
-
-        if correct_genders:
-            normal_forms = [form for form in variants if form_is_normal(form)]
-        else:
-            normal_forms = [form for form in variants
-                            if GramForm(form['info']).match(NORMAL_GRAM_FORMS[form['class']])]
-
-        return normal_forms
-
+        return set(form['norm'] for form in forms)
 
 #----------- internal methods -------------
 
@@ -380,24 +343,28 @@ class Morph:
         # для леммы смотрим все доступные парадигмы
         for paradigm_id in lemma_paradigms:
             paradigm = data_source.rules[paradigm_id]
-            # оставляем только те правила, по которым можно слово составить
-            valid_rules = [rule for rule in paradigm if rule[0]==suffix and rule[2]==require_prefix]
-            if not valid_rules:
-                continue
-            for rule in valid_rules:
-                ancode = rule[1]
-                graminfo = data_source.gramtab[ancode]
-                gram_form = {
-                         'class': graminfo[0],
-                         'info': graminfo[1],
-                         'paradigm_id': paradigm_id,
-                         'ancode': ancode,
-                         'lemma': lemma,
-                         'method': method_format_str % (lemma, suffix)
-                        }
-                # не допускаем дубликатов
-                if not gram_form in gram:
-                    gram.append(gram_form)
+
+            norm_form = lemma + paradigm[0][0]
+
+            # все правила в парадигме
+            for rule in paradigm:
+                rule_suffix, rule_ancode, rule_prefix = rule
+                # если по правилу выходит, что окончание такое, как надо,
+                # то значит нашли, что искали
+                if rule_suffix==suffix and rule_prefix==require_prefix:
+                    graminfo = data_source.gramtab[rule_ancode]
+                    data = {
+                        'norm': norm_form,
+                        'class': graminfo[0],
+                        'info': graminfo[1],
+                        'paradigm_id': paradigm_id,
+                        'ancode': rule_ancode,
+                        'lemma': lemma,
+                        'method': method_format_str % (lemma, suffix)
+                    }
+                    # не допускаем дубликатов
+                    if not data in gram:
+                        gram.append(data)
         return gram
 
 
@@ -406,11 +373,7 @@ class Morph:
             слово - это окончание, а основа пустая. Например, ЧЕЛОВЕК - ЛЮДИ.
             У таких слов в словарях основа записывается как "#".
         """
-        return [info for info in self._get_lemma_graminfo('',
-                                                          word,
-                                                          require_prefix,
-                                                          '%snobase(%s)'
-                                                        )]
+        return [info for info in self._get_lemma_graminfo('', word, require_prefix, '%snobase(%s)')]
 
     def _do_predict_by_suffix(self, word):
         """ Предсказать грамматическую форму и парадигму неизвестного слова
@@ -445,7 +408,9 @@ class Morph:
                             # на суффикс начальной формы
                             suffix_len = len(suffix)
                             predicted_lemma = word[0:-suffix_len] if suffix_len else word
+                            norm_form = predicted_lemma + rules_list[0][0]
                             gram.append({
+                                         'norm': norm_form,
                                          'class':graminfo[0],
                                          'info': graminfo[1],
                                          'paradigm_id': paradigm_id,
@@ -618,12 +583,12 @@ def setup_psyco():
         from pymorphy.backends.shelve_source.shelf_with_hooks import ShelfWithHooks
         psyco.bind(Morph._get_graminfo)
         psyco.bind(Morph._get_lemma_graminfo)
-        psyco.bind(Morph.get_normal_forms)
         psyco.bind(GramForm.__init__)
         psyco.bind(ShelfWithHooks._getitem__cached)
         psyco.bind(ShelfWithHooks._contains__cached)
         psyco.bind(_get_split_variants)
     except ImportError:
         pass
+
 
 
