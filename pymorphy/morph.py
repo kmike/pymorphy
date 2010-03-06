@@ -22,24 +22,24 @@ def _array_match(arr, filter):
             return False
     return True
 
-def standard_repr(form):
-    ''' Для грам. информации, полученной от метода get_gram_info и аналогичных,
-        вернуть стандартное представление  '''
-    gram_form = GramForm(form['info'])
-    cls = form['class']
 
-    if cls in [u'ПРИЧАСТИЕ', u'КР_ПРИЧАСТИЕ']:
+def _convert_to_standard(gram_class, form_str):
+    ''' Для грам. информации, полученной от метода get_gram_info и аналогичных,
+        вернуть стандартное представление: (class, form)  '''
+    gram_form = GramForm(form_str)
+
+    if gram_class in [u'ПРИЧАСТИЕ', u'КР_ПРИЧАСТИЕ']:
         gram_form.form.add('partcp')
     else:
         gram_form.clear_voice()
 
-    if cls == u'ИНФИНИТИВ':
+    if gram_class == u'ИНФИНИТИВ':
         gram_form.form.add('inf')
-    if cls == u'ДЕЕПРИЧАСТИЕ':
+    if gram_class == u'ДЕЕПРИЧАСТИЕ':
         gram_form.form.add('ger')
 
     new_form = [RU_GRAMINFO_STANDARD[attr] for attr in gram_form.form if attr in RU_GRAMINFO_STANDARD]
-    return '\t'.join([NORMAL_FORMS[cls][2], ','.join(new_form)])
+    return RU_CLASSES_STANDARD[gram_class], ','.join(new_form)
 
 
 class GramForm(object):

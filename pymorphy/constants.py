@@ -43,6 +43,33 @@ RU_TENSES_STANDARD = {
 # залоги
 RU_VOICES_STANDARD = {u'дст': 'act', u'стр': 'pass'}
 
+# части речи
+
+RU_CLASSES_STANDARD = {
+    u'С':              'S',
+    u'П':              'A',
+    u'МС':             '-',
+    u'Г' :             'V',
+    u'ПРИЧАСТИЕ' :     'V',
+    u'ДЕЕПРИЧАСТИЕ' :  'V',
+    u'ИНФИНИТИВ':      'V',
+    u'МС-ПРЕДК':       '-',
+    u'МС-П':           '-',
+    u'ЧИСЛ':           '-',
+    u'ЧИСЛ-П':         '-',
+    u'Н':              'ADV',
+    u'ПРЕДК':          '-',
+    u'ПРЕДЛ':          'PR',
+    u'СОЮЗ':           'CONJ',
+    u'МЕЖД':           'ADV',
+    u'ЧАСТ':           'ADV',
+    u'ВВОДН':          'ADV',
+    u'КР_ПРИЛ':        'A',
+    u'КР_ПРИЧАСТИЕ':   'V',  #FIXME: ?
+    u'ПОСЛ':           '-',
+    u'ФРАЗ':           '-',
+}
+
 # старые обозначения
 RU_GENDERS = RU_GENDERS_STANDARD.keys()
 RU_CASES = RU_CASES_STANDARD.keys()
