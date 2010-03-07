@@ -24,7 +24,7 @@ RU_CASES_STANDARD = {
     u'вн': 'acc',
     u'тв': 'ins',
     u'пр': 'loc',
-    u'зв': '',
+    u'зв': 'voc',
 }
 
 # числа
@@ -37,7 +37,7 @@ RU_PERSONS_STANDARD = {u'1л': '1p', u'2л': '2p', u'3л': '3p'}
 RU_TENSES_STANDARD = {
     u'нст': 'pres',
     u'прш': 'past',
-    u'буд': '',          #FIXME: ?
+    u'буд': 'pres',          #FIXME: ?
 }
 
 # залоги
@@ -86,7 +86,7 @@ RU_GRAMINFO_STANDARD = dict(RU_GENDERS_STANDARD.items() + RU_CASES_STANDARD.item
 RU_GRAMINFO_STANDARD.update({'partcp': 'partcp', 'ger': 'ger', 'inf': 'inf'})
 
 # прочие преобразования
-RU_GRAMINFO_STANDARD.update({'сравн': 'comp', 'прев': 'supr'})
+RU_GRAMINFO_STANDARD.update({u'сравн': 'comp', u'прев': 'supr', u'пвл': 'imper'})
 
 # таблицы нормальных форм для всех частей речи: характерный набор
 # грамматическиех атрибутов + часть речи, в которую идет нормализация
