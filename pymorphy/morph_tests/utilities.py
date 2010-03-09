@@ -86,3 +86,6 @@ class TestPluralizeInflected(unittest.TestCase):
         self.assert_morph(u"БУТЯВКА", 1, u"БУТЯВКА")
         self.assert_morph(u"БУТЯВКА", 2, u"БУТЯВКИ")
         self.assert_morph(u"БУТЯВКА", 5, u"БУТЯВОК")
+
+if __name__ == '__main__':
+    unittest.main()

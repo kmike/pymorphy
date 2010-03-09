@@ -167,7 +167,7 @@ class Morph:
 
         self.handle_EE = handle_EE
 
-    def get_graminfo(self, word, standard=False):
+    def get_graminfo(self, word, standard=False, predict=True, **kwargs):
         """ Вернуть грамматическую информацию о слове и его нормальную форму.
             Если параметр standard=True, то для каждого варианта разбора
             результаты возвращаются в стандартном виде (словарь вида
@@ -178,7 +178,7 @@ class Morph:
             признаков, информация об использованном алгоритме),
             обозначения определяются структурой словарей.
         """
-        forms = self._get_graminfo(word)
+        forms = self._get_graminfo(word, predict=predict, **kwargs)
         # приписываем статичные префиксы к нормальным формам слова
         for info in forms:
             if 'prefixes' in info:
@@ -192,6 +192,26 @@ class Morph:
                 new_forms.append({'class': cls, 'info': info, 'norm': form['norm']})
             return new_forms
         return forms
+
+
+    def get_graminfo_scan(self, word, standard=False):
+        ''' Вернуть грам. информацию, считая, что текст - после сканирования. '''
+
+        # Сначала пытаемся найти слово по словарю, без предсказателя,
+        # пробуя различные характерные для отсканированных документов замены.
+
+        word = word.replace(u'0', u'О')  # заменяем всегда
+        forms = self.get_graminfo(word, standard, False)
+        if forms:
+            return forms
+        replaces = [(u'4', u'А'), (u'Ф', u'О'), (u'J', u'А'), (u'Ы', u'А')]
+        for bad, good in replaces:
+            if bad in word:
+                forms = self.get_graminfo(word.replace(bad, good), standard, False)
+                if forms:
+                    return forms
+        # если это не помогло, включаем предсказатель и ищем по старинке
+        return self.get_graminfo(word, standard)
 
 
     def decline(self, word, gram_form='', gram_class=None):
@@ -305,8 +325,9 @@ class Morph:
         word_graminfo = self.get_graminfo(src_word)
         forms = []
 
-        # убираем дубликаты парадигм
-        variants = dict([(form['paradigm_id'], form) for form in word_graminfo])
+        # убираем дубликаты парадигм и варианты, для которых анализатор не
+        # определил парадигму
+        variants = dict([(form['paradigm_id'], form) for form in word_graminfo if 'paradigm_id' in form])
 
         # перебираем все возможные парадигмы и правила в них,
         # составляем варианты слов и возвращаем их
@@ -532,10 +553,8 @@ class Morph:
             if lemma in self.data.lemmas:
                 gram.extend(
                     [info for info in
-                        self._get_lemma_graminfo(lemma, suffix,
-                                               require_prefix,
-                                               'lemma(%s).suffix(%s)'
-                                               )
+                        self._get_lemma_graminfo(lemma, suffix, require_prefix,
+                                                 'lemma(%s).suffix(%s)')
                     ]
                 )
 
