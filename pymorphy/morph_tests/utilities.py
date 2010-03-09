@@ -36,6 +36,11 @@ class TestPluraliseRu(unittest.TestCase):
     def testInvalidGraminfo(self):
         self.assert_plural(u'НАЧАЛО', u'НАЧАЛА', gram_class=u'С')
 
+    def testHyphen(self):
+        self.assert_plural(u'ИНТЕРНЕТ-МАГАЗИН', u'ИНТЕРНЕТ-МАГАЗИНЫ')
+
+    def testHyphenWordFormation(self):
+        self.assert_plural(u'ЧЕЛОВЕК-ГОРА', u'ЛЮДИ-ГОРЫ')
 
 
 class TestInflectRu(unittest.TestCase):
@@ -53,6 +58,12 @@ class TestInflectRu(unittest.TestCase):
     def testVerbs(self):
         self.assert_inflect(u"ГУЛЯЮ", u"прш", u"ГУЛЯЛ")
         self.assert_inflect(u"ГУЛЯЛ", u"нст", u"ГУЛЯЮ")
+
+    def testHyphenPrefix(self):
+        self.assert_inflect(u'ИНТЕРНЕТ-МАГАЗИН', u'дт,мн', u'ИНТЕРНЕТ-МАГАЗИНАМ')
+
+    def testHyphenWordFormation(self):
+        self.assert_inflect(u'ЧЕЛОВЕК-ГОРА', u'дт,ед', u'ЧЕЛОВЕКУ-ГОРЕ')
 
 
 class TestPluralizeInflected(unittest.TestCase):

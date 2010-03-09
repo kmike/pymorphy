@@ -1,4 +1,5 @@
 #coding: utf-8
+from copy import deepcopy
 
 from pymorphy.constants import *
 from pymorphy.backends import PickleDataSource, ShelveDataSource
@@ -200,16 +201,23 @@ class Morph:
         # Сначала пытаемся найти слово по словарю, без предсказателя,
         # пробуя различные характерные для отсканированных документов замены.
 
+        gram = []
         word = word.replace(u'0', u'О')  # заменяем всегда
-        forms = self.get_graminfo(word, standard, False)
-        if forms:
-            return forms
-        replaces = [(u'4', u'А'), (u'Ф', u'О'), (u'J', u'А'), (u'Ы', u'А')]
+        replaces = [('',''), (u'4', u'А'), (u'Ф', u'О'), (u'J', u'А'), (u'Ы', u'А')]
+        # сначала пробуем найти все в словаре после замен
         for bad, good in replaces:
             if bad in word:
-                forms = self.get_graminfo(word.replace(bad, good), standard, False)
-                if forms:
-                    return forms
+                forms = self.get_graminfo(word.replace(bad, good), standard, False, predict_hyphenated=False)
+                gram.extend(forms)
+        if gram:
+            return gram
+        # если найти не удалось, то пробуем уже эвристику
+        for bad, good in replaces:
+            if bad in word:
+                forms = self.get_graminfo(word.replace(bad, good), standard, False, predict_hyphenated=True)
+                gram.extend(forms)
+        if gram:
+            return gram
         # если это не помогло, включаем предсказатель и ищем по старинке
         return self.get_graminfo(word, standard)
 
@@ -498,6 +506,46 @@ class Morph:
         return gram
 
 
+    def _predict_hyphenated(self, word, require_prefix='', predict=True):
+        """ Предсказать грамматическую форму слова, которое пишется через дефис """
+        gram = []
+        if not '-' in word:
+            return gram
+
+        left, right = word.split('-', 1)
+        # анализируем правую часть отдельно, считая левую неизменяемой приставкой
+        # Пр.: интернет-магазин, воздушно-капельный
+        right_forms = self._get_graminfo(right, predict=predict)
+        gram = deepcopy(right_forms)
+        for form in gram:
+            form['prefixes'] = [left+'-'] + form.get('prefixes', [])
+            form['method'] = 'hyphen-prefix(%s).%s' % (left, form['method'])
+
+        # Если есть варианты разбора первой части, которые совпадают с
+        # вариантами разбора второй, то есть вероятность, что у нас
+        # 2 равнозначные части, которые обе должны склоняться.
+        # Пр.: человек-гора, команд-участниц, компания-производитель
+        left_forms = self._get_graminfo(left, require_prefix = require_prefix, predict=predict)
+        for left_form in left_forms:
+            gram_form = GramForm(left_form['info'])
+            gram_form.clear_gender()
+            for right_form in right_forms:
+                if right_form['class'] == left_form['class']:
+                    if GramForm(right_form['info']).match(gram_form):
+                        data = {
+                            'norm': left_form['norm'] + '-' + right_form['norm'],
+                            'class': left_form['class'],
+                            'info': left_form['info'],
+                            'lemma': left_form['lemma'] + '+' + right_form['lemma'],
+                            'method': "word-formation(%s + %s)" % (
+                                           left_form['method'],
+                                           right_form['method'],
+                                       )
+                        }
+                        gram.append(data)
+        return gram
+
+
     def _predict_by_prefix_graminfo(self, word, require_prefix):
         """ Предсказать грамматическую форму неизвестного слова по
             префиксу. Если слова отличаются только тем, что к одному из них
@@ -548,7 +596,8 @@ class Morph:
         return gram
 
 
-    def _get_graminfo(self, word, require_prefix='', predict = True, predict_EE = True):
+    def _get_graminfo(self, word, require_prefix='', predict = True,
+                      predict_EE = True, predict_hyphenated=True):
         """ Получить грам. информацию о слове.
             Внутренний вариант для поддержки рекурсии с возможностью временно
             отключать предсказатель и возможностью требовать наличие
@@ -578,6 +627,10 @@ class Morph:
         # обработка буквы Ё, если требуется
         if not gram and self.handle_EE and predict_EE:
             gram.extend(self._handle_EE(word, require_prefix))
+
+        # обработка слов с дефисами
+        if not gram and predict_hyphenated:
+            gram.extend(self._predict_hyphenated(word, require_prefix, predict))
 
         # обработка предсказания по началу слова, если требуется
         if not gram and predict and self.predict_by_prefix:
