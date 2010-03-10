@@ -25,7 +25,13 @@ class TestHyphen(MorphTestCase):
 
     def testTrainBug(self):
         self.assert_has_info(u'ПОЕЗДОВ-ЭКСПРЕССОВ', u'ПОЕЗД-ЭКСПРЕСС', u'С', u'word-formation')
+        self.assert_has_info(u'ПОДРОСТКАМИ-ПРАКТИКАНТАМИ', u'ПОДРОСТОК-ПРАКТИКАНТ')
         self.assert_has_info(u'ПОДВОДНИКОВ-СЕВЕРОМОРЦЕВ', u'ПОДВОДНИК-СЕВЕРОМОРЕЦ', u'С', u'word-formation')
+
+    def testStripHyphens(self):
+        self.assert_standard(u'ПО-ПРЕЖНЕМУ', u'ПРЕЖНИЙ')
+        self.assert_standard(u'ПО-ПРЕЖНЕМУ', u'ПРЕЖНИЙ', scan=True)
+
 
 
 class HyphenScanTest(MorphTestCase):
@@ -45,6 +51,7 @@ class HyphenScanTest(MorphTestCase):
 
     def testScanNoError(self):
         self.assert_has_info(u'ФЕСТИВАЛЬ-КОНКУРС', u'ФЕСТИВАЛЬ-КОНКУРС', u'С', u'word-formation', True)
+        self.assert_norm(u'ФИЗИКО-ХИМИЯ', u'ФИЗИКО-ХИМИЯ', scan=True)
 
     def testScanNeedsLeftPrediction(self):
         self.assert_has_info(u'КОВАБJНД-УЧАСТНИЦ', u'КОВАБАНДА-УЧАСТНИЦА', u'С', u'word-formation', True)
