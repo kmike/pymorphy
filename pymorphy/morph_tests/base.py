@@ -24,10 +24,12 @@ class MorphTestCase(unittest.TestCase):
         morphed_word = morph_ru.inflect_ru(word, form, *args, **kwargs)
         self.assertEqual(morphed_word, result, u"%s != %s" % (morphed_word, result))
 
-    def assert_has_info(self, word, norm, cls=None, method=None, scan=False, form=None, has_info=True):
+    def assert_has_info(self, word, norm=None, cls=None, method=None, scan=False, form=None, standard=False, has_info=True):
 
         def is_correct(frm):
-            correct = frm['norm'] == norm
+            correct = True
+            if norm:
+                correct = frm['norm'] == norm
             if method:
                 correct = correct and (method in frm['method'])
             if cls:
@@ -39,10 +41,14 @@ class MorphTestCase(unittest.TestCase):
             return correct
 
         if scan:
-            forms = morph_ru.get_graminfo_scan(word)
+            forms = morph_ru.get_graminfo_scan(word, standard=standard)
         else:
-            forms = morph_ru.get_graminfo(word)
+            forms = morph_ru.get_graminfo(word, standard=standard)
         self.assertEqual(any([is_correct(frm) for frm in forms]), has_info)
+
+
+    def assert_standard(self, word, norm, cls=None, form=None, has_info=True, scan=False):
+        return self.assert_has_info(word, norm, cls, None, scan, form, True, has_info)
 
 
 class TestMorph(MorphTestCase):

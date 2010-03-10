@@ -203,7 +203,11 @@ class Morph:
 
         gram = []
         word = word.replace(u'0', u'О')  # заменяем всегда
-        replaces = [('',''), (u'4', u'А'), (u'Ф', u'О'), (u'J', u'А'), (u'Ы', u'А')]
+        forms = self.get_graminfo(word, standard, False, predict_hyphenated=False)
+        if forms:
+            return forms
+
+        replaces = [(u'4', u'А'), (u'Ф', u'О'), (u'J', u'А'), (u'Ы', u'А')]
         # сначала пробуем найти все в словаре после замен
         for bad, good in replaces:
             if bad in word:
