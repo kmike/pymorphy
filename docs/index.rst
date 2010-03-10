@@ -18,6 +18,7 @@
    gram_info_ru
    algo
    Morph_UNIX
+   CHANGES
 
 Указатели и поиск
 =================
