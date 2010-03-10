@@ -1,52 +1,67 @@
 #coding: utf-8
-
 import unittest
+from pymorphy.morph_tests.base import MorphTestCase
 
-from dicts import morph_ru
-
-class TestHyphen(unittest.TestCase):
-
-    def assertHasInfo(self, word, norm, cls, method, scan=False):
-        is_correct = lambda form: (method in form['method']) and (form['norm'] == norm) and (form['class'] == cls)
-        if scan:
-            forms = morph_ru.get_graminfo_scan(word)
-        else:
-            forms = morph_ru.get_graminfo(word)
-        self.assertTrue(any([is_correct(form) for form in forms]))
+class TestHyphen(MorphTestCase):
 
     def testDict(self):
-        self.assertHasInfo(u'САНКТ-ПЕТЕРБУРГА', u'САНКТ-ПЕТЕРБУРГ', u'С', u'lemma(С).suffix(АНКТ-ПЕТЕРБУРГА)')
+        self.assert_has_info(u'САНКТ-ПЕТЕРБУРГА', u'САНКТ-ПЕТЕРБУРГ', u'С', u'lemma(С).suffix(АНКТ-ПЕТЕРБУРГА)')
 
     def testImmutableLeft(self):
-        self.assertHasInfo(u'ИНТЕРНЕТ-МАГАЗИНА', u'ИНТЕРНЕТ-МАГАЗИН', u'С', u'hyphen-prefix')
-        self.assertHasInfo(u'PDF-ДОКУМЕНТОВ', u'PDF-ДОКУМЕНТ', u'С', u'hyphen-prefix')
-        self.assertHasInfo(u'АММИАЧНО-СЕЛИТРОВОГО', u'АММИАЧНО-СЕЛИТРОВЫЙ', u'П', u'hyphen-prefix')
+        self.assert_has_info(u'ИНТЕРНЕТ-МАГАЗИНА', u'ИНТЕРНЕТ-МАГАЗИН', u'С', u'hyphen-prefix')
+        self.assert_has_info(u'PDF-ДОКУМЕНТОВ', u'PDF-ДОКУМЕНТ', u'С', u'hyphen-prefix')
+        self.assert_has_info(u'АММИАЧНО-СЕЛИТРОВОГО', u'АММИАЧНО-СЕЛИТРОВЫЙ', u'П', u'hyphen-prefix')
 
     def testMutableLeft(self):
-        self.assertHasInfo(u'БЫСТРО-БЫСТРО', u'БЫСТРО-БЫСТРО', u'Н', u'word-formation')
-        self.assertHasInfo(u'КОМАНД-УЧАСТНИЦ', u'КОМАНДА-УЧАСТНИЦА', u'С', u'word-formation')
-        self.assertHasInfo(u'БЕГАЕТ-ПРЫГАЕТ', u'БЕГАТЬ-ПРЫГАТЬ', u'Г', u'word-formation')
-        self.assertHasInfo(u'ДУЛ-НАДУВАЛСЯ', u'ДУТЬ-НАДУВАТЬСЯ', u'Г', u'word-formation')
+        self.assert_has_info(u'БЫСТРО-БЫСТРО', u'БЫСТРО-БЫСТРО', u'Н', u'word-formation')
+        self.assert_has_info(u'КОМАНД-УЧАСТНИЦ', u'КОМАНДА-УЧАСТНИЦА', u'С', u'word-formation')
+        self.assert_has_info(u'БЕГАЕТ-ПРЫГАЕТ', u'БЕГАТЬ-ПРЫГАТЬ', u'Г', u'word-formation')
+        self.assert_has_info(u'ДУЛ-НАДУВАЛСЯ', u'ДУТЬ-НАДУВАТЬСЯ', u'Г', u'word-formation')
+
+    def testExtraPrefix(self):
+        self.assert_has_info(u'ПОЧТОВО-БАНКОВСКИЙ', u'ПОЧТОВО-БАНКОВСКИЙ', u'П', u'hyphen-prefix(ПОЧТОВО)')
+        self.assert_has_info(u'ПО-ПРЕЖНЕМУ', u'ПО-ПРЕЖНЕМУ', u'Н', u'lemma(ПО-ПРЕЖНЕМУ)')
+        self.assert_has_info(u'ПО-ПРЕЖНЕМУ', u'ПРЕЖНИЙ', u'П', u'hyphen-prefix()')
+
+    def testTrainBug(self):
+        self.assert_has_info(u'ПОЕЗДОВ-ЭКСПРЕССОВ', u'ПОЕЗД-ЭКСПРЕСС', u'С', u'word-formation')
+        self.assert_has_info(u'ПОДВОДНИКОВ-СЕВЕРОМОРЦЕВ', u'ПОДВОДНИК-СЕВЕРОМОРЕЦ', u'С', u'word-formation')
+
+
+class HyphenScanTest(MorphTestCase):
 
     def testScan(self):
-        self.assertHasInfo(u'ИНТЕРНЕТ-МАГJЗИНА', u'ИНТЕРНЕТ-МАГАЗИН', u'С', u'hyphen-prefix', True)
-        self.assertHasInfo(u'PDF-ДФКУМЕНТ0В', u'PDF-ДОКУМЕНТ', u'С', u'hyphen-prefix', True)
-        self.assertHasInfo(u'АММИАЧНФ-СЕЛИТР0ВФГО', u'АММИАЧНО-СЕЛИТРОВЫЙ', u'П', u'hyphen-prefix', True)
-        self.assertHasInfo(u'БЫСТРО-БЫСТРФ', u'БЫСТРО-БЫСТРО', u'Н', u'word-formation', True)
+        self.assert_has_info(u'ИНТЕРНЕТ-МАГJЗИНА', u'ИНТЕРНЕТ-МАГАЗИН', u'С', u'hyphen-prefix', True)
+        self.assert_has_info(u'PDF-ДФКУМЕНТ0В', u'PDF-ДОКУМЕНТ', u'С', u'hyphen-prefix', True)
+        self.assert_has_info(u'АММИАЧНФ-СЕЛИТР0ВФГО', u'АММИАЧНО-СЕЛИТРОВЫЙ', u'П', u'hyphen-prefix', True)
+        self.assert_has_info(u'БЫСТРО-БЫСТРФ', u'БЫСТРО-БЫСТРО', u'Н', u'word-formation', True)
 
     def testScanDict(self):
-        self.assertHasInfo(u'САНКТ-ПЕТЕРБУРГ4', u'САНКТ-ПЕТЕРБУРГ', u'С', u'lemma(С).suffix(АНКТ-ПЕТЕРБУРГА)', True)
-        self.assertHasInfo(u'КJКИХ-ТО', u'КАКОЙ-ТО', u'МС-П', u'suffix(ИХ-ТО)', True)
+        self.assert_has_info(u'САНКТ-ПЕТЕРБУРГ4', u'САНКТ-ПЕТЕРБУРГ', u'С', u'lemma(С).suffix(АНКТ-ПЕТЕРБУРГА)', True)
+        self.assert_has_info(u'КJКИХ-ТО', u'КАКОЙ-ТО', u'МС-П', u'suffix(ИХ-ТО)', True)
 
     def testScanErrorInLeft(self):
-        self.assertHasInfo(u'КОМJНД-УЧАСТНИЦ', u'КОМАНДА-УЧАСТНИЦА', u'С', u'word-formation', True)
+        self.assert_has_info(u'КОМJНД-УЧАСТНИЦ', u'КОМАНДА-УЧАСТНИЦА', u'С', u'word-formation', True)
 
     def testScanNoError(self):
-        self.assertHasInfo(u'ФЕСТИВАЛЬ-КОНКУРС', u'ФЕСТИВАЛЬ-КОНКУРС', u'С', u'word-formation', True)
+        self.assert_has_info(u'ФЕСТИВАЛЬ-КОНКУРС', u'ФЕСТИВАЛЬ-КОНКУРС', u'С', u'word-formation', True)
 
     def testScanNeedsLeftPrediction(self):
-        self.assertHasInfo(u'КОВАБJНД-УЧАСТНИЦ', u'КОВАБАНДА-УЧАСТНИЦА', u'С', u'word-formation', True)
+        self.assert_has_info(u'КОВАБJНД-УЧАСТНИЦ', u'КОВАБАНДА-УЧАСТНИЦА', u'С', u'word-formation', True)
 
+class HyphenUtils(MorphTestCase):
+
+    def testInflectPrefix(self):
+        self.assert_inflect(u'ИНТЕРНЕТ-МАГАЗИН', u'дт,мн', u'ИНТЕРНЕТ-МАГАЗИНАМ')
+
+    def testInflectWordFormation(self):
+        self.assert_inflect(u'ЧЕЛОВЕК-ГОРА', u'дт,ед', u'ЧЕЛОВЕКУ-ГОРЕ')
+
+    def testPlural(self):
+        self.assert_plural(u'ИНТЕРНЕТ-МАГАЗИН', u'ИНТЕРНЕТ-МАГАЗИНЫ')
+
+    def testPluralWordFormation(self):
+        self.assert_plural(u'ЧЕЛОВЕК-ГОРА', u'ЛЮДИ-ГОРЫ')
 
 if __name__ == '__main__':
     unittest.main()

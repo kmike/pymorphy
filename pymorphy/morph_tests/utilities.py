@@ -2,12 +2,9 @@
 
 import unittest
 from dicts import morph_ru
+from pymorphy.morph_tests.base import MorphTestCase
 
-class TestPluraliseRu(unittest.TestCase):
-
-    def assert_plural(self, word, plural, *args, **kwargs):
-        morphed_word = morph_ru.pluralize_ru(word, *args, **kwargs)
-        self.assertEqual(morphed_word, plural, u"%s != %s" % (morphed_word, plural))
+class TestPluraliseRu(MorphTestCase):
 
 # работающие тесты ============================
     def testNouns(self):
@@ -36,18 +33,8 @@ class TestPluraliseRu(unittest.TestCase):
     def testInvalidGraminfo(self):
         self.assert_plural(u'НАЧАЛО', u'НАЧАЛА', gram_class=u'С')
 
-    def testHyphen(self):
-        self.assert_plural(u'ИНТЕРНЕТ-МАГАЗИН', u'ИНТЕРНЕТ-МАГАЗИНЫ')
 
-    def testHyphenWordFormation(self):
-        self.assert_plural(u'ЧЕЛОВЕК-ГОРА', u'ЛЮДИ-ГОРЫ')
-
-
-class TestInflectRu(unittest.TestCase):
-
-    def assert_inflect(self, word, form, result, *args, **kwargs):
-        morphed_word = morph_ru.inflect_ru(word, form, *args, **kwargs)
-        self.assertEqual(morphed_word, result, u"%s != %s" % (morphed_word, result))
+class TestInflectRu(MorphTestCase):
 
     def testInflect(self):
         self.assert_inflect(u"СУСЛИКОВ", u"дт", u"СУСЛИКАМ")
@@ -58,12 +45,6 @@ class TestInflectRu(unittest.TestCase):
     def testVerbs(self):
         self.assert_inflect(u"ГУЛЯЮ", u"прш", u"ГУЛЯЛ")
         self.assert_inflect(u"ГУЛЯЛ", u"нст", u"ГУЛЯЮ")
-
-    def testHyphenPrefix(self):
-        self.assert_inflect(u'ИНТЕРНЕТ-МАГАЗИН', u'дт,мн', u'ИНТЕРНЕТ-МАГАЗИНАМ')
-
-    def testHyphenWordFormation(self):
-        self.assert_inflect(u'ЧЕЛОВЕК-ГОРА', u'дт,ед', u'ЧЕЛОВЕКУ-ГОРЕ')
 
 
 class TestPluralizeInflected(unittest.TestCase):

@@ -4,7 +4,7 @@ import unittest
 from dicts import morph_en, morph_ru
 from pymorphy.morph import GramForm
 
-class TestMorph(unittest.TestCase):
+class MorphTestCase(unittest.TestCase):
 
     def check_norm(self, input, output):
         norm_forms = morph_ru.normalize(input)
@@ -15,6 +15,37 @@ class TestMorph(unittest.TestCase):
 
     def check_norm_en(self, input, output):
         self.assertEqual(morph_en.normalize(input), set(output))
+
+    def assert_plural(self, word, plural, *args, **kwargs):
+        morphed_word = morph_ru.pluralize_ru(word, *args, **kwargs)
+        self.assertEqual(morphed_word, plural, u"%s != %s" % (morphed_word, plural))
+
+    def assert_inflect(self, word, form, result, *args, **kwargs):
+        morphed_word = morph_ru.inflect_ru(word, form, *args, **kwargs)
+        self.assertEqual(morphed_word, result, u"%s != %s" % (morphed_word, result))
+
+    def assert_has_info(self, word, norm, cls=None, method=None, scan=False, form=None, has_info=True):
+
+        def is_correct(frm):
+            correct = frm['norm'] == norm
+            if method:
+                correct = correct and (method in frm['method'])
+            if cls:
+                correct = correct and (frm['class'] == cls)
+            if form:
+                gram_filter = GramForm(form)
+                gram_form = GramForm(frm['info'])
+                correct = correct and gram_form.match(gram_filter)
+            return correct
+
+        if scan:
+            forms = morph_ru.get_graminfo_scan(word)
+        else:
+            forms = morph_ru.get_graminfo(word)
+        self.assertEqual(any([is_correct(frm) for frm in forms]), has_info)
+
+
+class TestMorph(MorphTestCase):
 
     def testNormalize(self):
         self.check_norm(u'КОШКА', [u'КОШКА'])
