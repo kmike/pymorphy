@@ -183,7 +183,7 @@ class Morph:
         # приписываем статичные префиксы к нормальным формам слова
         for info in forms:
             if 'prefixes' in info:
-                info['norm'] = ''.join(info['prefixes']) + info['norm']
+                info['norm'] = (''.join(info['prefixes']) + info['norm']).strip('-')
 
         # преобразуем к стандартному виду, если требуется
         if standard:
@@ -517,6 +517,7 @@ class Morph:
             return gram
 
         left, right = word.split('-', 1)
+        left = require_prefix+left if left else ''
         # анализируем правую часть отдельно, считая левую неизменяемой приставкой
         # Пр.: интернет-магазин, воздушно-капельный
         right_forms = self._get_graminfo(right, predict=predict)
@@ -537,7 +538,7 @@ class Morph:
                 if right_form['class'] == left_form['class']:
                     if GramForm(right_form['info']).match(gram_form):
                         data = {
-                            'norm': left_form['norm'] + '-' + right_form['norm'],
+                            'norm': (require_prefix+left_form['norm'] + '-' + right_form['norm']).strip('-'),
                             'class': left_form['class'],
                             'info': left_form['info'],
                             'lemma': left_form['lemma'] + '+' + right_form['lemma'],
