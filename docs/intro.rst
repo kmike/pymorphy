@@ -14,7 +14,7 @@
 
         >>> from pymorphy import get_morph
         >>> m = get_moprh('dicts/ru')
-        >>> print m.inflect(u"СУСЛИК", u"мн,рд") # много кого?
+        >>> print m.inflect_ru(u"СУСЛИК", u"мн,рд") # много кого?
         СУСЛИКОВ
 
    Есть template filter, который позволяет делать это прямо в шаблоне django::
