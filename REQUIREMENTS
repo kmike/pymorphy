@@ -1,0 +1,7 @@
+simplejson
+
+# для словарей в формате Tokyo Cabinet
+# pytc
+
+# для словарей в формате CDB
+# python-cdb
