@@ -9,7 +9,8 @@ class InflectMarkedTagTest(TestCase):
 
     def assertInflected(self, phrase, form, result):
         inflected_word = inflect_marked(phrase, form)
-        self.assertEqual(inflected_word, result, u"%s != %s" % (inflected_word, result))
+        err_msg = u"%s != %s" % (inflected_word, result)
+        assert inflected_word == result, err_msg.encode('utf8')
 
     def test_basic_no_inflect(self):
         self.assertInflected(u'[[лошадь]] Пржевальского', u'дт', u'лошади Пржевальского')
@@ -27,7 +28,8 @@ class InflectTagTest(TestCase):
 
     def assertInflected(self, phrase, form, result):
         inflected_word = inflect(phrase, form)
-        self.assertEqual(inflected_word, result, u"%s != %s" % (inflected_word, result))
+        err_msg = u"%s != %s" % (inflected_word, result)
+        assert inflected_word == result, err_msg.encode('utf8')
 
     def test_word_case(self):
         self.assertInflected(u'Котопес', '', u'Котопес')
@@ -72,7 +74,8 @@ class InflectTagTest(TestCase):
 class PluralTagTest(TestCase):
     def assertPlural(self, phrase, amount, result):
         morphed = plural(phrase, amount)
-        self.assertEqual(morphed, result, u"%s != %s" % (morphed, result))
+        err_msg = u"%s != %s" % (morphed, result)
+        self.assertEqual(morphed, result, err_msg.encode('utf8'))
 
     def test_pluralize(self):
         self.assertPlural(u'бутявка', 1, u'бутявка')
