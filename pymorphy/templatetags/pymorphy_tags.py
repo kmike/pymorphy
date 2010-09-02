@@ -4,14 +4,17 @@ import re
 from django import template
 
 from pymorphy.django_conf import default_morph, MARKER_OPEN, MARKER_CLOSE
+from pymorphy.split import split_into_words, space_regex
 
 register = template.Library()
 
-word_split_re = re.compile('([\W+-])', re.U)
 markup_re = re.compile('(%s.+?%s)' % (MARKER_OPEN, MARKER_CLOSE), re.U)
 
 def _restore_register(morphed_word, word):
     """ Восстановить регистр слова """
+    if '-' in word:
+        parts = zip(morphed_word.split('-'), word.split('-'))
+        return '-'.join(_restore_register(*p) for p in parts)
     if word.isupper():
         return morphed_word.upper()
     elif word[0].isupper():
@@ -21,11 +24,11 @@ def _restore_register(morphed_word, word):
 
 def _process_phrase(phrase, process_func, *args, **kwargs):
     """ обработать фразу """
-    words = [word for word in word_split_re.split(phrase) if word]
+    words = split_into_words(phrase)
     result=""
     try:
         for word in words:
-            if word_split_re.match(word):
+            if space_regex.match(word):
                 result += word
                 continue
             processed = process_func(word.upper(), *args, **kwargs)

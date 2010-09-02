@@ -55,6 +55,9 @@ class InflectTagTest(TestCase):
         self.assertInflected(u'Геннадий Петрович', u'тв', u'Геннадием Петровичем')
         self.assertInflected(u'Геннадий Петрович', u'пр', u'Геннадии Петровиче')
 
+    def test_hyphen(self):
+        self.assertInflected(u'Ростов-на-Дону', u'пр', u'Ростове-на-Дону')
+
 
     # тесты для несклоняемых кусков
     def test_basic_no_inflect(self):
