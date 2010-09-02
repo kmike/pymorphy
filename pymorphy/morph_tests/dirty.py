@@ -7,15 +7,15 @@ from pymorphy.morph_tests.base import MorphTestCase
 
 class TestScans(MorphTestCase):
 
-    def testBasic(self):
-        self.assert_has_info(u'РАСШИФР0ВКИ', u'РАСШИФРОВКА', u'С', scan=True)
+    def test_basic(self):
+        self.assertHasInfo(u'РАСШИФР0ВКИ', u'РАСШИФРОВКА', u'С', scan=True)
 
-    def testJunkyVariantsBug(self):
-        self.assert_standard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='pl')
-        self.assert_standard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='pl', scan=True)
+    def test_junky_variants_bug(self):
+        self.assertStandard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='pl')
+        self.assertStandard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='pl', scan=True)
 
-        self.assert_standard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='sg', has_info=False)
-        self.assert_standard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='sg', has_info=False, scan=True)
+        self.assertStandard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='sg', has_info=False)
+        self.assertStandard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='sg', has_info=False, scan=True)
 
 
 
