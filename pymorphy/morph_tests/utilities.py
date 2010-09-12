@@ -45,6 +45,16 @@ class TestInflectRu(MorphTestCase):
         self.assertInflected(u"ГУЛЯЮ", u"прш", u"ГУЛЯЛ")
         self.assertInflected(u"ГУЛЯЛ", u"нст", u"ГУЛЯЮ")
 
+    def test_loc2(self):
+        self.assertInflected(u'ЛЕС', u'пр', u'ЛЕСЕ')  # о лесе
+        self.assertInflected(u'ЛЕС', u'пр,2', u'ЛЕСУ') # в лесу
+
+        # о велосипеде
+        self.assertInflected(u'ВЕЛОСИПЕД', u'пр', u'ВЕЛОСИПЕДЕ')
+
+        # а тут второго предложного тут нет, в велосипеде
+        self.assertInflected(u'ВЕЛОСИПЕД', u'пр,2', u'ВЕЛОСИПЕДЕ')
+
 
 class TestPluralizeInflected(MorphTestCase):
 

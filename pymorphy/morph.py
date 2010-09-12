@@ -251,6 +251,10 @@ class Morph:
             form_attrs = form['info'].split(',')
             if _array_match(form_attrs, requested_attrs):
                 variants.append(form)
+
+        if not variants and '2' in requested_attrs:
+            return self.decline(word, gram_form.replace('2',''), gram_class)
+
         return variants
 
     def inflect_ru(self, word, gram_form, gram_class=None):
