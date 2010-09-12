@@ -78,5 +78,20 @@ class TestPluralizeInflected(MorphTestCase):
         self.assertInflectedPlural(u"БУТЯВКА", 2, u"БУТЯВКИ")
         self.assertInflectedPlural(u"БУТЯВКА", 5, u"БУТЯВОК")
 
+    def test_adjective(self):
+        self.assertInflectedPlural(u'АКТИВНЫЙ', 1, u'АКТИВНЫЙ')
+        self.assertInflectedPlural(u'АКТИВНЫЙ', 2, u'АКТИВНЫХ')
+        self.assertInflectedPlural(u'АКТИВНЫЙ', 5, u'АКТИВНЫХ')
+
+        self.assertInflectedPlural(u'АКТИВНАЯ', 1, u'АКТИВНАЯ')
+        self.assertInflectedPlural(u'АКТИВНАЯ', 2, u'АКТИВНЫХ')
+        self.assertInflectedPlural(u'АКТИВНАЯ', 5, u'АКТИВНЫХ')
+
+    def test_gerund(self):
+        self.assertInflectedPlural(u'ИДУЩИЙ', 1, u'ИДУЩИЙ')
+        self.assertInflectedPlural(u'ИДУЩИЙ', 2, u'ИДУЩИХ')
+        self.assertInflectedPlural(u'ИДУЩИЙ', 5, u'ИДУЩИХ')
+
+
 if __name__ == '__main__':
     unittest.main()

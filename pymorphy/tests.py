@@ -88,3 +88,14 @@ class PluralTagTest(TestCase):
 
     def test_phrase(self):
         self.assertPlural(u'Геннадий Петрович', 8, u'Геннадиев Петровичей')
+
+    def test_mixed(self):
+        self.assertPlural(u'активный пользователь', 1, u'активный пользователь')
+        self.assertPlural(u'активный пользователь', 2, u'активных пользователя')
+        self.assertPlural(u'активный пользователь', 3, u'активных пользователя')
+        self.assertPlural(u'активный пользователь', 4, u'активных пользователя')
+        self.assertPlural(u'активный пользователь', 5, u'активных пользователей')
+        self.assertPlural(u'активный пользователь', 10, u'активных пользователей')
+        self.assertPlural(u'активный пользователь', 21, u'активный пользователь')
+
+

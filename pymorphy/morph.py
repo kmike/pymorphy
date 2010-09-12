@@ -301,6 +301,14 @@ class Morph:
         Аналог choose_plural из pytils, для которого требуется только 1
         начальная форма слова.
         """
+
+        form_info = {
+            u'С':         [u'ед,им', u'ед,рд', u'мн,рд'],
+            u'П':         [u'ед,им', u'мн,рд', u'мн,рд'],
+            u'ПРИЧАСТИЕ': [u'ед,им', u'мн,рд', u'мн,рд'],
+            u'ЧИСЛ-П':    [u'ед,им', u'мн,рд', u'мн,рд'],
+        }
+
         if (num % 10 == 1) and (num % 100 != 11):
             index = 0
         else:
@@ -309,8 +317,14 @@ class Morph:
             else:
                 index = 2
 
-        form_info = [u'ед,им', u'ед,рд', u'мн,рд']
-        return self.inflect_ru(word, form_info[index], gram_class)
+        if gram_class is None:
+            forms = self.get_graminfo(word)
+            if not forms:
+                return word
+            gram_class = forms[0]['class']
+
+        inflect_rules = form_info.get(gram_class, form_info[u'С'])
+        return self.inflect_ru(word, inflect_rules[index], gram_class)
 
     def normalize(self, word):
         """ Вернуть список нормальных форм слова """
