@@ -301,19 +301,16 @@ class Morph:
         Аналог choose_plural из pytils, для которого требуется только 1
         начальная форма слова.
         """
+        if (num % 10 == 1) and (num % 100 != 11):
+            index = 0
+        else:
+            if (num % 10 >= 2) and (num % 10 <= 4) and (num % 100 < 10 or num % 100 >= 20):
+                index = 1
+            else:
+                index = 2
 
-        if num % 100 == 11: # заканчивается на 11
-            form = u"мн,рд"
-        elif num % 10 == 1: # заканчивается на 1
-            form = u"ед,им"
-        elif 11 < num % 100 < 20: # заканчивается на 12..19
-            form = u'мн,рд'
-        elif 2 <= num % 10 <= 4: # заканчивается на 2,3 или 4
-            form = u'ед,рд'
-        else:                   # заканчивается на 5..9 или 0
-            form = u'мн,рд'
-
-        return self.inflect_ru(word, form, gram_class)
+        form_info = [u'ед,им', u'ед,рд', u'мн,рд']
+        return self.inflect_ru(word, form_info[index], gram_class)
 
     def normalize(self, word):
         """ Вернуть список нормальных форм слова """
