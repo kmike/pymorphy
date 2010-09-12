@@ -6,6 +6,9 @@ from pymorphy.morph import GramForm
 
 class MorphTestCase(unittest.TestCase):
 
+    def assertEqualRu(self, word1, word2):
+        self.assertEqual(word1, word2, (u"%s != %s" % (word1, word2)).encode('utf8'))
+
     def assertNormal(self, input, output):
         norm_forms = morph_ru.normalize(input)
         correct_norm_forms = set(output)
@@ -18,11 +21,11 @@ class MorphTestCase(unittest.TestCase):
 
     def assertPlural(self, word, plural, *args, **kwargs):
         morphed_word = morph_ru.pluralize_ru(word, *args, **kwargs)
-        self.assertEqual(morphed_word, plural, u"%s != %s" % (morphed_word, plural))
+        self.assertEqualRu(morphed_word, plural)
 
     def assertInflected(self, word, form, result, *args, **kwargs):
         morphed_word = morph_ru.inflect_ru(word, form, *args, **kwargs)
-        self.assertEqual(morphed_word, result, u"%s != %s" % (morphed_word, result))
+        self.assertEqualRu(morphed_word, result)
 
     def assertHasInfo(self, word, norm=None, cls=None, method=None, scan=False, form=None, standard=False, has_info=True):
 
@@ -45,7 +48,6 @@ class MorphTestCase(unittest.TestCase):
         else:
             forms = morph_ru.get_graminfo(word, standard=standard)
         self.assertEqual(any([is_correct(frm) for frm in forms]), has_info)
-
 
     def assertStandard(self, word, norm, cls=None, form=None, has_info=True, scan=False):
         self.assertHasInfo(word, norm, cls, None, scan, form, True, has_info)

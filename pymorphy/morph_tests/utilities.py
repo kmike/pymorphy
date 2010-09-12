@@ -46,11 +46,11 @@ class TestInflectRu(MorphTestCase):
         self.assertInflected(u"ГУЛЯЛ", u"нст", u"ГУЛЯЮ")
 
 
-class TestPluralizeInflected(unittest.TestCase):
+class TestPluralizeInflected(MorphTestCase):
 
     def assertInflectedPlural(self, word, count, result, *args, **kwargs):
         morphed_word = morph_ru.pluralize_inflected_ru(word, count, *args, **kwargs)
-        self.assertEqual(morphed_word, result, u"%s != %s" % (morphed_word, result))
+        self.assertEqualRu(morphed_word, result)
 
     def test_parrots(self):
         self.assertInflectedPlural(u"ПОПУГАЙ", 1, u"ПОПУГАЙ")
