@@ -3,6 +3,7 @@ import unittest
 
 from dicts import morph_en, morph_ru
 from pymorphy.morph import GramForm
+from pymorphy.contrib.scan import get_graminfo_scan
 
 class MorphTestCase(unittest.TestCase):
 
@@ -44,7 +45,7 @@ class MorphTestCase(unittest.TestCase):
             return correct
 
         if scan:
-            forms = morph_ru.get_graminfo_scan(word, standard=standard)
+            forms = get_graminfo_scan(morph_ru, word, standard=standard)
         else:
             forms = morph_ru.get_graminfo(word, standard=standard)
         self.assertEqual(any([is_correct(frm) for frm in forms]), has_info)

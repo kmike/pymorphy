@@ -19,6 +19,7 @@ setup(
 
     license = 'MIT license',
     packages = ['pymorphy',
+                'pymorphy.contrib',
                 'pymorphy.backends',
                 'pymorphy.backends.shelve_source',
                 'pymorphy.templatetags'],
