@@ -3,9 +3,9 @@ from shelve import DbfilenameShelf
 from struct import pack, unpack
 import marshal
 try:
-	import simplejson as json
+    import simplejson as json
 except ImportError:
-	import json 
+    import json
 
 class ShelfWithHooks(DbfilenameShelf):
     ''' Shelf class with key and value transform hooks. '''
