@@ -1,8 +1,6 @@
 #coding: utf-8
-
-import unittest
 from dicts import morph_ru
-from pymorphy.morph_tests.base import MorphTestCase
+from pymorphy.morph_tests.base import MorphTestCase, unittest2
 
 class TestPluraliseRu(MorphTestCase):
 
@@ -104,4 +102,4 @@ class TestPluralizeInflected(MorphTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest2.main()

@@ -1,14 +1,17 @@
 #coding: utf-8
-import unittest
+try:
+    from django.utils import unittest as unittest2
+except ImportError:
+    import unittest2
 
 from dicts import morph_en, morph_ru
 from pymorphy.morph import GramForm
 from pymorphy.contrib.scan import get_graminfo_scan
 
-class MorphTestCase(unittest.TestCase):
+class MorphTestCase(unittest2.TestCase):
 
     def assertEqualRu(self, word1, word2):
-        self.assertEqual(word1, word2, (u"%s != %s" % (word1, word2)).encode('utf8'))
+        self.assertEqual(word1, word2)#, (u"%s != %s" % (word1, word2)))
 
     def assertNormal(self, input, output):
         norm_forms = morph_ru.normalize(input)
@@ -61,8 +64,8 @@ class TestMorph(MorphTestCase):
         self.assertNormal(u'КОШКЕ', [u'КОШКА'])
         self.assertNormal(u'СТАЛИ', [u'СТАЛЬ', u'СТАТЬ'])
 
-        self.assertNormalEn('SOLD', ['SELL'])
-        self.assertNormalEn('COMPUTERS', ['COMPUTER'])
+        self.assertNormalEn(u'SOLD', [u'SELL'])
+        self.assertNormalEn(u'COMPUTERS', [u'COMPUTER'])
 
     def test_global_prefix_normalize(self):
         self.assertNormal(u'ПСЕВДОКОШКА', [u'ПСЕВДОКОШКА'])
@@ -143,7 +146,7 @@ class TestMorph(MorphTestCase):
         self.assertNormal(u'КРАСИВЫЕ', [u'КРАСИВЫЙ'])
 
 
-class TestGramInfo(unittest.TestCase):
+class TestGramInfo(unittest2.TestCase):
 
     def test_lemma_graminfo(self):
         info = morph_ru.get_graminfo(u'СУСЛИКАМИ')

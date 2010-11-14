@@ -1,4 +1,5 @@
 simplejson
+unittest2
 
 # для словарей в формате Tokyo Cabinet
 # pytc

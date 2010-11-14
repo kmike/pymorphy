@@ -1,8 +1,8 @@
 #coding: utf-8
-import unittest
+from pymorphy.morph_tests.base import unittest2
 from pymorphy.split import split_into_words
 
-class SplitTest(unittest.TestCase):
+class SplitTest(unittest2.TestCase):
 
     def assertSplitted(self, text, words):
         self.assertEqual(split_into_words(text), words)
@@ -19,4 +19,4 @@ class SplitTest(unittest.TestCase):
         self.assertSplitted(u'a+b=c_1', ['a','+','b','=','c_1'])
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest2.main()

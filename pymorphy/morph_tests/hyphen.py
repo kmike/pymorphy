@@ -1,6 +1,5 @@
 #coding: utf-8
-import unittest
-from pymorphy.morph_tests.base import MorphTestCase
+from pymorphy.morph_tests.base import MorphTestCase, unittest2
 
 class TestHyphen(MorphTestCase):
 
@@ -23,6 +22,7 @@ class TestHyphen(MorphTestCase):
         self.assertHasInfo(u'ПО-ПРЕЖНЕМУ', u'ПО-ПРЕЖНЕМУ', u'Н', u'lemma(ПО-ПРЕЖНЕМУ)')
         self.assertHasInfo(u'ПО-ПРЕЖНЕМУ', u'ПРЕЖНИЙ', u'П', u'hyphen-prefix()')
 
+    @unittest2.expectedFailure
     def test_train_bug(self):
         self.assertHasInfo(u'ПОЕЗДОВ-ЭКСПРЕССОВ', u'ПОЕЗД-ЭКСПРЕСС', u'С', u'word-formation')
         self.assertHasInfo(u'ПОДРОСТКАМИ-ПРАКТИКАНТАМИ', u'ПОДРОСТОК-ПРАКТИКАНТ')
@@ -40,6 +40,7 @@ class InflectHyphenTest(MorphTestCase):
     def test_inflect_prefix(self):
         self.assertInflected(u'ИНТЕРНЕТ-МАГАЗИН', u'дт,мн', u'ИНТЕРНЕТ-МАГАЗИНАМ')
 
+    @unittest2.expectedFailure
     def test_inflect_word_formation(self):
         self.assertInflected(u'ЧЕЛОВЕК-ГОРА', u'дт,ед', u'ЧЕЛОВЕКУ-ГОРЕ')
 
@@ -52,8 +53,9 @@ class PluralHyphenTest(MorphTestCase):
     def test_plural(self):
         self.assertPlural(u'ИНТЕРНЕТ-МАГАЗИН', u'ИНТЕРНЕТ-МАГАЗИНЫ')
 
+    @unittest2.expectedFailure
     def test_plural_word_formation(self):
         self.assertPlural(u'ЧЕЛОВЕК-ГОРА', u'ЛЮДИ-ГОРЫ')
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest2.main()

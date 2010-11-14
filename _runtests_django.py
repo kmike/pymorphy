@@ -16,7 +16,9 @@ settings.configure(
             'dir': 'dicts/converted/en',
         },
     },
-    DATABASE_ENGINE = 'sqlite3',
+    DATABASES = {'default': {
+        'ENGINE': 'django.db.backends.sqlite3'
+    }}
 )
 
 if __name__ == "__main__":

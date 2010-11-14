@@ -1,8 +1,8 @@
 #coding: utf-8
-from unittest import TestCase
+from pymorphy.morph_tests.base import unittest2
 from pymorphy.morph import GramForm
 
-class GramFormTest(TestCase):
+class GramFormTest(unittest2.TestCase):
 
     def test_from_str(self):
         form = GramForm(u'мн,рд')
