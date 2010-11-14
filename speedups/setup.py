@@ -4,7 +4,7 @@ from distutils.extension import Extension
 
 setup(
     name = 'pymorphy-speedups',
-    version='0.5.0',
+    version='0.5.1',
     author='Mikhail Korobov',
     author_email='kmike84@gmail.com',
 

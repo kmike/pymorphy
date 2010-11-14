@@ -8,12 +8,12 @@ cpdef int _array_match(list arr, list filter)
 
 
 cdef class GramForm(object):
-    cpdef set form
-    cpdef set denied_form
+    cpdef public set form
+    cpdef public set denied_form
 
     cpdef GramForm update(self, unicode form_string)
     cpdef unicode get_form_string(self)
-    cpdef int match(self, unicode gram_form)
+    cpdef int match(self, GramForm gram_form)
 
 
 cdef class Morph(object):
