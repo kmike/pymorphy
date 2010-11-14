@@ -1,2 +1,2 @@
 #!/bin/sh
-cython pymorphy/morph.py -o speedups/morph.c
+cython pymorphy/_morph.py -o speedups/_morph.c

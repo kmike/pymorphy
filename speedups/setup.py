@@ -11,7 +11,7 @@ setup(
     description = 'Speedups for pymorphy',
     long_description = open('README.rst').read(),
 
-    ext_modules = [Extension("pymorphy_speedups.morph", ["morph.c"])],
+    ext_modules = [Extension("pymorphy_speedups._morph", ["_morph.c"])],
 
     license = 'MIT license',
     packages = ['pymorphy_speedups'],
