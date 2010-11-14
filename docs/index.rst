@@ -12,12 +12,9 @@
    :maxdepth: 2
 
    intro
-   django_api
-   api
-   storages
-   gram_info_ru
+   usage
    algo
-   Morph_UNIX
+   ref
    CHANGES
 
 Указатели и поиск

@@ -1,25 +1,3 @@
-API-документация
-================
-
-Морфологический анализатор
---------------------------
-
-.. automodule:: pymorphy.morph
-
-    .. autofunction:: get_morph
-
-    .. autofunction:: setup_psyco
-
-    .. autoclass:: Morph
-        :members:
-        :undoc-members:
-
-        .. automethod:: __init__
-
-    .. autoclass:: GramForm
-        :members:
-        :undoc-members:
-
 Key-value - бэкенды
 -------------------
 

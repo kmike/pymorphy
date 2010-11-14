@@ -1,5 +1,5 @@
 Описание оригинальной библиотеки с aot.ru (может оказаться полезным)
-====================================================================
+--------------------------------------------------------------------
 
 This is a program of moprhological analysis (Russian, German, and English languages).
 
@@ -52,7 +52,7 @@ Contents of the this source archive
 
 
 Installation
-------------
+############
 
 Unpacking
 ^^^^^^^^^
@@ -98,7 +98,7 @@ If something goes wrong, write me to sokirko@yandex.ru.
 
 
 MRD-file
---------
+########
 
 This section describes the format of a mrd-file. Mrd-file is a text
 file which contains one morphological dictionary for one natural language.
@@ -118,7 +118,7 @@ The encoding of the file depends also upon the language:
 
 
 Gramtab-files
--------------
+#############
 
 A mrd-file refers to a gramtab-file, which is
 language-dependent and which contains all possible full morphological
@@ -147,7 +147,7 @@ Here is the list of all gramtab-files:
 
 
 Common information
-------------------
+##################
 
 All words in a mrd-file are written in uppercase.
 
