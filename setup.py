@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 from distutils.core import setup
+import sys
+
+for cmd in ('egg_info', 'develop', 'build_sphinx', 'upload_sphinx'):
+    if cmd in sys.argv:
+        from setuptools import setup
 
 setup(
     name = 'pymorphy',
@@ -10,7 +15,7 @@ setup(
     download_url = 'http://bitbucket.org/kmike/pymorphy/get/tip.zip',
 
     description = 'Morphological analyzer for Russian and English (+perhaps German) languages.',
-    long_description = open('README').read(),
+    long_description = open('README').read() + open('docs/CHANGES.rst').read(),
 
     license = 'MIT license',
     packages = ['pymorphy',
