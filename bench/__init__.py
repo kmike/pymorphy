@@ -58,8 +58,8 @@ def bench(file, backend='shelve', use_psyco=True, use_cache=True):
     print 'Text is loaded (%d words)' % len(words)
     print_memory_diff()
 
-    if use_psyco:
-        pymorphy.setup_psyco()
+#    if use_psyco:
+#        pymorphy.setup_psyco()
 
     if backend == 'pickle':
         path = os.path.join(DICT_PATH, 'ru', 'morphs.pickle')
@@ -67,7 +67,10 @@ def bench(file, backend='shelve', use_psyco=True, use_cache=True):
         path = os.path.join(DICT_PATH,'ru')
     morph = pymorphy.get_morph(path, backend, cached = use_cache)
 
-    cProfile.runctx('do_all(words, morph)', globals = globals(), locals=locals())
+    prof = cProfile.Profile()
+    prof = prof.runctx('do_all(words, morph)', globals = globals(), locals=locals())
+    prof.print_stats(1)
+
     print_memory_diff()
 
 

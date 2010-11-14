@@ -1,4 +1,6 @@
-#coding: utf-8
+# coding: utf-8
+## cython: profile=True
+
 from copy import deepcopy
 
 from pymorphy.constants import *
@@ -6,12 +8,11 @@ from pymorphy.backends import PickleDataSource, ShelveDataSource
 
 from utils import mprint
 
-
 def _get_split_variants(word):
     """ Вернуть все варианты разбиения слова на 2 части """
     l = len(word)
     vars = [(word[0:i], word[i:l]) for i in range(1,l)]
-    vars.append((word,'',))
+    vars.append((word, u'',))
     return vars
 
 def _array_match(arr, filter):
@@ -43,18 +44,17 @@ def _convert_to_standard(gram_class, form_str):
     return RU_CLASSES_STANDARD[gram_class], ','.join(new_form)
 
 
+def _parse_gram_str(form_string):
+    splitted = form_string.split(',')
+    form = [a for a in splitted if a and a[0]!=u'!']
+    denied_form = [a[1:] for a in splitted if a and a[0]==u'!']
+    return set(form), set(denied_form)
+
 class GramForm(object):
     """ Класс для работы с грамматической формой """
 
     def __init__(self, form_string):
-        self.form, self.denied_form = self.parse_str(form_string)
-
-    @staticmethod
-    def parse_str(form_string):
-        splitted = form_string.split(',')
-        form = [a for a in splitted if a and a[0]!='!']
-        denied_form = [a[1:] for a in splitted if a and a[0]=='!']
-        return set(form), set(denied_form)
+        self.form, self.denied_form = _parse_gram_str(form_string)
 
     def get_form_string(self):
         return u",".join(self.form)
@@ -85,7 +85,7 @@ class GramForm(object):
 
     def update(self, form_string):
         """ Обновляет параметры, по возможности оставляя все, что можно. """
-        requested_form = [a for a in form_string.split(',') if a and a[0]!='!']
+        requested_form = [a for a in form_string.split(',') if a and a[0]!=u'!']
 
         for item in requested_form:
 
@@ -124,7 +124,7 @@ class GramForm(object):
         return True
 
 
-class Morph:
+class Morph(object):
     """ Класс, реализующий морфологический анализ на основе словарей из
         data_source
     """
@@ -183,7 +183,7 @@ class Morph:
         # приписываем статичные префиксы к нормальным формам слова
         for info in forms:
             if 'prefixes' in info:
-                info['norm'] = (''.join(info['prefixes']) + info['norm']).strip('-')
+                info['norm'] = (u''.join(info['prefixes']) + info['norm']).strip('-')
 
         # преобразуем к стандартному виду, если требуется
         if standard:
@@ -195,7 +195,7 @@ class Morph:
         return forms
 
 
-    def decline(self, word, gram_form='', gram_class=None):
+    def decline(self, word, gram_form=u'', gram_class=None):
         """
         Вернуть все варианты слова, соответствующие заданной
         грамматической форме и части речи.
@@ -221,8 +221,8 @@ class Morph:
             if _array_match(form_attrs, requested_attrs):
                 variants.append(form)
 
-        if not variants and '2' in requested_attrs:
-            return self.decline(word, gram_form.replace('2',''), gram_class)
+        if not variants and u'2' in requested_attrs:
+            return self.decline(word, gram_form.replace(u'2',u''), gram_class)
 
         return variants
 
@@ -259,7 +259,7 @@ class Morph:
         else:
             return word
 
-    def pluralize_ru(self, word, gram_form='', gram_class=None):
+    def pluralize_ru(self, word, gram_form=u'', gram_class=None):
         """
         Вернуть слово во множественном числе.
         """
@@ -327,18 +327,14 @@ class Morph:
 
         # перебираем все возможные парадигмы и правила в них,
         # составляем варианты слов и возвращаем их
-        for paradigm_id in variants:
-            base_form = variants[paradigm_id]
+        for paradigm_id, base_form in variants.iteritems():
+
             lemma = base_form['lemma']
-
-            pre_prefix = ''.join(base_form.get('prefixes', []))
-
+            pre_prefix = u''.join(base_form.get('prefixes', []))
             paradigm = self.data.rules[paradigm_id]
 
-            for rule in paradigm:
-                suffix, ancode, prefix = rule
+            for suffix, ancode, prefix in paradigm:
                 cls, info, _letter  = self.data.gramtab[ancode]
-
                 word = pre_prefix + prefix + lemma + suffix
                 forms.append({
                     'word': word,
@@ -354,26 +350,26 @@ class Morph:
             правила, смотрим, есть ли среди них такие, которые приводят к
             образованию слов с подходящими окончаниями.
         """
-        data_source = self.data
-        lemma_paradigms = data_source.lemmas[lemma or '#']
+        rules = self.data.rules
+        gramtab = self.data.gramtab
+        lemma_paradigms = self.data.lemmas[lemma or u'#']
         gram = []
         # для леммы смотрим все доступные парадигмы
         for paradigm_id in lemma_paradigms:
-            paradigm = data_source.rules[paradigm_id]
+            paradigm = rules[paradigm_id]
 
             norm_form = lemma + paradigm[0][0]
 
             # все правила в парадигме
-            for rule in paradigm:
-                rule_suffix, rule_ancode, rule_prefix = rule
+            for rule_suffix, rule_ancode, rule_prefix in paradigm:
                 # если по правилу выходит, что окончание такое, как надо,
                 # то значит нашли, что искали
                 if rule_suffix==suffix and rule_prefix==require_prefix:
-                    graminfo = data_source.gramtab[rule_ancode]
+                    gram_class, info, _ = gramtab[rule_ancode]
                     data = {
                         'norm': norm_form,
-                        'class': graminfo[0],
-                        'info': graminfo[1],
+                        'class': gram_class,
+                        'info': info,
                         'paradigm_id': paradigm_id,
                         'ancode': rule_ancode,
                         'lemma': lemma,
@@ -390,7 +386,7 @@ class Morph:
             слово - это окончание, а основа пустая. Например, ЧЕЛОВЕК - ЛЮДИ.
             У таких слов в словарях основа записывается как "#".
         """
-        return [info for info in self._get_lemma_graminfo('', word, require_prefix, '%snobase(%s)')]
+        return [info for info in self._get_lemma_graminfo(u'', word, require_prefix, u'%snobase(%s)')]
 
     def _do_predict_by_suffix(self, word):
         """ Предсказать грамматическую форму и парадигму неизвестного слова
@@ -433,7 +429,7 @@ class Morph:
                                          'paradigm_id': paradigm_id,
                                          'ancode': ancode,
                                          'lemma': predicted_lemma,
-                                         'method': 'predict(...%s)' % end
+                                         'method': u'predict(...%s)' % end
                                        })
 
                 # нашли хотя бы одно окончание слова данной длины, больше не ищем
@@ -456,7 +452,7 @@ class Morph:
         return gram
 
 
-    def _static_prefix_graminfo(self, variants, require_prefix=''):
+    def _static_prefix_graminfo(self, variants, require_prefix=u''):
         """ Определить грамматическую форму слова, пробуя отбросить
             фиксированные префиксы. В функцию передается уже подготовленный
             список вариантов разбиения слова.
@@ -479,7 +475,7 @@ class Morph:
                 # приписываем префикс обратно к полученным нормальным формам
                 for form in base_forms:
                     form['prefixes'] = [prefix] + form.get('prefixes', [])
-                    form['method'] = 'prefix(%s).%s' % (prefix, form['method'])
+                    form['method'] = u'prefix(%s).%s' % (prefix, form['method'])
                 gram.extend(base_forms)
 
             # одна из возможных приставок к лемме? (ПО- и НАИ-)
@@ -494,21 +490,21 @@ class Morph:
         return gram
 
 
-    def _predict_hyphenated(self, word, require_prefix='', predict=True):
+    def _predict_hyphenated(self, word, require_prefix=u'', predict=True):
         """ Предсказать грамматическую форму слова, которое пишется через дефис """
         gram = []
-        if not '-' in word:
+        if not u'-' in word:
             return gram
 
         left, right = word.split('-', 1)
-        left = require_prefix+left if left else ''
+        left = require_prefix+left if left else u''
         # анализируем правую часть отдельно, считая левую неизменяемой приставкой
         # Пр.: интернет-магазин, воздушно-капельный
         right_forms = self._get_graminfo(right, predict=predict)
         gram = deepcopy(right_forms)
         for form in gram:
-            form['prefixes'] = [left+'-'] + form.get('prefixes', [])
-            form['method'] = 'hyphen-prefix(%s).%s' % (left, form['method'])
+            form['prefixes'] = [left+u'-'] + form.get('prefixes', [])
+            form['method'] = u'hyphen-prefix(%s).%s' % (left, form['method'])
 
         # Если есть варианты разбора первой части, которые совпадают с
         # вариантами разбора второй, то есть вероятность, что у нас
@@ -522,11 +518,11 @@ class Morph:
                 if right_form['class'] == left_form['class']:
                     if GramForm(right_form['info']).match(gram_form):
                         data = {
-                            'norm': (require_prefix+left_form['norm'] + '-' + right_form['norm']).strip('-'),
+                            'norm': (require_prefix+left_form['norm'] + u'-' + right_form['norm']).strip('-'),
                             'class': left_form['class'],
                             'info': left_form['info'],
-                            'lemma': left_form['lemma'] + '+' + right_form['lemma'],
-                            'method': "word-formation(%s + %s)" % (
+                            'lemma': left_form['lemma'] + u'+' + right_form['lemma'],
+                            'method': u"word-formation(%s + %s)" % (
                                            left_form['method'],
                                            right_form['method'],
                                        )
@@ -565,7 +561,7 @@ class Morph:
             # приписываем префикс обратно
             for form in base_forms:
                 form['prefixes'] = [prefix] + form.get('prefixes', [])
-                form['method'] = 'predict-prefix(%s).%s' % (prefix, form['method'])
+                form['method'] = u'predict-prefix(%s).%s' % (prefix, form['method'])
             gram.extend(base_forms)
         return gram
 
@@ -585,7 +581,7 @@ class Morph:
         return gram
 
 
-    def _get_graminfo(self, word, require_prefix='', predict = True,
+    def _get_graminfo(self, word, require_prefix=u'', predict = True,
                       predict_EE = True, predict_hyphenated=True):
         """ Получить грам. информацию о слове.
             Внутренний вариант для поддержки рекурсии с возможностью временно
@@ -606,7 +602,7 @@ class Morph:
                 gram.extend(
                     [info for info in
                         self._get_lemma_graminfo(lemma, suffix, require_prefix,
-                                                 'lemma(%s).suffix(%s)')
+                                                 u'lemma(%s).suffix(%s)')
                     ]
                 )
 
@@ -649,21 +645,4 @@ def get_morph(path, backend='sqlite', cached=True, **kwargs):
     if backend == 'pickle':
         return Morph(PickleDataSource(path), **kwargs)
     return Morph(ShelveDataSource(path, backend, cached=cached), **kwargs)
-
-
-def setup_psyco():
-    ''' Попытаться оптимизировать узкие места с помощью psyco '''
-    try:
-        import psyco
-        from pymorphy.backends.shelve_source.shelf_with_hooks import ShelfWithHooks
-        psyco.bind(Morph._get_graminfo)
-        psyco.bind(Morph._get_lemma_graminfo)
-        psyco.bind(GramForm.__init__)
-        psyco.bind(ShelfWithHooks._getitem__cached)
-        psyco.bind(ShelfWithHooks._contains__cached)
-        psyco.bind(_get_split_variants)
-    except ImportError:
-        pass
-
-
 

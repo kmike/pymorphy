@@ -1,13 +1,8 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-import os
 from distutils.core import setup
 
-readme = open(os.path.join(os.path.dirname(__file__), 'README')).read()
-
 setup(
-    name     = 'pymorphy',
+    name = 'pymorphy',
     version=__import__('pymorphy').__version__,
     author='Mikhail Korobov',
     author_email='kmike84@gmail.com',
@@ -15,7 +10,7 @@ setup(
     download_url = 'http://bitbucket.org/kmike/pymorphy/get/tip.zip',
 
     description = 'Morphological analyzer for Russian and English (+perhaps German) languages.',
-    long_description = readme,
+    long_description = open('README').read(),
 
     license = 'MIT license',
     packages = ['pymorphy',
@@ -34,6 +29,9 @@ setup(
           'Natural Language :: German',
           'Programming Language :: Python',
           'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 2.5',
+          'Programming Language :: Python :: 2.6',
+          'Programming Language :: Python :: 2.7',
           'Framework :: Django',
           'Topic :: Software Development :: Libraries :: Python Modules',
           'Topic :: Scientific/Engineering :: Information Analysis',
