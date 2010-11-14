@@ -5,6 +5,7 @@ syntax: glob
 .project
 .pydevproject
 .cache/*
+.idea/*
 nbproject/*
 .buildpath
 build.properties
