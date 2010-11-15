@@ -96,6 +96,7 @@ Building Morphological Dictionary
 
 If something goes wrong, write me to sokirko@yandex.ru.
 
+.. _mrd-file:
 
 MRD-file
 ########
