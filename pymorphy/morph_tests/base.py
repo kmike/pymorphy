@@ -11,14 +11,15 @@ from pymorphy.contrib.scan import get_graminfo_scan
 class MorphTestCase(unittest2.TestCase):
 
     def assertEqualRu(self, word1, word2):
-        self.assertEqual(word1, word2)#, (u"%s != %s" % (word1, word2)))
+        w1, w2 = word1.encode('utf8'), word2.encode('utf8')
+        self.assertEqual(word1, word2, '%s != %s' % (w1, w2,))
 
     def assertNormal(self, input, output):
         norm_forms = morph_ru.normalize(input)
         correct_norm_forms = set(output)
 
         msg = u"[%s] != [%s]" % (u", ".join(norm_forms), u", ".join(correct_norm_forms))
-        self.assertEqual(norm_forms, correct_norm_forms, msg)
+        self.assertEqual(norm_forms, correct_norm_forms, msg.encode('utf8'))
 
     def assertNormalEn(self, input, output):
         self.assertEqual(morph_en.normalize(input), set(output))
@@ -144,6 +145,9 @@ class TestMorph(MorphTestCase):
         self.assertNormal(u'КРАСИВАЯ', [u'КРАСИВЫЙ'])
         self.assertNormal(u'КРАСИВОМУ', [u'КРАСИВЫЙ'])
         self.assertNormal(u'КРАСИВЫЕ', [u'КРАСИВЫЙ'])
+
+    def test_multiple_bases(self):
+        self.assertNormal(u'ДЕЙСТВИЕ', [u'ДЕЙСТВИЕ'])
 
 
 class TestGramInfo(unittest2.TestCase):
