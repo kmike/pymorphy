@@ -12,7 +12,7 @@ class SqliteDict(object):
         if connection is not None:
             self.conn = connection
         else:
-            self.conn = sqlite3.connect(filename)
+            self.conn = sqlite3.connect(filename, check_same_thread = False)
         self.conn.text_factory = str
 
         self._table = table
