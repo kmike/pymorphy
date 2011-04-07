@@ -14,7 +14,7 @@ setup(
     url='http://bitbucket.org/kmike/pymorphy/',
     download_url = 'http://bitbucket.org/kmike/pymorphy/get/tip.zip',
 
-    description = 'Morphological analyzer for Russian and English (+perhaps German) languages.',
+    description = 'Morphological analyzer (POS tagger + inflection engine) for Russian and English (+perhaps German) languages.',
     long_description = open('README').read() + open('docs/CHANGES.rst').read(),
 
     license = 'MIT license',
