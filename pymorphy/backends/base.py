@@ -23,7 +23,7 @@ class DictDataSource(object):
                 для каждой леммы - список номеров парадигм (способов
                 образования слов), доступных для данной леммы (основы слова)::
 
-                    {base -> [rule_id]}
+                    {base -> [paradigm_id]}
 
             prefixes
                 фиксированые префиксы::
@@ -47,7 +47,7 @@ class DictDataSource(object):
                 ключи - номера возможных парадигм, а значения - номера возможных
                 правил::
 
-                    {word_end->{rule_id->(possible_paradigm_ids)}}
+                    {word_end->{paradigm_id->(possible_paradigm_ids)}}
 
             possible_rule_prefixes
                 набор всех возможных приставок к леммам::

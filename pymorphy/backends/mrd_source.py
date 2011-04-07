@@ -8,7 +8,7 @@ from pymorphy.constants import PRODUCTIVE_CLASSES
 class MrdDataSource(DictDataSource):
     """ Источник данных для морфологического анализатора pymorphy,
         берущий информацию из оригинальных mrd-файлов (в которых кодировка
-        была изменена на с 1251 utf-8). Используется для конвертации
+        была изменена с 1251 на utf-8). Используется для конвертации
         оригинальных данных в простые для обработки ShelveDict или PickledDict.
     """
 
@@ -63,19 +63,19 @@ class MrdDataSource(DictDataSource):
 
                 if prefix:
                     self.possible_rule_prefixes.add(prefix)
-            i=i+1
+            i += 1
 
     def _load_lemmas(self, file):
         """ Загрузить текущую секцию как секцию с леммами """
         for line in self._section_lines(file):
             record = line.split()
-            base, rule_id = record[0], record[1]
+            base, paradigm_id = record[0], record[1]
             if base not in self.lemmas:
                 self.lemmas[base] = []
 
-            self.rule_freq[rule_id] = self.rule_freq.get(rule_id,0)+1
+            self.rule_freq[paradigm_id] = self.rule_freq.get(paradigm_id,0)+1
 
-            self.lemmas[base].append(int(rule_id))
+            self.lemmas[base].append(int(paradigm_id))
 
     def _load_accents(self, file):
         return self._pass_lines(file)
@@ -189,4 +189,3 @@ class MrdDataSource(DictDataSource):
             psyco.bind(DictDataSource.calculate_rule_freq)
         except ImportError:
             pass
-
