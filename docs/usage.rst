@@ -13,7 +13,7 @@
 класса :class:`pymorphy.Morph <Morph>`::
 
     from pymorphy import get_morph
-    morph = get_moprh('dicts/ru')
+    morph = get_morph('dicts/ru')
 
 :meth:`pymorphy.get_morph <get_morph>` принимает
 аргументы *path*, *backend* и *cached* (а также любые аргументы конструктора

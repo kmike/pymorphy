@@ -20,7 +20,7 @@ SQLite
 для русского языка: ``ru.sqlite.zip``.
 Пример подключения::
 
-    m = get_moprh('dicts/ru') # или так: get_moprh('dicts/ru', 'sqlite')
+    m = get_morph('dicts/ru') # или так: get_morph('dicts/ru', 'sqlite')
 
 Преимущество - в совместимости. Не требует установки, кроссплатформенный формат
 хранения данных. Если какие-то проблемы с использованием других
@@ -35,7 +35,7 @@ Shelve
 для русского языка: ``ru.shelve.zip``.
 Пример подключения::
 
-    m = get_moprh('dicts/ru', 'shelve')
+    m = get_morph('dicts/ru', 'shelve')
 
 Это включенная в стандартную поставку библиотека, которая предоставляет
 dict-like доступ к базам данных BSDDB, GDB, BDB и DumbDB.
@@ -73,7 +73,7 @@ Btree+ и Hash-вариантов базы. Наборы словарей для
 
 Пример подключения::
 
-    m = get_moprh('dicts/ru', 'tch')
+    m = get_morph('dicts/ru', 'tch')
 
 Наследник BSDDB, BDB, GDBM, QDBM. Обеспечивает хорошую скорость работы и
 небольшой размер словарей. Лицензия LGPL.
@@ -99,7 +99,7 @@ CDB
 для русского языка: ``ru.cdb.zip``.
 Пример подключения::
 
-    m = get_moprh('dicts/ru', 'cdb')
+    m = get_morph('dicts/ru', 'cdb')
 
 
 Самый быстрый вариант, ест меньше памяти, чем Tokyo Cabinet, автор

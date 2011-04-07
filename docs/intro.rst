@@ -8,7 +8,7 @@ pymorphy
    И.п. для существительных)::
 
         >>> from pymorphy import get_morph
-        >>> m = get_moprh('dicts/ru')
+        >>> m = get_morph('dicts/ru')
         >>> print m.normalize(u"ЛЮДЕЙ")
         ЧЕЛОВЕК
 
@@ -16,7 +16,7 @@ pymorphy
    число, менять падеж слова и т.д.::
 
         >>> from pymorphy import get_morph
-        >>> m = get_moprh('dicts/ru')
+        >>> m = get_morph('dicts/ru')
         >>> print m.inflect_ru(u"СУСЛИК", u"мн,рд") # много кого?
         СУСЛИКОВ
 

@@ -1,7 +1,7 @@
 Описание оригинальной библиотеки с aot.ru (может оказаться полезным)
 --------------------------------------------------------------------
 
-This is a program of moprhological analysis (Russian, German, and English languages).
+This is a program of morphological analysis (Russian, German, and English languages).
 
 This program is distributed under the Library GNU Public Licence, which is in the file
 COPYING.
