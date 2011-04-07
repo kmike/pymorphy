@@ -1,10 +1,7 @@
 #coding: utf8
-
 import re
 
-import pymorphy
-
-pymorphy.setup_psyco()
+import pymorphy.utils
 
 text = u'''
 Сяпала Калуша по напушке и увазила бутявку. И волит:
@@ -24,12 +21,11 @@ r = re.compile('[\W+-]',re.U)
 words = r.split(text.upper())
 
 # тут нужно прописать путь до папки со словарями
-morph = pymorphy.get_morph('../dicts/converted/ru')
+morph = pymorphy.get_morph('dicts/converted/ru')
 
 for word in words:
     if word:
         print word
         info = morph.get_graminfo(word)
         for form in info:
-#            print info
-            pymorphy.utils.mprint(form)
+            pymorphy.utils.pprint(form)

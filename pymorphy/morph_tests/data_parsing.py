@@ -1,7 +1,6 @@
 #coding: utf-8
 from __future__ import absolute_import
 
-from pymorphy.utils import mprint
 from dicts import morph_ru
 from data.basic import BASIC_TESTS
 
