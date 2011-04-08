@@ -36,7 +36,11 @@ def make_pickled(dest_dir, mrd):
     print('creating pickled dictionary...')
     name = os.path.join(dest_dir, 'morphs.pickle')
     _unlink(name)
-    PickleDataSource(name).convert_and_save(mrd)
+    source = PickleDataSource(name)
+    source.convert_and_save(mrd)
+    source.load()
+    source._check_self()
+    mrd._check_other(source)
 
 
 def make_shelve(dest_dir, mrd, backend):
@@ -49,6 +53,8 @@ def make_shelve(dest_dir, mrd, backend):
     try:
         source = ShelveDataSource(dest_dir, backend)
         source.convert_and_save(mrd)
+        source.load()
+        mrd._check_other(source)
     except ImportError:
         print "Backend %s is not available." % backend
 

@@ -85,3 +85,9 @@ class ShelveDataSource(DictDataSource):
     def _get_shelf(self, filename, *args, **kwargs):
         path = self._path(filename)
         return self._get_shelf_class()(path, cached=self.cached,  *args, **kwargs)
+
+    def _check_self(self):
+        raise NotImplementedError()
+
+    def _check_other(self, data_source):
+        raise NotImplementedError()
