@@ -146,8 +146,7 @@ class TestMorph(MorphTestCase):
         self.assertNormal(u'КРАСИВОМУ', [u'КРАСИВЫЙ'])
         self.assertNormal(u'КРАСИВЫЕ', [u'КРАСИВЫЙ'])
 
-    @unittest2.expectedFailure
-    def test_multiple_bases(self):
+    def test_encoding_bugs(self):
         self.assertNormal(u'ДЕЙСТВИЕ', [u'ДЕЙСТВИЕ'])
 
 

@@ -66,6 +66,12 @@ class SqliteShelf(ShelfWithHooks):
                  dump_method='json', cached=True,
                  connection=None, table='shelf',):
         Shelf.__init__(self, SqliteDict(filename, connection, table))
+
+        # 'int' type packs integer key to 2-byte sequence and
+        # sqlite doesn't support binary data without extra efforts
+        if key_type == 'int':
+            key_type = 'unicode'
+
         self._setup_methods(cached, key_type, dump_method)
 
     def close(self):
