@@ -63,14 +63,17 @@ pymorphy
 
 2. Скачиваем нужные словари
 
-   Лежат тут: http://bitbucket.org/kmike/pymorphy/downloads/.
+   Лежат тут: https://bitbucket.org/kmike/pymorphy/downloads/.
 
-   Называются по формуле ``<язык>.<тип>.zip``.
+   Называются по формуле ``<язык>.<тип базы>-<формат данных>.zip``.
 
-   Про то, что это за разные типы словарей, и какой выбрать, можно почитать
-   в следующем документе: :ref:`supported-storages`.
+   Для начала можно скачать файл `ru.sqlite-json.zip <https://bitbucket.org/kmike/pymorphy/downloads/ru.sqlite-json.zip>`_.
 
-   Для начала можно скачать файл ru.sqlite.zip.
+   .. note::
+
+        Больше про то, что это за разные типы словарей, и какой выбрать,
+        можно почитать в следующем документе: :ref:`supported-storages`.
+
 
 3. Распаковываем скачанный словарь
 
@@ -114,8 +117,8 @@ Python 2.4 не поддерживается.
 
 * `Обсуждение <http://groups.google.com/group/pymorphy>`_ (
   тут можно задавать вопросы, делиться опытом, предлагать идеи)
-* `Сообщить об ошибке <http://bitbucket.org/kmike/pymorphy/issues/new/>`_
-* `Репозиторий с исходным кодом <http://bitbucket.org/kmike/pymorphy/>`_
+* `Сообщить об ошибке <https://bitbucket.org/kmike/pymorphy/issues/new/>`_
+* `Репозиторий с исходным кодом <https://bitbucket.org/kmike/pymorphy/>`_
 
 Подключайтесь к разработке! Замечания, исправления, документация, патчи в любом
 виде всегда приветствуются.
