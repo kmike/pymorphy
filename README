@@ -1,14 +1,17 @@
 Morphological analyzer for Russian and English languages
 using converted AOT (http://www.aot.ru/download.php) dictionaries.
 
-Documentation (mostly in Russian) can be found here: http://packages.python.org/pymorphy/
+Documentation (mostly in Russian): http://pymorphy.rtfd.org/
 
-Author:  Mikhail Korobov <kmike84@gmail.com>
-License: MIT
+Author:  Mikhail Korobov <kmike84@gmail.com>, License: MIT.
 
-=============
+------------
 
 Морфологический анализатор для русского и английского
 (возможно, еще немецкого) языка.
 
-Вся документация тут: http://packages.python.org/pymorphy/
+Документация: http://pymorphy.rtfd.org/
+
+Обсуждение: http://groups.google.com/group/pymorphy
+
+Репозиторий: https://bitbucket.org/kmike/pymorphy/
