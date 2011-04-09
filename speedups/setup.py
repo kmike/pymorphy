@@ -2,11 +2,13 @@
 from distutils.core import setup
 from distutils.extension import Extension
 
+from pymorphy_speedups.version import __version__
+
 setup(
     name = 'pymorphy-speedups',
-    version='0.5.1',
-    author='Mikhail Korobov',
-    author_email='kmike84@gmail.com',
+    version = __version__,
+    author = 'Mikhail Korobov',
+    author_email = 'kmike84@gmail.com',
 
     description = 'Speedups for pymorphy',
     long_description = open('README.rst').read(),
@@ -15,7 +17,7 @@ setup(
 
     license = 'MIT license',
     packages = ['pymorphy_speedups'],
-    requires = ['pymorphy(>=0.5)'],
+    requires = ['pymorphy (==%s)' % __version__],
 
     classifiers=[
         'Development Status :: 3 - Alpha',

@@ -1,4 +1,5 @@
 #coding: utf-8
+from pymorphy_speedups.version import *
 
 def setup_psyco():
     ''' Попытаться оптимизировать узкие места с помощью psyco '''

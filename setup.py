@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from distutils.core import setup
 import sys
+from pymorphy.version import __version__
 
 for cmd in ('egg_info', 'develop', 'build_sphinx', 'upload_sphinx'):
     if cmd in sys.argv:
@@ -8,11 +9,11 @@ for cmd in ('egg_info', 'develop', 'build_sphinx', 'upload_sphinx'):
 
 setup(
     name = 'pymorphy',
-    version=__import__('pymorphy').__version__,
-    author='Mikhail Korobov',
-    author_email='kmike84@gmail.com',
-    url='http://bitbucket.org/kmike/pymorphy/',
-    download_url = 'http://bitbucket.org/kmike/pymorphy/get/tip.zip',
+    version = __version__,
+    author = 'Mikhail Korobov',
+    author_email = 'kmike84@gmail.com',
+    url = 'https://bitbucket.org/kmike/pymorphy/',
+    download_url = 'https://bitbucket.org/kmike/pymorphy/get/v%s.zip' % __version__,
 
     description = 'Morphological analyzer (POS tagger + inflection engine) for Russian and English (+perhaps German) languages.',
     long_description = open('README').read() + open('docs/CHANGES.rst').read(),
