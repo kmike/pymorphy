@@ -24,6 +24,7 @@ pip-log.txt
 build/*
 dist/*
 MANIFEST
+pymorphy.egg-info/
 
 #project-specific files
 my_tests.py
