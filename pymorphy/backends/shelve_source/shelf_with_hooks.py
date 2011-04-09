@@ -7,6 +7,9 @@ try:
 except ImportError:
     import json
 
+def json_dumps(value):
+    return json.dumps(value, ensure_ascii=False).encode('utf8')
+
 class ShelfWithHooks(DbfilenameShelf):
     ''' Shelf class with key and value transform hooks. '''
 
@@ -17,7 +20,7 @@ class ShelfWithHooks(DbfilenameShelf):
         },
         'json':  {
            'loads': json.loads,
-           'dumps': json.dumps
+           'dumps': json_dumps
         },
     }
 

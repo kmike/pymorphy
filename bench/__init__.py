@@ -5,6 +5,7 @@ from datetime import datetime
 import re
 import os
 import codecs
+import timeit
 from pympler.muppy.muppy import get_objects, get_size
 
 import pymorphy
@@ -30,7 +31,7 @@ def do_pluralize(words, morph):
 
 def do_all(words, morph):
     do_normalize(words, morph)
-    do_pluralize(words, morph)
+#    do_pluralize(words, morph)
 
 
 def print_memory_diff():
@@ -51,25 +52,34 @@ def load_words(fn):
     f.close()
     return get_words(text)
 
-
-def bench(file, backend='shelve', use_psyco=True, use_cache=True):
-
-    words = load_words(file)
-    print 'Text is loaded (%d words)' % len(words)
-    print_memory_diff()
-
-#    if use_psyco:
-#        pymorphy.setup_psyco()
-
+def get_morph(backend, **kwargs):
     if backend == 'pickle':
         path = os.path.join(DICT_PATH, 'ru', 'morphs.pickle')
     else:
         path = os.path.join(DICT_PATH,'ru')
-    morph = pymorphy.get_morph(path, backend, cached = use_cache)
+    return pymorphy.get_morph(path, backend, **kwargs)
 
-    prof = cProfile.Profile()
-    prof = prof.runctx('do_all(words, morph)', globals = globals(), locals=locals())
-    prof.print_stats(1)
+
+def bench(file, backend='shelve', use_psyco=True, use_cache=True, profile=True):
+
+    if profile:
+        words = load_words(file)
+        print 'Text is loaded (%d words)' % len(words)
+        print_memory_diff()
+
+        morph = get_morph(backend, cached=use_cache)
+
+        prof = cProfile.Profile()
+        prof = prof.runctx('do_all(words, morph)', globals = globals(), locals=locals())
+        prof.print_stats(1)
+    else:
+        prep = """
+from bench import do_all, load_words, get_morph
+words = load_words('%s')
+morph = get_morph('%s', cached=%s)
+        """ % (file, backend, use_cache)
+        res = timeit.timeit('do_all(words, morph)', prep, number=1)
+        print '%s => %s (cache: %s) => %.2f sec' % (file, backend, use_cache, res)
 
     print_memory_diff()
 
