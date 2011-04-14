@@ -1,6 +1,6 @@
 #coding: utf8
 import re
-
+import pymorphy
 import pymorphy.utils
 
 text = u'''
