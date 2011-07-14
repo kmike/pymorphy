@@ -1,7 +1,7 @@
 #-*- coding: UTF-8
 
 from dicts import morph_ru
-import unittest2
+from pymorphy.morph_tests.base import unittest2
 from pymorphy.contrib.lastnames_ru import lastname_normal_form_ru
 
 
