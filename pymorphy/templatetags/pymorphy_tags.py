@@ -4,7 +4,7 @@ import re
 from django import template
 
 from pymorphy.django_conf import default_morph, MARKER_OPEN, MARKER_CLOSE
-from pymorphy.split import split_into_words, space_regex
+from pymorphy.contrib import tokenizers
 
 register = template.Library()
 
@@ -24,11 +24,11 @@ def _restore_register(morphed_word, word):
 
 def _process_phrase(phrase, process_func, *args, **kwargs):
     """ обработать фразу """
-    words = split_into_words(phrase)
+    words = tokenizers.extract_tokens(phrase)
     result=""
     try:
         for word in words:
-            if space_regex.match(word):
+            if tokenizers.GROUPING_SPACE_REGEX.match(word):
                 result += word
                 continue
             processed = process_func(word.upper(), *args, **kwargs)
