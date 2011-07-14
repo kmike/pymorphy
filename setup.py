@@ -1,8 +1,20 @@
 #!/usr/bin/env python
 from distutils.core import setup
+import warnings
 import sys
 sys.path.insert(0, '..')
-from pymorphy.version import __version__
+
+# Ignore warnings in python 2.5 way.
+original_filters = warnings.filters[:]
+warnings.simplefilter("ignore")
+try:
+    # this will issue a warning in case of
+    # pymorphy + pymorphy-speedups update
+    # using single pip requirements file.
+    from pymorphy.version import __version__
+finally:
+    warnings.filters = original_filters
+
 
 for cmd in ('egg_info', 'develop', 'build_sphinx', 'upload_sphinx'):
     if cmd in sys.argv:
