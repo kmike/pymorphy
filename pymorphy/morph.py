@@ -4,7 +4,7 @@ try:
     # speedups are available, check if version is correct
     from pymorphy.version import __version__ as pymorphy_version
     try:
-        from pymorphy_speedups import __version__ as speedups_version
+        from pymorphy_speedups.version import __version__ as speedups_version
     except ImportError: # 0.5.1 doesn't have __version__ defined
         speedups_version = '0.5.1'
 
