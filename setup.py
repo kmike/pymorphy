@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from distutils.core import setup
 import sys
+sys.path.insert(0, '..')
 from pymorphy.version import __version__
 
 for cmd in ('egg_info', 'develop', 'build_sphinx', 'upload_sphinx'):

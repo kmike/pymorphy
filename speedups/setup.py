@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import sys
+sys.path.insert(0, '..')
+
 from distutils.core import setup
 from distutils.extension import Extension
 
