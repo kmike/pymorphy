@@ -1,6 +1,14 @@
 Описание оригинальной библиотеки с aot.ru (может оказаться полезным)
 --------------------------------------------------------------------
 
+.. warning::
+
+    The following text is a description of the original aot.ru
+    POS tagger implementation. Pymorphy was based on aot.ru research and it uses
+    aot.ru dictionaries, but the implementation and further development is
+    independent. The following text is provided only for reference.
+    It does not describe how pymorphy works.
+
 This is a program of morphological analysis (Russian, German, and English languages).
 
 This program is distributed under the Library GNU Public Licence, which is in the file

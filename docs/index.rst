@@ -7,9 +7,9 @@
    :maxdepth: 2
 
    intro
-   usage
+   usage/index
    algo
-   ref
+   ref/index
    CHANGES
 
 Указатели и поиск
