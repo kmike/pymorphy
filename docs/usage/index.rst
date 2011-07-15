@@ -9,3 +9,4 @@
    base
    django
    speed
+   contrib
