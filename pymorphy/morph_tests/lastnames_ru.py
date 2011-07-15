@@ -191,6 +191,8 @@ class LastnameNormalFormTest(unittest2.TestCase):
         (u'Собчака', u'мр', u'Собчак'),
         (u'Собчаком', u'мр', u'Собчак'),
         (u'Собчаке', u'мр', u'Собчак'),
+        (u'Петровичу', u'мр', u'Петрович'),
+        (u'Кроссового', u'мр', u'Кроссовый'),
         (u'', u'мр', u''),
     ]
 
@@ -201,6 +203,19 @@ class LastnameNormalFormTest(unittest2.TestCase):
                 lastname.upper(),
                 gender_tag).capitalize() == expected_lastname)
 
+
+class LastnameMisoperationsTest(unittest2.TestCase):
+    testcase = [
+        (u'Кроссовый', u'мр', u'Кроссов'),
+        (u'Петровичу', u'жр', u'Петрович'),
+    ]
+
+    def test_misoperations(self):
+        for word, gender_tag, wrong in self.testcase:
+            assert(lastname_normal_form_ru(
+                morph_ru,
+                word.upper(),
+                gender_tag) != wrong)
 
 if __name__ == '__main__':
     unittest2.main()
