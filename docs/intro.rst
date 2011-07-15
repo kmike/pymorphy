@@ -8,36 +8,34 @@ pymorphy
    И.п. для существительных)::
 
         >>> from pymorphy import get_morph
-        >>> m = get_morph('dicts/ru')
-        >>> print m.normalize(u"ЛЮДЕЙ")
+        >>> morph = get_morph('dicts/ru')
+        >>> print morph.normalize(u"ЛЮДЕЙ")
         ЧЕЛОВЕК
 
 2. Умеет ставить слово в нужную форму. Например, ставить слово во множественное
    число, менять падеж слова и т.д.::
 
-        >>> from pymorphy import get_morph
-        >>> m = get_morph('dicts/ru')
-        >>> print m.inflect_ru(u"СУСЛИК", u"мн,рд") # много кого?
+        >>> print morph.inflect_ru(u"СУСЛИК", u"мн,рд") # много кого?
         СУСЛИКОВ
 
-   Есть template filter, который позволяет делать это прямо в шаблоне django::
+   Есть template filter, который позволяет делать это прямо в шаблоне django:
 
-       {% load pymorphy_tags %}
+   .. code-block:: django
 
        {# в переменной animals "тридцать восемь попугаев и Удав" #}
+
+       {% load pymorphy_tags %}
        {{ animals|inflect:"дт" }} захотелось пройтись по лесу.
 
        {# выведет "тридцати восьми попугаям и Удаву захотелось пройтись по лесу" #}
 
 
-3. Умеет возвращать грамматическую информацию о слове (число, род, падеж, часть
-   речи и т.д.). Делает это по словарю, для неизвестных
+3. Умеет возвращать грамматическую информацию о слове (число, род,
+   падеж, часть речи и т.д.). Делает это по словарю, для неизвестных
    слов работает предсказатель, если возможных форм несколько - возвращает
    несколько форм::
 
-        >>> from pymorphy import get_morph
-        >>> m = get_morph('dicts/ru')
-        >>> info = m.get_graminfo(u"БУТЯВКОВЕДАМИ")
+        >>> info = morph.get_graminfo(u"БУТЯВКОВЕДАМИ")
         >>> print info[0]['norm'] # нормальная форма
         БУТЯВКОВЕД
         >>> print info[0]['class'] # часть речи, С = существительное
@@ -55,25 +53,18 @@ pymorphy
 
        $ pip install pymorphy
 
-   или::
-
-       $ hg clone http://bitbucket.org/kmike/pymorphy/
-       $ cd pymorphy
-       $ ./setup.py install
-
-2. Скачиваем нужные словари
+2. Скачиваем словари
 
    Лежат тут: https://bitbucket.org/kmike/pymorphy/downloads/.
-
-   Называются по формуле ``<язык>.<тип базы>-<формат данных>.zip``.
 
    Для начала можно скачать файл `ru.sqlite-json.zip <https://bitbucket.org/kmike/pymorphy/downloads/ru.sqlite-json.zip>`_.
 
    .. note::
 
-        Больше про то, что это за разные типы словарей, и какой выбрать,
-        можно почитать в следующем документе: :ref:`supported-storages`.
+        Словари называются по формуле ``<язык>.<тип базы>-<формат данных>.zip``.
 
+        Про то, что это за разные типы словарей, и какой выбрать,
+        можно почитать в следующем документе: :ref:`supported-storages`.
 
 3. Распаковываем скачанный словарь
 
