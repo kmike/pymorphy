@@ -7,13 +7,16 @@ SPACE_REGEX = re.compile('[^\w_-]|[+]', re.U)
 GROUPING_SPACE_REGEX = re.compile('([^\w_-]|[+])', re.U)
 
 def extract_tokens(text):
-    """ Разбить текст на токены - слова, пробелы, знаки препинания. """
+    """
+    Разбивает текст на токены - слова, пробелы, знаки препинания и возвращает
+    полученный массив строк.
+    """
     return filter(None, GROUPING_SPACE_REGEX.split(text))
 
 
 def extract_words(text):
     """
-    Разбить текст на слова. Пунктуация игнорируется.
+    Разбивает текст на слова. Пунктуация игнорируется.
     Слова, пишущиеся через дефис, считаются 1 словом.
     Пример использования::
 
@@ -22,9 +25,7 @@ def extract_words(text):
         for word in tokenizers.extract_words(text):
             print word
 
-    .. note::
-
-        возвращает генератор, а не list
+    Возвращает генератор, выдающий слова из текста (не list).
 
     """
     for word in SPACE_REGEX.split(text):

@@ -2,7 +2,7 @@
 
 from dicts import morph_ru
 from pymorphy.morph_tests.base import unittest2
-from pymorphy.contrib.lastnames_ru import lastname_normal_form_ru
+from pymorphy.contrib import lastnames_ru
 
 
 class LastnameNormalFormTest(unittest2.TestCase):
@@ -198,10 +198,8 @@ class LastnameNormalFormTest(unittest2.TestCase):
 
     def test_normal_form(self):
         for lastname, gender_tag, expected_lastname in self.testcase:
-            assert(lastname_normal_form_ru(
-                morph_ru,
-                lastname.upper(),
-                gender_tag).capitalize() == expected_lastname)
+            res = lastnames_ru.normalize(morph_ru, lastname.upper(), gender_tag)
+            self.assertEqual(res.capitalize(), expected_lastname)
 
 
 class LastnameMisoperationsTest(unittest2.TestCase):
@@ -212,10 +210,8 @@ class LastnameMisoperationsTest(unittest2.TestCase):
 
     def test_misoperations(self):
         for word, gender_tag, wrong in self.testcase:
-            assert(lastname_normal_form_ru(
-                morph_ru,
-                word.upper(),
-                gender_tag) != wrong)
+            res = lastnames_ru.normalize(morph_ru, word.upper(), gender_tag)
+            self.assertNotEqual(res, wrong)
 
 if __name__ == '__main__':
     unittest2.main()

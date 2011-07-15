@@ -51,7 +51,8 @@
 
     Работа с фамилиями в pymorphy сейчас экспериментальная, и не все методы
     обычного анализатора доступны (в частности, не реализованы морфологический
-    анализ и постановка в произвольую форму).
+    анализ и постановка в произвольую форму), API может поменяться в
+    последующих релизах.
 
 Склонение фамилий использует алгоритм, похожий на
 :ref:`алгоритм <prediction-algo>` предсказания склонения слов,
@@ -88,22 +89,22 @@
 фамилии "кросс[-ов]", но, по правилам склонения фамилий, не может быть её
 производным.
 
-Если :func:`decline_lastname_ru` не нашла характерных признаков фамилии, слово
+Если :func:`decline` не нашла характерных признаков фамилии, слово
 будет склонено как обычное слово соответствующего рода в именительном падеже.
 Например, в случае нормализации слова "кроссового", вызов
-``lastname_normal_form_ru(morph, u'КРОССОВОГО', u'мр')`` будет аналогичен
+``lastnames_ru.normalize(morph, u'КРОССОВОГО', u'мр')`` будет аналогичен
 вызову ``morph.inflect_ru(u'КРОССОВОГО', u'им,ед,мр')``.
 
 .. automodule:: pymorphy.contrib.lastnames_ru
 
-    .. autofunction:: decline_lastname_ru
+    .. autofunction:: decline
 
-    .. autofunction:: lastname_normal_form_ru
+    .. autofunction:: normalize
 
     >>> from pymorphy.contrib import lastnames_ru
-    >>> print lastnames_ru.lastname_normal_form_ru(morph, u'СУВОРОВУ', u'мр')
+    >>> print lastnames_ru.normalize(morph, u'СУВОРОВУ', u'мр')
     СУВОРОВ
-    >>> print lastnames_ru.lastname_normal_form_ru(morph, u'СУВОРОВУ', u'жр')
+    >>> print lastnames_ru.normalize(morph, u'СУВОРОВУ', u'жр')
     СУВОРОВА
 
 
