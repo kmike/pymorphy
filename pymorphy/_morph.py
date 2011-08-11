@@ -5,8 +5,6 @@ from copy import deepcopy
 
 from pymorphy.constants import *
 from pymorphy.backends import PickleDataSource, ShelveDataSource
-from pymorphy.utils import pprint
-from django.utils.datastructures import SortedDict
 
 def _get_split_variants(word):
     """ Вернуть все варианты разбиения слова на 2 части """
