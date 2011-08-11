@@ -53,6 +53,9 @@ class TestInflectRu(MorphTestCase):
         # а тут второго предложного нет, в велосипеде
         self.assertInflected(u'ВЕЛОСИПЕД', u'пр,2', u'ВЕЛОСИПЕДЕ')
 
+    def test_decline_bug(self):
+        self.assertInflected(u'ОРЕЛ', u'рд', u'ОРЛА')
+
 
 class TestPluralizeInflected(MorphTestCase):
 

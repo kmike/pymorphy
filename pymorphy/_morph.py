@@ -5,6 +5,8 @@ from copy import deepcopy
 
 from pymorphy.constants import *
 from pymorphy.backends import PickleDataSource, ShelveDataSource
+from pymorphy.utils import pprint
+from django.utils.datastructures import SortedDict
 
 def _get_split_variants(word):
     """ Вернуть все варианты разбиения слова на 2 части """
@@ -14,7 +16,7 @@ def _get_split_variants(word):
     return vars
 
 def _array_match(arr, filter):
-    ''' Возврящает True, если все элементы из списка filter
+    ''' Возвращает True, если все элементы из списка filter
         присутствуют в attrs
     '''
     for item in filter:
@@ -321,11 +323,20 @@ class Morph(object):
 
         # убираем дубликаты парадигм и варианты, для которых анализатор не
         # определил парадигму
-        variants = dict([(form['paradigm_id'], form) for form in word_graminfo if 'paradigm_id' in form])
+        seen = set()
+        variants = []
+        for form in word_graminfo:
+            if 'paradigm_id' not in form:
+                continue
+            paradigm_id = form['paradigm_id']
+            if paradigm_id in seen:
+                continue
+            seen.add(paradigm_id)
+            variants.append((paradigm_id, form))
 
         # перебираем все возможные парадигмы и правила в них,
         # составляем варианты слов и возвращаем их
-        for paradigm_id, base_form in variants.iteritems():
+        for paradigm_id, base_form in variants:
 
             lemma = base_form['lemma']
             pre_prefix = u''.join(base_form.get('prefixes', []))
