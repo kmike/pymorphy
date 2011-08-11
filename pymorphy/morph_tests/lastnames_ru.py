@@ -211,7 +211,43 @@ class LastnameMisoperationsTest(unittest2.TestCase):
     def test_misoperations(self):
         for word, gender_tag, wrong in self.testcase:
             res = lastnames_ru.normalize(morph_ru, word.upper(), gender_tag)
-            self.assertNotEqual(res, wrong)
+            self.assertNotEqual(res.capitalize(), wrong)
+
+
+class LastnamesInflectTest(unittest2.TestCase):
+    testcase = [
+        (u'Суворову', u'жр,дт', u'Суворовой'),
+        (u'Суворову', u'мр,дт', u'Суворову'),
+    ]
+
+    def test_inflect(self):
+        for word, gram_form, expected in self.testcase:
+            res = lastnames_ru.inflect(morph_ru, word.upper(), gram_form)
+            self.assertEqual(res.capitalize(), expected)
+
+
+class LastnamesGraminfoTest(unittest2.TestCase):
+    testcase = [
+        (u'Суворову', (u'мр,дт', u'жр,вн',)),
+    ]
+
+    def test_get_graminfo(self):
+        for word, expected in self.testcase:
+            gram_info = lastnames_ru.get_graminfo(word.upper())
+
+            expectations_met = 0
+            for form in gram_info:
+                form_tokens = [token.strip() for token in form.get('info', '').split(',')]
+                for expected_form in expected:
+                    expected_tokens = [token.strip() for token in expected_form.split(',')]
+
+                    expectations_met += 1
+                    for token in expected_tokens:
+                        if token not in form_tokens:
+                            expectations_met -= 1
+                            break
+
+            self.assertEqual(expectations_met, len(expected))
 
 if __name__ == '__main__':
     unittest2.main()

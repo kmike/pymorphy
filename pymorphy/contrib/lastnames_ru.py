@@ -86,7 +86,7 @@ CASEMAP = {
 }
 
 
-def decline(lastname, gender_tag):
+def decline(lastname):
     ''' Склоняет фамилию и возвращает все возможные формы для заданного рода '''
 
     # Из фамилии выделяется предполагаемая лемма (Табуретов -> Табуретов,
@@ -128,20 +128,20 @@ def decline(lastname, gender_tag):
 
     forms = []
     for i, case in zip(xrange(6), (u'им', u'рд', u'дт', u'вн', u'тв', u'пр',)):
-#       print u'%s%s' % (name, cases[gender_tag][i])
-        forms.append({
-            'word': u'%s%s' % (name, cases[gender_tag][i]),
-            'class': u'С',
-            'info': u','.join((gender_tag, u'ед', u'фам', case)),
-            'lemma': name,
-            'method': u'decline_lastname (%s)' % lastname,
-            'norm': u'%s%s' % (name, cases[gender_tag][0]),
-        })
+        for gender_tag in (u'мр', u'жр',):
+            forms.append({
+                'word': u'%s%s' % (name, cases[gender_tag][i]),
+                'class': u'С',
+                'info': u','.join((gender_tag, u'ед', u'фам', case)),
+                'lemma': name,
+                'method': u'decline_lastname (%s)' % lastname,
+                'norm': u'%s%s' % (name, cases[gender_tag][0]),
+            })
 
     return forms
 
 
-def normalize(morph, word, gender_tag):
+def normalize(morph, lastname, gender_tag):
     '''
     Возвращает нормальную форму (именительный падеж) фамилии для заданного рода
     '''
@@ -149,15 +149,65 @@ def normalize(morph, word, gender_tag):
     # FIXME: эта функция возвращает саму форму, а Morph.normalize возвращает
     # множество (set) возможных форм, одно из двух лучше поправить.
 
-    # Фамилия склоняется; если в результате склонения получилась исходная форма,
-    # возвращается нормальная форма
-    for item in decline(word, gender_tag):
-#       print item.get('word'), item.get('info')
-        if item.get('word', '') == word:
-            return item.get('norm', word)
+    return inflect(morph, lastname, u'им,ед,%s' % gender_tag)
+
+
+def inflect(morph, lastname, gram_form):
+    '''
+    Вернуть вариант фамилии который соотвествует данной грамматической
+    форме
+
+    Параметры:
+
+    * morph - объект Morph
+    * lastname - фамилия которую хотим склонять
+    * gram_form - желаемые характеристики грам. формы (если 'жр' отсутствует в этом параметре, то по-умолчанию принимается 'мр')
+    '''
+
+    expected_tokens = [token.strip() for token in gram_form.split(',')]
+    gender_tag = (u'жр' in expected_tokens and u'жр' or u'мр')
+
+    # За один проход проверяется, что исходное слово может быть склонено как
+    # фамилия и выбирается форма подходящая под gram_form
+
+    present_in_decline = False
+    accepted = {}
+    for item in decline(lastname):
+        form_tokens = [token.strip() for token in item.get('info', '').split(',')]
+
+        # Если в результате склонения не получилось исходной формы - ложное срабатывание
+
+        # Обязательно проверяется род: при склонении в противоположном роде
+        # может получиться исходная форма но нас интересует совпадение только в
+        # заданном роде
+
+        if item.get('word', '') == lastname and gender_tag in form_tokens:
+            present_in_decline = True
+
+        expected_form = True
+        for token in expected_tokens:
+            if token not in form_tokens:
+                expected_form = False
+                break
+
+        if expected_form:
+            accepted = item
 
     # Если в результате склонения исходной формы не получилось,
-    # возвращается результат нормализации как для обычного слова
+    # возвращается результат склонения как для обычного слова
 
-    # XXX: выяснить, почему не normalize
-    return morph.inflect_ru(word, u'%s,%s,%s' % (u'им', u'ед', gender_tag))
+    if present_in_decline and accepted:
+        return accepted.get('word', '')
+    else:
+        return morph.inflect_ru(lastname, gram_form)
+
+
+def get_graminfo(lastname):
+    '''Вернуть грамматическую информацию о фамилии и её нормальную форму'''
+
+    info = []
+    for item in decline(lastname):
+        if item.get('word', '') == lastname:
+            info.append(item)
+
+    return info
