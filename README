@@ -1,5 +1,6 @@
-Morphological analyzer for Russian and English languages
-using converted AOT (http://www.aot.ru/download.php) dictionaries.
+Morphological analyzer (POS tagger / inflection engine) for
+Russian and English languages using converted AOT
+(http://www.aot.ru/download.php) dictionaries.
 
 Documentation (mostly in Russian): http://pymorphy.rtfd.org/
 
