@@ -1,2 +1,2 @@
 #!/bin/sh
-cython pymorphy/_morph.py -o speedups/_morph.c
+cython -X boundscheck=True pymorphy/_morph.py -o speedups/_morph.c
