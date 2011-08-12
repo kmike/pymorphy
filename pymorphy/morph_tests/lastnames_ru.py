@@ -214,10 +214,11 @@ class LastnameMisoperationsTest(unittest2.TestCase):
             self.assertNotEqual(res.capitalize(), wrong)
 
 
-class LastnamesInflectTest(unittest2.TestCase):
+class LastnameInflectTest(unittest2.TestCase):
     testcase = [
         (u'Суворову', u'жр,дт', u'Суворовой'),
         (u'Суворову', u'мр,дт', u'Суворову'),
+        (u'Суворов', u'им,ед', u'Суворов'),
     ]
 
     def test_inflect(self):
@@ -226,7 +227,7 @@ class LastnamesInflectTest(unittest2.TestCase):
             self.assertEqual(res.capitalize(), expected)
 
 
-class LastnamesGraminfoTest(unittest2.TestCase):
+class LastnameGraminfoTest(unittest2.TestCase):
     testcase = [
         (u'Суворову', (u'мр,дт', u'жр,вн',)),
     ]
@@ -248,6 +249,49 @@ class LastnamesGraminfoTest(unittest2.TestCase):
                             break
 
             self.assertEqual(expectations_met, len(expected))
+
+
+class LastnamePluralizeTest(unittest2.TestCase):
+
+    def test_pluralize(self):
+        testcase = [
+            (u'Колобков', u'', u'Колобковы'),
+            (u'Колобков', u'тв', u'Колобковыми'),
+            (u'Колобкову', u'мр', u'Колобковым'), # исходная форма - 'дт', результат - 'дт'
+            (u'Колобкову', u'жр', u'Колобковых'), # 'рд'
+            (u'Достоевский', u'', u'Достоевские'),
+            (u'Достоевскому', u'мр', u'Достоевским'),
+            (u'Достоевский', u'тв', u'Достоевскими'),
+            (u'Достоевской', u'жр', u'Достоевских'), # 'рд'
+            (u'Цапок', u'', u'Цапки'),
+            (u'Цапок', u'жр,тв', u'Цапками'),
+            (u'Цапке', u'', u'Цапках'), # 'рд'
+            (u'Беглых', u'', u'Беглых'), # та же форма во мн. числе
+            (u'Каменских', u'', u'Каменских'),
+            (u'Мутко', u'', u'Мутко'),
+            (u'Акопян', u'', u'Акопян'),
+            (u'Гулиа', u'', u'Гулиа'),
+        ]
+
+        for lastname, gram_form, expected in testcase:
+            pluralized = lastnames_ru.pluralize(morph_ru, lastname.upper(), gram_form)
+#            print lastname, pluralized, expected
+            self.assertEqual(pluralized, expected.upper())
+
+    def test_pluralize_inflected(self):
+        testcase = [
+            (u'Попугаев', u'мр', 1, u'Попугаев'),
+            (u'Попугаев', u'мр', 2, u'Попугаевых'),
+            (u'Попугаев', u'мр', 5, u'Попугаевых'),
+            (u'Попугаева', u'жр', 1, u'Попугаева'),
+            (u'Попугаева', u'жр', 2, u'Попугаевых'),
+            (u'Попугаева', u'жр', 5, u'Попугаевых'),
+        ]
+
+        for lastname, num, gender_tag, expected in testcase:
+            pluralized = lastnames_ru.pluralize_inflected(morph_ru, lastname.upper(), num, gender_tag)
+#            print lastname, pluralized, expected
+            assert(pluralized == expected.upper())
 
 if __name__ == '__main__':
     unittest2.main()
