@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import sys
 from django.conf import settings
 from django.core.management import call_command
+
+sys.path.insert(0, '.')
 
 settings.configure(
     INSTALLED_APPS=('pymorphy',),
