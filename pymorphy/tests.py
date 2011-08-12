@@ -1,9 +1,10 @@
 #coding: utf-8
 
 from unittest import TestCase
+from django import template
+from django.utils.translation import ugettext_lazy as _
 
 from templatetags.pymorphy_tags import inflect, plural, inflect_marked
-
 
 class InflectMarkedTagTest(TestCase):
 
@@ -98,4 +99,17 @@ class PluralTagTest(TestCase):
         self.assertPlural(u'активный пользователь', 10, u'активных пользователей')
         self.assertPlural(u'активный пользователь', 21, u'активный пользователь')
 
+
+class LazyStringTest(TestCase):
+
+    def test_safe_string(self):
+        tpl = template.Template("{% load pymorphy_tags %}{{ 'конь'|inflect:'дт' }}")
+        rendered, expected = tpl.render(template.Context()), u'коню'
+        assert rendered == expected, (u'%s != %s' % (rendered, expected)).encode('utf8')
+
+    def test_i18n_string(self):
+        horse = _(u'конь')
+        tpl = template.Template("{% load pymorphy_tags %}{{ horses|inflect:'дт' }}")
+        rendered, expected = tpl.render(template.Context({'horses': horse})), u'коню'
+        assert rendered == expected, (u'%s != %s' % (rendered, expected)).encode('utf8')
 
