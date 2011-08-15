@@ -34,7 +34,7 @@ def _process_phrase(phrase, process_func, *args, **kwargs):
             processed = process_func(word.upper(), *args, **kwargs)
             processed = _restore_register(processed, word) if processed else word
             result += processed
-    except:
+    except Exception:
         return phrase
     return result
 
@@ -66,13 +66,13 @@ def _process_unmarked_phrase(phrase, process_func, *args, **kwargs):
 def inflect(phrase, form):
     if not phrase:
         return phrase
-    return _process_unmarked_phrase(unicode(phrase), default_morph.inflect_ru, form)
+    return _process_unmarked_phrase(unicode(phrase), default_morph.inflect_ru, unicode(form))
 
 @register.filter
 def inflect_marked(phrase, form):
     if not phrase:
         return phrase
-    return _process_marked_phrase(unicode(phrase), default_morph.inflect_ru, form)
+    return _process_marked_phrase(unicode(phrase), default_morph.inflect_ru, unicode(form))
 
 @register.filter
 def plural(phrase, amount):

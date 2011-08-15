@@ -9,12 +9,14 @@ import timeit
 from pympler.muppy.muppy import get_objects, get_size
 
 import pymorphy
+from pymorphy.contrib.tokenizers import extract_words
 
 DICT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '..', 'dicts', 'converted'))
 
 
 def get_words(text):
+#    return list(extract_words(text))
     r = re.compile('[\W+-]',re.U)
     return [word for word in r.split(text.upper()) if word]
 
