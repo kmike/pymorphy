@@ -230,6 +230,7 @@ class LastnameInflectTest(unittest2.TestCase):
 class LastnameGraminfoTest(unittest2.TestCase):
     testcase = [
         (u'Суворову', (u'мр,дт', u'жр,вн',)),
+        (u'Козловых', (u'мр-жр,мн,рд', u'мр-жр,мн,вн', u'мр,ед,им', u'жр,ед,им')),
     ]
 
     def test_get_graminfo(self):
@@ -248,7 +249,7 @@ class LastnameGraminfoTest(unittest2.TestCase):
                             expectations_met -= 1
                             break
 
-            self.assertEqual(expectations_met, len(expected))
+            self.assertGreaterEqual(expectations_met, len(expected))
 
 
 class LastnamePluralizeTest(unittest2.TestCase):

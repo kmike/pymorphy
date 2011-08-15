@@ -4,7 +4,6 @@ import itertools
 import re
 
 # Порядок важен: ЯНЦ должно быть перед ЯН для правильного срабатывания.
-# Несклоняемые фамилии сюда включать необязательно - у них нет леммы
 LASTNAME_PATTERN = re.compile(ur'(.*('
     ur'ОВ|ИВ|ЕВ'
     ur'|ИН'
@@ -12,7 +11,11 @@ LASTNAME_PATTERN = re.compile(ur'(.*('
     ur'|ИЧ'
     ur'|ЮК|УК'
     ur'|ИС|ЭС|УС'
+    ur'|ЫХ|ИХ'
     ur'|УНЦ|ЯНЦ|ЕНЦ|АН|ЯН'
+    # Фамилии без явного суффикса (-ок, -ия, -иа) сюда включать не надо - decline() попытается угадать лемму.
+    # Несклоняемы фамилии включать так же не надо - у них нет игнорируемой части после суффикса.
+    # Фамилии с суффиксами -ых/-их включены сюда т.к. эти окончания образуют множ. форму CASES_OV
     ur'))',
     re.UNICODE | re.VERBOSE)
 
@@ -91,14 +94,14 @@ CASEMAP = {
     u'УНЦ': (CASES_CH, PLURAL_INDECLINABLE_CASES),
     u'ЯНЦ': (CASES_CH, PLURAL_INDECLINABLE_CASES),
     u'ЕНЦ': (CASES_CH, PLURAL_INDECLINABLE_CASES),
-    u'ИЯ': (CASES_IA, PLURAL_INDECLINABLE_CASES),
-    u'ОК': (CASES_OK, PLURAL_OK),
     u'ЫХ': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
     u'ИХ': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
     u'КО': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
-    u'ИА': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
     u'АГО': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
     u'ЯГО': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
+    u'ИЯ': (CASES_IA, PLURAL_INDECLINABLE_CASES),
+    u'ОК': (CASES_OK, PLURAL_OK),
+    u'ИА': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
     # TODO: -ец
     # TODO: -хно
 }
@@ -110,39 +113,47 @@ def decline(lastname):
     # Из фамилии выделяется предполагаемая лемма (Табуретов -> Табуретов,
     # Табуретовым -> Табуретов), лемма склоняется по правилам склонения фамилий
 
-    name = LASTNAME_PATTERN.search(lastname)
-    name = name.group(1) if name else lastname
+    match = LASTNAME_PATTERN.search(lastname)
+    lemma = name = match.group(1) if match else lastname # name is lemma + suffix
     name_len = len(name)
 
     # Попытка угадать склонённую фамилию из 13.1.12 ("Берией")
     if name_len > 2 and name[-2:] in (u'ИИ', u'ИЮ',):
-        name = lastname[:-2] + u'ИЯ'
+        lemma = lastname[:-2]
+        name = lemma + u'ИЯ'
     elif name_len > 3 and name[-3:] in (u'ИЕЙ',):
-        name = lastname[:-3] + u'ИЯ'
+        lemma = lastname[:-3]
+        name = lemma + u'ИЯ'
 
     # Попытка угадать склонённую фамилию, закачивающуюся на -ок ("Цапка")
     # Работает, только если буква перед окончанием согласная.
     # Проверка согласной делается для исключения склонённых фамилий на -ак
     # ("Собчака")
     if name_len > 3 and name[-2:] in (u'КА', u'КУ', u'КЕ',) and name[-3] in CONSONANTS:
-        name = lastname[:-2] + u'ОК'
+        lemma = lastname[:-2]
+        name = lemma + u'ОК'
     elif name_len > 4 and name[-3:] in (u'КОМ',) and name[-4] in CONSONANTS:
-        name = lastname[:-3] + u'ОК'
+        lemma = lastname[:-3]
+        name = lemma + u'ОК'
 
     cases = plural_cases = {}
     if name_len > 2:
         cases, plural_cases = CASEMAP.get(name[-2:], ({}, ()))
+        if cases:
+            lemma = name[:-2]
 
     if not cases and name_len > 3:
         cases, plural_cases = CASEMAP.get(name[-3:], ({}, ()))
+        if cases:
+            lemma = name[:-3]
 
     # В случае 13.1.12 лемма состоит из фамилии, за исключением
     # двух последних букв
     if cases is CASES_IA or cases is CASES_OK:
-        name = name[:-2]
+        lemma = name = name[:-2]
 
     if not cases:
-        return {}
+        return []
 
     forms = []
     for i, case in zip(xrange(6), (u'им', u'рд', u'дт', u'вн', u'тв', u'пр',)):
@@ -164,6 +175,13 @@ def decline(lastname):
             'method': u'decline_lastname (%s)' % lastname,
             'norm': u'%s%s' % (name, plural_cases[0]),
         })
+
+    # Просклонять рекурсивно для случая с множественным числом фамилии
+    # Козловых -> фам,им; Козловых (мн) -> Козлов -> фам,им
+    if lemma != name and LASTNAME_PATTERN.match(lemma):
+        refinement = decline(lemma)
+        if refinement:
+            return forms + refinement
 
     return forms
 
@@ -214,8 +232,8 @@ def inflect(morph, lastname, gram_form):
         # заданном роде
 
         if item.get('word', '') == lastname:
-            # В случае склонения во множественную форму, род игнорируется
-            # Род всех (?) фамилий во множественном числе - мр-жр
+            # В случае склонения во множественную форму, род игнорируется.
+            # Род всех фамилий во множественном числе - мр-жр.
             if u'мн' in expected_tokens or gender_tag in form_tokens:
                 present_in_decline = True
 
@@ -225,8 +243,10 @@ def inflect(morph, lastname, gram_form):
                 expected_form = False
                 break
 
-        if expected_form:
+        if expected_form and not accepted:
             accepted = item
+            # Здесь break не нужен т.к. present_in_decline всё ещё может быть
+            # не установлена в корректное значение
 
     # Если в результате склонения исходной формы не получилось,
     # возвращается результат склонения как для обычного слова

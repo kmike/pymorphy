@@ -109,16 +109,16 @@
     .. autofunction:: decline
 
     .. autofunction:: normalize
-    
-    .. autofunction:: inflect
-
-    .. autofunction:: get_graminfo
 
     >>> from pymorphy.contrib import lastnames_ru
     >>> print lastnames_ru.normalize(morph, u'СУВОРОВУ', u'мр')
     СУВОРОВ
     >>> print lastnames_ru.normalize(morph, u'СУВОРОВУ', u'жр')
     СУВОРОВА
+
+    .. autofunction:: inflect
+
+    .. autofunction:: get_graminfo
 
     .. autofunction:: pluralize
 
