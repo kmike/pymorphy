@@ -34,8 +34,9 @@ class TestPluraliseRu(MorphTestCase):
 class TestInflectRu(MorphTestCase):
 
     def test_inflect(self):
-        self.assertInflected(u"СУСЛИКОВ", u"дт", u"СУСЛИКАМ")
         self.assertInflected(u"СУСЛИК", u"дт", u"СУСЛИКУ")
+        self.assertInflected(u"СУСЛИКИ", u"дт", u"СУСЛИКАМ")
+        self.assertInflected(u"СУСЛИКОВ", u"дт", u"СУСЛИКАМ")
         self.assertInflected(u"СУСЛИКА", u"дт", u"СУСЛИКУ")
         self.assertInflected(u"СУСЛИК", u"мн,дт", u"СУСЛИКАМ")
 
@@ -56,6 +57,15 @@ class TestInflectRu(MorphTestCase):
     def test_decline_bug(self):
         self.assertInflected(u'ОРЕЛ', u'рд', u'ОРЛА')
 
+    # см. https://bitbucket.org/kmike/pymorphy/issue/36/
+    @unittest2.expectedFailure
+    def test_improper_guess(self):
+        self.assertInflected(u'ОСТРОВА', u'дт', u'ОСТРОВАМ')
+
+    # см. https://bitbucket.org/kmike/pymorphy/issue/36/
+    @unittest2.expectedFailure
+    def test_improper_guess2(self):
+        self.assertInflected(u'КИЕВ', u'пр', u'КИЕВЕ')
 
 class TestPluralizeInflected(MorphTestCase):
 

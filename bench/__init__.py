@@ -1,5 +1,5 @@
 #coding: utf-8
-
+from __future__ import absolute_import
 import cProfile
 from datetime import datetime
 import re
@@ -13,6 +13,9 @@ from pymorphy.contrib.tokenizers import extract_words
 
 DICT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                          '..', 'dicts', 'converted'))
+
+def total_seconds(delta):
+    return delta.days * 3600 * 24 + delta.seconds + delta.microseconds/100000.0
 
 
 def get_words(text):
@@ -62,10 +65,10 @@ def get_morph(backend, **kwargs):
     return pymorphy.get_morph(path, backend, **kwargs)
 
 
-def bench(file, backend='shelve', use_psyco=True, use_cache=True, profile=True):
+def bench(filename, backend='shelve', use_psyco=True, use_cache=True, profile=True):
 
     if profile:
-        words = load_words(file)
+        words = load_words(filename)
         print 'Text is loaded (%d words)' % len(words)
         print_memory_diff()
 
@@ -75,13 +78,27 @@ def bench(file, backend='shelve', use_psyco=True, use_cache=True, profile=True):
         prof = prof.runctx('do_all(words, morph)', globals = globals(), locals=locals())
         prof.print_stats(1)
     else:
-        prep = """
-from bench import do_all, load_words, get_morph
-words = load_words('%s')
-morph = get_morph('%s', cached=%s)
-        """ % (file, backend, use_cache)
-        res = timeit.timeit('do_all(words, morph)', prep, number=1)
-        print '%s => %s (cache: %s) => %.2f sec' % (file, backend, use_cache, res)
+#        prep = """
+#from bench import do_all, load_words, get_morph
+#words = load_words('%s')
+#morph = get_morph('%s', cached=%s)
+#        """ % (file, backend, use_cache)
+#        res = timeit.timeit('do_all(words, morph)', prep, number=1)
+#        print '%s => %s (cache: %s) => %.2f sec' % (file, backend, use_cache, res)
+
+        start = datetime.now()
+        words = load_words(filename)
+        morph = get_morph(backend, cached=use_cache)
+        loaded = datetime.now()
+        do_all(words, morph)
+        parsed = datetime.now()
+
+        load_time = total_seconds(loaded-start)
+        parse_time = total_seconds(parsed-loaded)
+        wps = len(words)/parse_time
+
+        print '%s => %s (cache: %s) => load: %.2f sec, parse: %0.2f sec (%d words/sec)' % (
+            filename, backend, use_cache, load_time, parse_time, wps)
 
     print_memory_diff()
 
