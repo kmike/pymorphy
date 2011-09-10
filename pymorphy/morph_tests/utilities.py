@@ -57,13 +57,9 @@ class TestInflectRu(MorphTestCase):
     def test_decline_bug(self):
         self.assertInflected(u'ОРЕЛ', u'рд', u'ОРЛА')
 
-    # см. https://bitbucket.org/kmike/pymorphy/issue/36/
-    @unittest2.expectedFailure
     def test_improper_guess(self):
         self.assertInflected(u'ОСТРОВА', u'дт', u'ОСТРОВАМ')
 
-    # см. https://bitbucket.org/kmike/pymorphy/issue/36/
-    @unittest2.expectedFailure
     def test_improper_guess2(self):
         self.assertInflected(u'КИЕВ', u'пр', u'КИЕВЕ')
 

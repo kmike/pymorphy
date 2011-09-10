@@ -1,11 +1,11 @@
 #-*- coding: UTF-8
-
-from dicts import morph_ru
-from pymorphy.morph_tests.base import unittest2
+from __future__ import absolute_import
 from pymorphy.contrib import lastnames_ru
+from .base import unittest2, MorphTestCase
+from .dicts import morph_ru
 
 
-class LastnameNormalFormTest(unittest2.TestCase):
+class LastnameNormalFormTest(MorphTestCase):
     testcase = [
         (u'Титов', u'мр', u'Титов'),
         (u'Титовым', u'мр', u'Титов'),
@@ -207,7 +207,12 @@ class LastnameNormalFormTest(unittest2.TestCase):
     def test_normal_form(self):
         for lastname, gender_tag, expected_lastname in self.testcase:
             res = lastnames_ru.normalize(morph_ru, lastname.upper(), gender_tag)
-            self.assertEqual(res.capitalize(), expected_lastname)
+            self.assertEqualRu(res.capitalize(), expected_lastname)
+
+    def test_improper_guess(self):
+        res = lastnames_ru.normalize(morph_ru, u'Ильвесом'.upper(), u'мр')
+        self.assertEqualRu(res.capitalize(), u'Ильвес')
+
 
 
 class LastnameMisoperationsTest(unittest2.TestCase):
@@ -304,4 +309,7 @@ class LastnamePluralizeTest(unittest2.TestCase):
             self.assertEqual(pluralized, expected.upper())
 
 if __name__ == '__main__':
+    # Упс, относительные импорты сломали возможность запускать скрипт отдельно.
+    # А обычные мы использовать не можем, т.к. morph_tests не ставится
+    # вместе с pymorphy.
     unittest2.main()

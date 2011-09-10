@@ -219,7 +219,6 @@ def normalize(morph, lastname, gender_tag):
 
     # FIXME: эта функция возвращает саму форму, а Morph.normalize возвращает
     # множество (set) возможных форм, одно из двух лучше поправить.
-
     return inflect(morph, lastname, u'им,ед,%s' % gender_tag)
 
 
@@ -232,8 +231,12 @@ def inflect(morph, lastname, gram_form):
 
     * morph - объект Morph
     * lastname - фамилия которую хотим склонять
-    * gram_form - желаемые характеристики грам. формы (если 'жр' отсутствует в этом параметре, то по-умолчанию принимается 'мр', или 'мр-жр' если указано 'мн')
+    * gram_form - желаемые характеристики грам. формы (если 'жр' отсутствует
+      в этом параметре, то по-умолчанию принимается 'мр', или 'мр-жр', если
+      указано 'мн')
     '''
+
+    # FIXME: использовать тут везде GramInfo.match вместо циклов?
 
     expected_tokens = [token.strip() for token in gram_form.split(',')]
 
@@ -280,7 +283,7 @@ def inflect(morph, lastname, gram_form):
     if present_in_decline and accepted:
         return accepted.get('word', u'')
     else:
-        return morph.inflect_ru(lastname, gram_form)
+        return morph.inflect_ru(lastname, gram_form, smart_guess=False)
 
 
 def get_graminfo(lastname):

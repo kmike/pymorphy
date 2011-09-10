@@ -5,6 +5,7 @@ from copy import deepcopy
 
 from pymorphy.constants import *
 from pymorphy.backends import PickleDataSource, ShelveDataSource
+from pymorphy.utils import pprint
 
 def _get_split_variants(word):
     """ Вернуть все варианты разбиения слова на 2 части """
@@ -122,6 +123,23 @@ class GramForm(object):
         return True
 
 
+def _guess_best_form(forms):
+    """ выбирает наиболее вероятную форму слова, для склонятора """
+    first_guess = forms[0]
+
+    # Для существительных первая форма в списке не обязательно самая лучшая:
+    # например, обычно лучше брать "им,мн" вместо "ед,рд".
+    if first_guess['class'] == u'С':
+        good = GramForm(u'им')
+
+        for form in forms:
+            gram_form = GramForm(form['info'])
+            if gram_form.match(good):
+                return form, form['lemma']
+
+    return first_guess, None
+
+
 class Morph(object):
     """ Класс, реализующий морфологический анализ на основе словарей из
         data_source
@@ -167,15 +185,16 @@ class Morph(object):
         self.handle_EE = handle_EE
 
     def get_graminfo(self, word, standard=False, predict=True, **kwargs):
-        """ Вернуть грамматическую информацию о слове и его нормальную форму.
-            Если параметр standard=True, то для каждого варианта разбора
-            результаты возвращаются в стандартном виде (словарь вида
-            {'class': <class>, 'info': <info>, 'norm': <norm>}, обозначения
-            согласованы с теми, что приняты на конференции Диалог-2010. Если
-            standard = False (по умолчанию), то возвращается больше информации
-            (детальное разбиение на части речи, больше морфологических
-            признаков, информация об использованном алгоритме),
-            обозначения определяются структурой словарей.
+        """
+        Вернуть грамматическую информацию о слове и его нормальную форму.
+        Если параметр standard=True, то для каждого варианта разбора
+        результаты возвращаются в стандартном виде (словарь вида
+        {'class': <class>, 'info': <info>, 'norm': <norm>}, обозначения
+        согласованы с теми, что приняты на конференции Диалог-2010. Если
+        standard = False (по умолчанию), то возвращается больше информации
+        (детальное разбиение на части речи, больше морфологических
+        признаков, информация об использованном алгоритме),
+        обозначения определяются структурой словарей.
         """
         forms = self._get_graminfo(word, predict=predict, **kwargs)
         # приписываем статичные префиксы к нормальным формам слова
@@ -224,7 +243,7 @@ class Morph(object):
 
         return variants
 
-    def inflect_ru(self, word, gram_form, gram_class=None):
+    def inflect_ru(self, word, gram_form, gram_class=None, smart_guess=True):
         """
         Вернуть вариант слова, который соотвествует данной грамматической
         форме и части речи, а также менее всего отличается от исходного.
@@ -237,6 +256,10 @@ class Morph(object):
           будет считаться словом этой части речи (если возможно), и
           склоняться будет соответственно. Требуется для устранения
           неоднозначностей.
+        * smart_guess (True по умолчанию). Если smart_guess is True, то
+          исходная форма слова будет угадываться как наиболее близкая к
+          нормальной (для существительных будет отдано предпочтение варианту
+          разбора с именительным падежом).
         """
         forms = self.get_graminfo(word)
         if gram_class is not None:
@@ -244,15 +267,22 @@ class Morph(object):
         if not forms:
             return word
 
-        # FIXME: первая форма в списке не обязательно самая лучшая
-        # например, лучше брать "им,мн". вместо "ед,рд".
-        graminfo = forms[0]
+        # проверка через is, чтоб можно было в будущем
+        # передавать в smart_guess строки с подсказками
+        if smart_guess is True:
+            graminfo, lemma = _guess_best_form(forms)
+        else:
+            graminfo, lemma = forms[0], None
 
         form = GramForm(graminfo['info'])
         form.update(gram_form)
 
         variants = self.decline(word, form.get_form_string(), graminfo['class'])
         if len(variants):
+            if lemma is not None:
+                for variant in variants:
+                    if variant['lemma'] == lemma:
+                        return variant['word']
             return variants[0]['word']
         else:
             return word
