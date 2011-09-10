@@ -12,9 +12,9 @@ LASTNAME_PATTERN = re.compile(ur'(.*('
     ur'|ЮК|УК'
     ur'|ИС|ЭС|УС'
     ur'|ЫХ|ИХ'
-    ur'|УНЦ|ЯНЦ|ЕНЦ|АН|ЯН'
+    ur'|ЯНЦ|ЕНЦ|АН|ЯН'
     # Фамилии без явного суффикса (-ок, -ия, -иа) сюда включать не надо - decline() попытается угадать лемму.
-    # Несклоняемы фамилии включать так же не надо - у них нет игнорируемой части после суффикса.
+    # Несклоняемые фамилии включать так же не надо - у них нет игнорируемой части после суффикса.
     # Фамилии с суффиксами -ых/-их включены сюда т.к. эти окончания образуют множ. форму CASES_OV
     ur'))',
     re.UNICODE | re.VERBOSE)
@@ -45,6 +45,11 @@ CASES_OK = {
     u'мр': (u'ОК', u'КА', u'КУ', u'КА', u'КОМ', u'КЕ'),
     u'жр': (u'ОК', u'ОК', u'ОК', u'ОК', u'ОК', u'ОК'),
 }
+# Фамилии заканчивающиеся на -ец
+CASES_EC = {
+    u'мр': (u'ЕЦ', u'ЦА', u'ЦУ', u'ЦА', u'ЦОМ', u'ЦЕ'),
+    u'жр': (u'ЕЦ', u'ЕЦ', u'ЕЦ', u'ЕЦ', u'ЕЦ', u'ЕЦ'),
+}
 # Литовские, эстонские, часть армянских
 CASES_IS = {
     u'мр': (u'', u'А', u'У', u'А', u'ОМ', u'Е'),
@@ -69,6 +74,8 @@ PLURAL_OV = (u'Ы', u'ЫХ', u'ЫМ', u'ЫХ', u'ЫМИ', u'ЫХ')
 PLURAL_SK = (u'ИЕ', u'ИХ', u'ИМ', u'ИХ', u'ИМИ', u'ИХ')
 # для CASES_OK
 PLURAL_OK = (u'КИ', u'КОВ', u'КАМ', u'КОВ', u'КАМИ', u'КАХ')
+# для CASES_EC
+PLURAL_EC = (u'ЦЫ', u'ЦОВ', u'ЦАМ', u'ЦОВ', u'ЦАМИ', u'ЦАХ')
 # для INDECLINABLE_CASES (и фамилий которые не склоняются во множ. числе)
 PLURAL_INDECLINABLE_CASES = (u'', u'', u'', u'', u'', u'')
 
@@ -94,16 +101,17 @@ CASEMAP = {
     u'УНЦ': (CASES_CH, PLURAL_INDECLINABLE_CASES),
     u'ЯНЦ': (CASES_CH, PLURAL_INDECLINABLE_CASES),
     u'ЕНЦ': (CASES_CH, PLURAL_INDECLINABLE_CASES),
+    u'ИЯ': (CASES_IA, PLURAL_INDECLINABLE_CASES),
+    u'ОК': (CASES_OK, PLURAL_OK),
+    # Склонение -ец похоже на фамилии с суффиксом -ок
+    u'ЕЦ': (CASES_EC, PLURAL_EC),
     u'ЫХ': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
     u'ИХ': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
     u'КО': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
     u'АГО': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
     u'ЯГО': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
-    u'ИЯ': (CASES_IA, PLURAL_INDECLINABLE_CASES),
-    u'ОК': (CASES_OK, PLURAL_OK),
     u'ИА': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
-    # TODO: -ец
-    # TODO: -хно
+    u'ХНО': (INDECLINABLE_CASES, PLURAL_INDECLINABLE_CASES),
 }
 
 
@@ -113,30 +121,48 @@ def decline(lastname):
     # Из фамилии выделяется предполагаемая лемма (Табуретов -> Табуретов,
     # Табуретовым -> Табуретов), лемма склоняется по правилам склонения фамилий
 
+    def guess_lemma(name):
+        '''
+        Попытаться угадать сложносклоняемую фамилию (Цапок, Бегунец, Берия)
+
+        Возвращает пару (name=lemma+suffix, lemma) либо (None, None)
+        '''
+
+        name_len = len(name)
+
+        # Попытка угадать склонённую фамилию из 13.1.12 ("Берией")
+        if name_len > 2 and name[-2:] in (u'ИИ', u'ИЮ',):
+            return (lastname[:-2] + u'ИЯ', lastname[:-2])
+        elif name_len > 3 and name[-3:] in (u'ИЕЙ',):
+            return (lastname[:-3] + u'ИЯ', lastname[:-3])
+
+        # Попытка угадать склонённую фамилию, закачивающуюся на -ок ("Цапка")
+        # Работает, только если буква перед окончанием согласная.
+        # Проверка согласной делается для исключения склонённых фамилий на -ак
+        # ("Собчака")
+        if name_len > 3 and name[-2:] in (u'КА', u'КУ', u'КЕ',) and name[-3] in CONSONANTS:
+            return (lastname[:-2] + u'ОК', lastname[:-2])
+        elif name_len > 4 and name[-3:] in (u'КОМ',) and name[-4] in CONSONANTS:
+            return (lastname[:-3] + u'ОК', lastname[:-3])
+
+        # Попытка угадать склонённую фамилию, закачивающуюся на -ец ("Бегунец")
+        # FIXME: необходима проверка на коллизии с другими фамилиями (как в
+        # случае с "Цапок")
+        if name_len > 3 and name[-2:] in (u'ЦА', u'ЦУ', u'ЦЕ',):
+            return (lastname[:-2] + u'ЕЦ', lastname[:-2])
+
+        return (None, None)
+
+
     match = LASTNAME_PATTERN.search(lastname)
     lemma = name = match.group(1) if match else lastname # name is lemma + suffix
     name_len = len(name)
 
-    # Попытка угадать склонённую фамилию из 13.1.12 ("Берией")
-    if name_len > 2 and name[-2:] in (u'ИИ', u'ИЮ',):
-        lemma = lastname[:-2]
-        name = lemma + u'ИЯ'
-    elif name_len > 3 and name[-3:] in (u'ИЕЙ',):
-        lemma = lastname[:-3]
-        name = lemma + u'ИЯ'
+    guessed_name, guessed_lemma = guess_lemma(name)
+    if guessed_name and guessed_lemma:
+        name, lemma = guessed_name, guessed_lemma
 
-    # Попытка угадать склонённую фамилию, закачивающуюся на -ок ("Цапка")
-    # Работает, только если буква перед окончанием согласная.
-    # Проверка согласной делается для исключения склонённых фамилий на -ак
-    # ("Собчака")
-    if name_len > 3 and name[-2:] in (u'КА', u'КУ', u'КЕ',) and name[-3] in CONSONANTS:
-        lemma = lastname[:-2]
-        name = lemma + u'ОК'
-    elif name_len > 4 and name[-3:] in (u'КОМ',) and name[-4] in CONSONANTS:
-        lemma = lastname[:-3]
-        name = lemma + u'ОК'
-
-    cases = plural_cases = {}
+    cases, plural_cases = {}, ()
     if name_len > 2:
         cases, plural_cases = CASEMAP.get(name[-2:], ({}, ()))
         if cases:
@@ -176,7 +202,7 @@ def decline(lastname):
             'norm': u'%s%s' % (name, plural_cases[0]),
         })
 
-    # Просклонять рекурсивно для случая с множественным числом фамилии
+    # Просклонять рекурсивно для случая с множественным числом фамилии.
     # Козловых -> фам,им; Козловых (мн) -> Козлов -> фам,им
     if lemma != name and LASTNAME_PATTERN.match(lemma):
         refinement = decline(lemma)
@@ -312,7 +338,8 @@ def pluralize(morph, lastname, gram_form=u''):
 
 def pluralize_inflected(morph, lastname, gender_tag, num):
     '''
-    Вернуть фамилию в форме, которая будет сочетаться с переданным числом. Например: 1 Попугаев, 2 Попугаевых, 5 Попугаевых.
+    Вернуть фамилию в форме, которая будет сочетаться с переданным числом.
+    Например: 1 Попугаев, 2 Попугаевых, 5 Попугаевых.
 
     Параметры:
 
