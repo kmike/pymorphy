@@ -61,26 +61,32 @@ class GramForm(object):
     def clear_number(self):
         ''' убрать информацию о числе '''
         self.form.difference_update(RU_NUMBERS)
+        return self
 
     def clear_case(self):
         ''' убрать информацию о падеже '''
         self.form.difference_update(RU_CASES)
+        return self
 
     def clear_gender(self):
         ''' убрать информацию о роде '''
         self.form.difference_update(RU_GENDERS)
+        return self
 
     def clear_person(self):
         ''' убрать информацию о лице '''
         self.form.difference_update(RU_PERSONS)
+        return self
 
     def clear_tense(self):
         ''' убрать информацию о времени '''
         self.form.difference_update(RU_TENSES)
+        return self
 
     def clear_voice(self):
         ''' убрать информацию о залоге '''
         self.form.difference_update(RU_VOICES)
+        return self
 
     def update(self, form_string):
         """ Обновляет параметры, по возможности оставляя все, что можно. """
@@ -121,6 +127,9 @@ class GramForm(object):
         if self.form.intersection(gram_form.denied_form):
             return False
         return True
+
+    def match_string(self, str_form):
+        return (str_form if self.match(GramForm(str_form)) else None)
 
 
 def _guess_best_form(forms):

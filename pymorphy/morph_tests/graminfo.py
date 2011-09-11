@@ -45,4 +45,12 @@ class GramFormTest(unittest2.TestCase):
         form = GramForm(u"мр,ед,имя")
         self.assertFalse(form.match(GramForm(u"мр,!имя")))
         self.assertTrue(form.match(GramForm(u"ед,!тв")))
+    
+    def test_match_string(self):
+        form = GramForm(u'мр,ед,им')
+        self.assertEqual(form.match_string(u'мр'), u'мр')
+        self.assertEqual(form.match_string(u'ед'), u'ед')
+        self.assertEqual(form.match_string(u'им'), u'им')
+        self.assertEqual(form.match_string(u'!имя'), u'!имя')
+        self.assertFalse(form.match_string(u'жр'))
 

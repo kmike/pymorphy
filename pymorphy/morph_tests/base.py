@@ -14,6 +14,10 @@ class MorphTestCase(unittest2.TestCase):
         w1, w2 = word1.encode('utf8'), word2.encode('utf8')
         self.assertEqual(word1, word2, '%s != %s' % (w1, w2,))
 
+    def assertNotEqualRu(self, word1, word2):
+        w1, w2 = word1.encode('utf8'), word2.encode('utf8')
+        self.assertNotEqual(word1, word2, '%s == %s' % (w1, w2,))
+
     def assertNormal(self, input, output):
         norm_forms = morph_ru.normalize(input)
         correct_norm_forms = set(output)
