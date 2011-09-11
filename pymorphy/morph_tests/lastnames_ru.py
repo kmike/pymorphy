@@ -213,9 +213,16 @@ class LastnameNormalFormTest(MorphTestCase):
         res = lastnames_ru.normalize(morph_ru, u'Ильвесом'.upper(), u'мр')
         self.assertEqualRu(res.capitalize(), u'Ильвес')
 
+    def test_hints_defaults(self):
+        case = u'Титову'.upper()
+
+        self.assertEqualRu(lastnames_ru.normalize(morph_ru, case, u''),
+            lastnames_ru.normalize(morph_ru, case, u'мр'))
+        self.assertNotEqualRu(lastnames_ru.normalize(morph_ru, case, u''),
+            lastnames_ru.normalize(morph_ru, case, u'жр'))
 
 
-class LastnameMisoperationsTest(unittest2.TestCase):
+class LastnameMisoperationsTest(MorphTestCase):
     testcase = [
         (u'Кроссовый', u'мр', u'Кроссов'),
         (u'Петровичу', u'жр', u'Петрович'),
@@ -224,10 +231,10 @@ class LastnameMisoperationsTest(unittest2.TestCase):
     def test_misoperations(self):
         for word, gender_tag, wrong in self.testcase:
             res = lastnames_ru.normalize(morph_ru, word.upper(), gender_tag)
-            self.assertNotEqual(res.capitalize(), wrong)
+            self.assertNotEqualRu(res.capitalize(), wrong)
 
 
-class LastnameInflectTest(unittest2.TestCase):
+class LastnameInflectTest(MorphTestCase):
     testcase = [
         (u'Суворову', u'жр,дт', u'Суворовой'),
         (u'Суворову', u'мр,дт', u'Суворову'),
@@ -237,10 +244,10 @@ class LastnameInflectTest(unittest2.TestCase):
     def test_inflect(self):
         for word, gram_form, expected in self.testcase:
             res = lastnames_ru.inflect(morph_ru, word.upper(), gram_form)
-            self.assertEqual(res.capitalize(), expected)
+            self.assertEqualRu(res.capitalize(), expected)
 
 
-class LastnameGraminfoTest(unittest2.TestCase):
+class LastnameGraminfoTest(MorphTestCase):
     testcase = [
         (u'Суворову', (u'мр,дт', u'жр,вн',)),
         (u'Козловых', (u'мр-жр,мн,рд', u'мр-жр,мн,вн', u'мр,ед,им', u'жр,ед,им')),
@@ -265,7 +272,7 @@ class LastnameGraminfoTest(unittest2.TestCase):
             self.assertGreaterEqual(expectations_met, len(expected))
 
 
-class LastnamePluralizeTest(unittest2.TestCase):
+class LastnamePluralizeTest(MorphTestCase):
 
     def test_pluralize(self):
         testcase = [
@@ -291,22 +298,35 @@ class LastnamePluralizeTest(unittest2.TestCase):
         for lastname, gram_form, expected in testcase:
             pluralized = lastnames_ru.pluralize(morph_ru, lastname.upper(), gram_form)
 #            print lastname, pluralized, expected
-            self.assertEqual(pluralized, expected.upper())
+            self.assertEqualRu(pluralized, expected.upper())
 
     def test_pluralize_inflected(self):
         testcase = [
-            (u'Попугаев', u'мр', 1, u'Попугаев'),
-            (u'Попугаев', u'мр', 2, u'Попугаевых'),
-            (u'Попугаев', u'мр', 5, u'Попугаевых'),
-            (u'Попугаева', u'жр', 1, u'Попугаева'),
-            (u'Попугаева', u'жр', 2, u'Попугаевых'),
-            (u'Попугаева', u'жр', 5, u'Попугаевых'),
+            (u'Попугаев', 1, u'Попугаев', u''),
+            (u'Попугаев', 2, u'Попугаевых', u''),
+            (u'Попугаев', 5, u'Попугаевых', u''),
+            (u'Попугаев', 1, u'Попугаев', u'мр'),
+            (u'Попугаев', 2, u'Попугаевых', u'мр'),
+            (u'Попугаев', 5, u'Попугаевых', u'мр'),
+            (u'Попугаева', 1, u'Попугаева', u'жр'),
+            (u'Попугаева', 2, u'Попугаевых', u'жр'),
+            (u'Попугаева', 5, u'Попугаевых', u'жр'),
         ]
 
-        for lastname, num, gender_tag, expected in testcase:
-            pluralized = lastnames_ru.pluralize_inflected(morph_ru, lastname.upper(), num, gender_tag)
+        for lastname, num, expected, hints in testcase:
+            pluralized = lastnames_ru.pluralize_inflected(morph_ru, lastname.upper(), num, hints)
 #            print lastname, pluralized, expected
-            self.assertEqual(pluralized, expected.upper())
+            self.assertEqualRu(pluralized, expected.upper())
+
+
+class LastnameDeclineTest(MorphTestCase):
+
+    def test_gram_form_filter(self):
+        self.assertEqual(len(lastnames_ru.decline(u'Котов'.upper(), u'мр,им,ед')), 1)
+        self.assertEqual(len(lastnames_ru.decline(u'Котов'.upper(), u'жр,им,ед')), 1)
+        self.assertEqual(len(lastnames_ru.decline(u'Котов'.upper(), u'им,ед')), 2) # мр + жр
+        self.assertEqual(len(lastnames_ru.decline(u'Котов'.upper(), u'им,мн')), 1) # мн
+        self.assertEqual(len(lastnames_ru.decline(u'Котов'.upper(), u'им')), 3) # мр + жр + мн
 
 if __name__ == '__main__':
     # Упс, относительные импорты сломали возможность запускать скрипт отдельно.

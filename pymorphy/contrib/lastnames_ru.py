@@ -1,7 +1,7 @@
 #-*- coding: UTF-8
 
-import itertools
 import re
+from pymorphy.morph import GramForm
 
 # Порядок важен: ЯНЦ должно быть перед ЯН для правильного срабатывания.
 LASTNAME_PATTERN = re.compile(ur'(.*('
@@ -115,7 +115,7 @@ CASEMAP = {
 }
 
 
-def decline(lastname):
+def decline(lastname, gram_form=u''):
     ''' Склоняет фамилию и возвращает все возможные формы '''
 
     # Из фамилии выделяется предполагаемая лемма (Табуретов -> Табуретов,
@@ -181,22 +181,34 @@ def decline(lastname):
     if not cases:
         return []
 
+    expected_form = GramForm(gram_form)
+
     forms = []
     for i, case in zip(xrange(6), (u'им', u'рд', u'дт', u'вн', u'тв', u'пр',)):
         for gender_tag in (u'мр', u'жр',):
+            form = GramForm(u'%s,%s,фам,ед' % (case, gender_tag,))
+
+            if gram_form and not form.match(expected_form):
+                continue
+
             forms.append({
                 'word': u'%s%s' % (name, cases[gender_tag][i]),
                 'class': u'С',
-                'info': u','.join((gender_tag, u'ед', u'фам', case)),
+                'info': form.get_form_string(),
                 'lemma': name,
                 'method': u'decline_lastname (%s)' % lastname,
                 'norm': u'%s%s' % (name, cases[gender_tag][0]),
             })
 
+        plural_form = GramForm(u'%s,мр-жр,фам,мн' % (case,))
+
+        if gram_form and not plural_form.match(expected_form):
+            continue
+
         forms.append({
             'word': u'%s%s' % (name, plural_cases[i]),
             'class': u'С',
-            'info': u','.join((u'мр-жр', u'мн', u'фам', case)),
+            'info': plural_form.get_form_string(),
             'lemma': name,
             'method': u'decline_lastname (%s)' % lastname,
             'norm': u'%s%s' % (name, plural_cases[0]),
@@ -212,10 +224,18 @@ def decline(lastname):
     return forms
 
 
-def normalize(morph, lastname, gender_tag):
+def normalize(morph, lastname, hints=u''):
     '''
     Возвращает нормальную форму (именительный падеж) фамилии для заданного рода
+
+    Параметры:
+
+    * hints - подсказки об исходной форме фамилии (u'мр' или u'жр',
+      по-умолчанию принимается u'мр')
     '''
+
+    hints_form = GramForm(hints)
+    gender_tag = (hints_form.match_string(u'жр') or u'мр')
 
     # FIXME: эта функция возвращает саму форму, а Morph.normalize возвращает
     # множество (set) возможных форм, одно из двух лучше поправить.
@@ -231,20 +251,16 @@ def inflect(morph, lastname, gram_form):
 
     * morph - объект Morph
     * lastname - фамилия которую хотим склонять
-    * gram_form - желаемые характеристики грам. формы (если 'жр' отсутствует
-      в этом параметре, то по-умолчанию принимается 'мр', или 'мр-жр', если
-      указано 'мн')
+    * gram_form - желаемые характеристики грам. формы (если u'жр' отсутствует
+      в этом параметре, то по-умолчанию принимается u'мр', или u'мр-жр', если
+      указано u'мн')
     '''
 
-    # FIXME: использовать тут везде GramInfo.match вместо циклов?
+    expected_form = GramForm(gram_form)
 
-    expected_tokens = [token.strip() for token in gram_form.split(',')]
-
-    gender_tag = (u'жр' in expected_tokens and u'жр' or None)
+    gender_tag = (u'мр-жр' if expected_form.match_string(u'мн') else None)
     if not gender_tag:
-        gender_tag = (u'мр' in expected_tokens and u'мр' or None)
-    if not gender_tag and u'мн' in expected_tokens:
-        gender_tag = u'мр-жр'
+        gender_tag = (expected_form.match_string(u'жр') or u'мр')
 
     # За один проход проверяется, что исходное слово может быть склонено как
     # фамилия и выбирается форма подходящая под gram_form
@@ -252,7 +268,7 @@ def inflect(morph, lastname, gram_form):
     present_in_decline = False
     accepted = {}
     for item in decline(lastname):
-        form_tokens = [token.strip() for token in item.get('info', '').split(',')]
+        form = GramForm(item.get('info', u''))
 
         # Если в результате склонения не получилось исходной формы - ложное срабатывание
 
@@ -263,16 +279,12 @@ def inflect(morph, lastname, gram_form):
         if item.get('word', '') == lastname:
             # В случае склонения во множественную форму, род игнорируется.
             # Род всех фамилий во множественном числе - мр-жр.
-            if u'мн' in expected_tokens or gender_tag in form_tokens:
+            if expected_form.match_string(u'мн') or form.match_string(gender_tag):
                 present_in_decline = True
 
-        expected_form = True
-        for token in expected_tokens:
-            if token not in form_tokens or gender_tag not in form_tokens:
-                expected_form = False
-                break
+        expected = form.match(expected_form)
 
-        if expected_form and not accepted:
+        if expected and not accepted:
             accepted = item
             # Здесь break не нужен т.к. present_in_decline всё ещё может быть
             # не установлена в корректное значение
@@ -308,38 +320,36 @@ def pluralize(morph, lastname, gram_form=u''):
     * gram_form - желаемые характеристики грам. формы
     '''
 
-    expected_tokens = (gram_form and [
-        token.strip() for token in gram_form.split(',')] or [])
+    expected_form = GramForm(gram_form)
 
     # Удалить из желаемой формы признаки рода и числа
-    refined_tokens = [token for token in expected_tokens
-        if token not in (u'мр', u'жр', u'мр-жр', u'мн', u'ед')]
+    refined_form = GramForm(gram_form).clear_gender().clear_number()
 
     # Если дан gram_form - склонить в указанную форму
-    if refined_tokens:
+    if refined_form.get_form_string():
         return inflect(
             morph,
             lastname,
-            u','.join(itertools.chain(refined_tokens, (u'мн',))))
+            u','.join((refined_form.get_form_string(), u'мн',)))
 
     # Иначе - найти форму исходной фамилии и склонить в неё же, но во мн. числе
     # Если в желаемой форме был указан род - использовать как подсказку
-    gender_tag = u'жр' in expected_tokens and u'жр' or u'мр'
+    gender_tag = (expected_form.match_string(u'жр') or u'мр')
 
     for item in decline(lastname):
-        form_tokens = [token.strip() for token in item.get('info', u'').split(',')]
+        form = GramForm(item.get('info', u''))
 
         # Проверить наличие исходной формы в заданном роде (аналогично inflect())
-        if item.get('word', u'') == lastname and gender_tag in form_tokens:
+        if item.get('word', u'') == lastname and form.match_string(gender_tag):
             for case in (u'им', u'рд', u'дт', u'вн', u'тв', u'пр'):
-                if case in form_tokens:
+                if form.match_string(case):
                     return inflect(morph, lastname, u'мн,%s' % case)
 
     # В случае неудачи - просклонять как обычное слово
     return morph.pluralize_ru(lastname, gram_form)
 
 
-def pluralize_inflected(morph, lastname, gender_tag, num):
+def pluralize_inflected(morph, lastname, num, hints=u''):
     '''
     Вернуть фамилию в форме, которая будет сочетаться с переданным числом.
     Например: 1 Попугаев, 2 Попугаевых, 5 Попугаевых.
@@ -348,11 +358,14 @@ def pluralize_inflected(morph, lastname, gender_tag, num):
 
     * morph - объект Morph
     * lastname - фамилия которую хотим склонять
-    * gender_tag - род фамилии ('мр' или 'жр')
     * num - число
+    * hints - подсказки об исходной форме фамилии (u'мр' или u'жр')
     '''
 
     if num == 1:
-        return normalize(morph, lastname, gender_tag)
+        return normalize(morph, lastname, hints)
 
+    hints_form = GramForm(hints)
+
+    gender_tag = (hints_form.match_string(u'жр') or u'мр')
     return pluralize(morph, lastname, u'мн,рд,%s' % gender_tag)
