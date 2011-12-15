@@ -9,6 +9,7 @@ syntax: glob
 nbproject/*
 .buildpath
 build.properties
+.idea
 
 #temp files
 *.pyc
@@ -34,6 +35,8 @@ stuff
 *.pickle
 *.shelve
 *.cdb
+*.cdblib
+*.tinycdb
 *.tcb
 *.tch
 *.zip
@@ -41,4 +44,5 @@ stuff
 *.log-psyco
 docs/_*
 bench/do.py
+bench/text/war.txt
 forum
