@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 #coding: utf-8
+
 """
 Скрипт кодирования словарей. Пока только руками его править, если какие-то
 настройки нужны.
@@ -98,30 +100,19 @@ if __name__ == '__main__':
     src_dir = 'dicts/src/Dicts'
     dest_dir = 'dicts/converted'
 
-# ======= en ===========
-    convert_dicts(src_dir, dest_dir, 'en')
-    en_dest = os.path.join(dest_dir, 'en')
+    LANGUAGES = 'en', 'ru'
+    FORMATS = 'shelve', 'cdb', 'tch', 'tcb', 'sqlite', 'tinycdb', 'cdblib'
 
-    mrd = load_mrd(en_dest)
-    make_pickled(en_dest, mrd)
-    make_shelve(en_dest, mrd, 'shelve')     # bsddb
-    make_shelve(en_dest, mrd, 'cdb')        # cdb
-    make_shelve(en_dest, mrd, 'tch')        # tokyo cabinet hash
-    make_shelve(en_dest, mrd, 'tcb')        # tokyo cabinet btree+
-    make_shelve(en_dest, mrd, 'sqlite')     # sqlite
-    cleanup_after_convert(en_dest)
+    for lang in LANGUAGES:
+        convert_dicts(src_dir, dest_dir, lang)
+        dest = os.path.join(dest_dir, lang)
 
-# ======= ru ===========
-    convert_dicts(src_dir, dest_dir, 'ru')
-    ru_dest = os.path.join(dest_dir, 'ru')
+        mrd = load_mrd(dest)
+        make_pickled(dest, mrd)
 
-    mrd = load_mrd(ru_dest)
-    make_pickled(ru_dest, mrd)
-    make_shelve(ru_dest, mrd, 'shelve')     # bsddb
-    make_shelve(ru_dest, mrd, 'cdb')        # cdb
-    make_shelve(ru_dest, mrd, 'tch')        # tokyo cabinet hash
-    make_shelve(ru_dest, mrd, 'tcb')        # tokyo cabinet btree+
-    make_shelve(ru_dest, mrd, 'sqlite')     # sqlite
-    cleanup_after_convert(ru_dest)
+        for fmt in FORMATS:
+            make_shelve(dest, mrd, fmt)
+
+        cleanup_after_convert(dest)
 
     print "done."
