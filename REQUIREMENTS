@@ -1,8 +1,5 @@
 simplejson
 unittest2
 
-# для словарей в формате Tokyo Cabinet
-# pytc
-
 # для словарей в формате CDB
-python-cdb
+tinycdb

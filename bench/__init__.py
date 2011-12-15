@@ -6,7 +6,7 @@ import re
 import os
 import codecs
 import timeit
-from pympler.muppy.muppy import get_objects, get_size
+from pympler.muppy import get_objects, get_size
 
 import pymorphy
 from pymorphy.contrib.tokenizers import extract_words

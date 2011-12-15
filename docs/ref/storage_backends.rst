@@ -43,27 +43,11 @@ DB-источники данных
     :show-inheritance:
 
 
-Интерфейс к Shelve (BSDDB, GDBM, DBM)
-"""""""""""""""""""""""""""""""""""""
-
-.. automodule:: pymorphy.backends.shelve_source.shelf_with_hooks
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Интерфейс к CDB
 """""""""""""""
 
-.. automodule:: pymorphy.backends.shelve_source.cdb_shelve
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Интерфейс к Tokyo Cabinet
-"""""""""""""""""""""""""
-.. automodule:: pymorphy.backends.shelve_source.pytc_shelve
+.. automodule:: pymorphy.backends.shelve_source.tinycdb_shelve
     :members:
     :undoc-members:
     :show-inheritance:

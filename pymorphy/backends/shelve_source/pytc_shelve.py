@@ -1,7 +1,11 @@
 # coding: utf-8
+import warnings
 from shelve import Shelf
 import pytc
 from shelf_with_hooks import ShelfWithHooks
+
+warnings.warn("Tokyo Cabinet support is deprecated and will be removed soon. Please consider "
+              "switching to tinycdb: it is easier to install, faster and uses less memory", DeprecationWarning)
 
 
 class PytcHashShelf(ShelfWithHooks):

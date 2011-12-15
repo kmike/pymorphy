@@ -68,19 +68,47 @@ class ShelveDataSource(DictDataSource):
         return os.path.join(self.path, name+'.'+self.db_type)
 
     def _get_shelf_class(self):
-        if self.db_type == 'cdb':
+
+        def old_cdb():
             from cdb_shelve import CdbShelf
             return CdbShelf
+
+        def tinycdb():
+            from tinycdb_shelve import TinycdbShelf
+            return TinycdbShelf
+
+        if self.db_type == 'cdb':
+            try:
+                return tinycdb()
+            except ImportError:
+                return old_cdb()
+
+        elif self.db_type == 'tinycdb':
+            return tinycdb()
+
+        elif self.db_type == 'oldcdb':
+            return old_cdb()
+
+        elif self.db_type == 'cdblib':
+            from cdblib_shelve import CdblibShelf
+            return CdblibShelf
+
         elif self.db_type == 'tch':
             from pytc_shelve import PytcHashShelf
             return PytcHashShelf
+
         elif self.db_type == 'tcb':
             from pytc_shelve import PytcBtreeShelf
             return PytcBtreeShelf
+
         elif self.db_type == 'sqlite':
             from sqlite_shelve import SqliteShelf
             return SqliteShelf
-        return ShelfWithHooks
+
+        elif self.db_type == 'shelve':
+            return ShelfWithHooks
+
+        raise Exception('Unsupported backend: %s' % self.db_type)
 
     def _get_shelf(self, filename, *args, **kwargs):
         path = self._path(filename)

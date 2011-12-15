@@ -11,7 +11,7 @@ settings.configure(
     PYMORPHY_DICTS = {
         'ru': {
             'dir': 'dicts/converted/ru',
-            'backend': 'shelve',
+            'backend': 'sqlite',
             'use_cache': True,
             'default': True,
         },
