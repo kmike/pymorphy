@@ -39,15 +39,18 @@ class ShelfWithHooks(DbfilenameShelf):
           }
     }
 
-    def __init__(self, filename, flag, key_type='str', dump_method='json',
-                 cached=True, writeback=False):
+    DEFAULT_DUMP_METHOD = 'marshal'
 
+    def __init__(self, filename, flag, key_type='str', dump_method=None,
+                 cached=True, writeback=False):
         DbfilenameShelf.__init__(self, filename, flag, -1, writeback)
         cached = (flag is 'r') and cached
         self._setup_methods(cached, key_type, dump_method)
 
 
-    def _setup_methods(self, cached, key_type, dump_method):
+    def _setup_methods(self, cached, key_type, dump_method=None):
+        dump_method = dump_method or self.DEFAULT_DUMP_METHOD
+
         if cached:
             self.__getitem__ = self._getitem__cached
             self.__contains__ = self._contains__cached

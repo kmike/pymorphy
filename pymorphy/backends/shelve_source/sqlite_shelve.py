@@ -39,7 +39,7 @@ class SqliteDict(object):
         return item[0]
 
     def __setitem__(self, key, value):
-        self.conn.execute(self.ADD_ITEM, (key, value))
+        self.conn.execute(self.ADD_ITEM, (key, value)) #sqlite3.Binary(value)))
 #        self.conn.commit()
 
     def clear(self):
@@ -63,7 +63,7 @@ class SqliteDict(object):
 class SqliteShelf(ShelfWithHooks):
 
     def __init__(self, filename=None, flag='', key_type='str',
-                 dump_method='json', cached=True,
+                 dump_method=None, cached=True,
                  connection=None, table='shelf',):
         Shelf.__init__(self, SqliteDict(filename, connection, table))
 

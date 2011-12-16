@@ -17,7 +17,7 @@ class ShelveDataSource(DictDataSource):
 
     def __init__(self, path='', db_type=None, cached=True):
         self.path = path
-        self.db_type = db_type or 'shelve'
+        self.db_type = db_type or 'sqlite'
         self.cached = cached
 
         super(ShelveDataSource, self).__init__()
@@ -65,7 +65,10 @@ class ShelveDataSource(DictDataSource):
 
 
     def _path(self, name):
-        return os.path.join(self.path, name+'.'+self.db_type)
+        ext = self.db_type
+        if 'cdb' in self.db_type:
+            ext = 'cdb'
+        return os.path.join(self.path, name+'.'+ext)
 
     def _get_shelf_class(self):
 

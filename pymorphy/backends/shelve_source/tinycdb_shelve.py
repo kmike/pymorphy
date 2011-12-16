@@ -5,7 +5,7 @@ from shelve import Shelf
 
 class TinycdbShelf(ShelfWithHooks):
 
-    def __init__(self, filename, flag, key_type='str', dump_method='json',
+    def __init__(self, filename, flag, key_type='str', dump_method=None,
                  cached=True, writeback=False):
         if flag=='r':
             Shelf.__init__(self, tinycdb.read(filename), -1, writeback)
