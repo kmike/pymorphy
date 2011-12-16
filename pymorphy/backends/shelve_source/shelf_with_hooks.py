@@ -39,7 +39,7 @@ class ShelfWithHooks(DbfilenameShelf):
           }
     }
 
-    DEFAULT_DUMP_METHOD = 'marshal'
+    DEFAULT_DUMP_METHOD = 'json'
 
     def __init__(self, filename, flag, key_type='str', dump_method=None,
                  cached=True, writeback=False):
