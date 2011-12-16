@@ -4,17 +4,13 @@ import warnings
 import sys
 sys.path.insert(0, '..')
 
-# Ignore warnings in python 2.5 way.
-original_filters = warnings.filters[:]
-warnings.simplefilter("ignore")
-try:
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+
     # this will issue a warning in case of
     # pymorphy + pymorphy-speedups update
     # using single pip requirements file.
     from pymorphy.version import __version__
-finally:
-    warnings.filters = original_filters
-
 
 for cmd in ('egg_info', 'develop', 'build_sphinx', 'upload_sphinx'):
     if cmd in sys.argv:
@@ -48,9 +44,10 @@ setup(
           'Natural Language :: German',
           'Programming Language :: Python',
           'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.5',
           'Programming Language :: Python :: 2.6',
           'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.2',
           'Framework :: Django',
           'Topic :: Software Development :: Libraries :: Python Modules',
           'Topic :: Scientific/Engineering :: Information Analysis',

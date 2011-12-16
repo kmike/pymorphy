@@ -1,8 +1,9 @@
 #coding: utf-8
+from __future__ import absolute_import
 import os
 
 from pymorphy.backends.base import DictDataSource
-from shelf_with_hooks import ShelfWithHooks
+from .shelf_with_hooks import ShelfWithHooks
 
 
 class ShelveDataSource(DictDataSource):
@@ -73,15 +74,15 @@ class ShelveDataSource(DictDataSource):
     def _get_shelf_class(self):
 
         def python_cdb():
-            from cdb_shelve import CdbShelf
+            from .cdb_shelve import CdbShelf
             return CdbShelf
 
         def tinycdb():
-            from tinycdb_shelve import TinycdbShelf
+            from .tinycdb_shelve import TinycdbShelf
             return TinycdbShelf
 
         def cdblib():
-            from cdblib_shelve import CdblibShelf
+            from .cdblib_shelve import CdblibShelf
             return CdblibShelf
 
         if self.db_type == 'cdb':
@@ -103,15 +104,15 @@ class ShelveDataSource(DictDataSource):
             return cdblib()
 
         elif self.db_type == 'tch':
-            from pytc_shelve import PytcHashShelf
+            from .pytc_shelve import PytcHashShelf
             return PytcHashShelf
 
         elif self.db_type == 'tcb':
-            from pytc_shelve import PytcBtreeShelf
+            from .pytc_shelve import PytcBtreeShelf
             return PytcBtreeShelf
 
         elif self.db_type == 'sqlite':
-            from sqlite_shelve import SqliteShelf
+            from .sqlite_shelve import SqliteShelf
             return SqliteShelf
 
         elif self.db_type == 'shelve':

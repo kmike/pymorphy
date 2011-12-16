@@ -1,67 +1,68 @@
 #coding: utf-8
-from dicts import morph_ru
-from pymorphy.morph_tests.base import MorphTestCase, unittest2
+from __future__ import absolute_import, unicode_literals
+from .dicts import morph_ru
+from .base import MorphTestCase, unittest2
 
 class TestPluraliseRu(MorphTestCase):
 
     def test_nouns(self):
-        self.assertPlural(u'ГОРОД', u'ГОРОДА')
-        self.assertPlural(u'СТАЛЬ', u'СТАЛИ')
-        self.assertPlural(u'СТАЛЕВАРОМ', u'СТАЛЕВАРАМИ')
+        self.assertPlural('ГОРОД', 'ГОРОДА')
+        self.assertPlural('СТАЛЬ', 'СТАЛИ')
+        self.assertPlural('СТАЛЕВАРОМ', 'СТАЛЕВАРАМИ')
 
     def test_predictor_nouns(self):
-        self.assertPlural(u'БУТЯВКОЙ', u'БУТЯВКАМИ')
+        self.assertPlural('БУТЯВКОЙ', 'БУТЯВКАМИ')
 
     def test_verbs(self):
-        self.assertPlural(u'ГУЛЯЛ', u'ГУЛЯЛИ')
-        self.assertPlural(u'ГУЛЯЛА', u'ГУЛЯЛИ')
-        self.assertPlural(u'РАСПРЫГИВАЕТСЯ', u'РАСПРЫГИВАЮТСЯ')
+        self.assertPlural('ГУЛЯЛ', 'ГУЛЯЛИ')
+        self.assertPlural('ГУЛЯЛА', 'ГУЛЯЛИ')
+        self.assertPlural('РАСПРЫГИВАЕТСЯ', 'РАСПРЫГИВАЮТСЯ')
 
     def test_prefix(self):
-        self.assertPlural(u'СУПЕРКОТ', u'СУПЕРКОТЫ')
+        self.assertPlural('СУПЕРКОТ', 'СУПЕРКОТЫ')
 
     def test_predict_by_suffix(self):
-        self.assertPlural(u'ДЕПЫРТАМЕНТ', u'ДЕПЫРТАМЕНТЫ')
-        self.assertPlural(u'ХАБР', u'ХАБРЫ')
+        self.assertPlural('ДЕПЫРТАМЕНТ', 'ДЕПЫРТАМЕНТЫ')
+        self.assertPlural('ХАБР', 'ХАБРЫ')
 
     def test_invalid_word(self):
-        self.assertPlural(u'123', u'123')
+        self.assertPlural('123', '123')
 
     def test_invalid_graminfo(self):
-        self.assertPlural(u'НАЧАЛО', u'НАЧАЛА', gram_class=u'С')
+        self.assertPlural('НАЧАЛО', 'НАЧАЛА', gram_class='С')
 
 
 class TestInflectRu(MorphTestCase):
 
     def test_inflect(self):
-        self.assertInflected(u"СУСЛИК", u"дт", u"СУСЛИКУ")
-        self.assertInflected(u"СУСЛИКИ", u"дт", u"СУСЛИКАМ")
-        self.assertInflected(u"СУСЛИКОВ", u"дт", u"СУСЛИКАМ")
-        self.assertInflected(u"СУСЛИКА", u"дт", u"СУСЛИКУ")
-        self.assertInflected(u"СУСЛИК", u"мн,дт", u"СУСЛИКАМ")
+        self.assertInflected("СУСЛИК", "дт", "СУСЛИКУ")
+        self.assertInflected("СУСЛИКИ", "дт", "СУСЛИКАМ")
+        self.assertInflected("СУСЛИКОВ", "дт", "СУСЛИКАМ")
+        self.assertInflected("СУСЛИКА", "дт", "СУСЛИКУ")
+        self.assertInflected("СУСЛИК", "мн,дт", "СУСЛИКАМ")
 
     def test_verbs(self):
-        self.assertInflected(u"ГУЛЯЮ", u"прш", u"ГУЛЯЛ")
-        self.assertInflected(u"ГУЛЯЛ", u"нст", u"ГУЛЯЮ")
+        self.assertInflected("ГУЛЯЮ", "прш", "ГУЛЯЛ")
+        self.assertInflected("ГУЛЯЛ", "нст", "ГУЛЯЮ")
 
     def test_loc2(self):
-        self.assertInflected(u'ЛЕС', u'пр', u'ЛЕСЕ')  # о лесе
-        self.assertInflected(u'ЛЕС', u'пр,2', u'ЛЕСУ') # в лесу
+        self.assertInflected('ЛЕС', 'пр', 'ЛЕСЕ')  # о лесе
+        self.assertInflected('ЛЕС', 'пр,2', 'ЛЕСУ') # в лесу
 
         # о велосипеде
-        self.assertInflected(u'ВЕЛОСИПЕД', u'пр', u'ВЕЛОСИПЕДЕ')
+        self.assertInflected('ВЕЛОСИПЕД', 'пр', 'ВЕЛОСИПЕДЕ')
 
         # а тут второго предложного нет, в велосипеде
-        self.assertInflected(u'ВЕЛОСИПЕД', u'пр,2', u'ВЕЛОСИПЕДЕ')
+        self.assertInflected('ВЕЛОСИПЕД', 'пр,2', 'ВЕЛОСИПЕДЕ')
 
     def test_decline_bug(self):
-        self.assertInflected(u'ОРЕЛ', u'рд', u'ОРЛА')
+        self.assertInflected('ОРЕЛ', 'рд', 'ОРЛА')
 
     def test_improper_guess(self):
-        self.assertInflected(u'ОСТРОВА', u'дт', u'ОСТРОВАМ')
+        self.assertInflected('ОСТРОВА', 'дт', 'ОСТРОВАМ')
 
     def test_improper_guess2(self):
-        self.assertInflected(u'КИЕВ', u'пр', u'КИЕВЕ')
+        self.assertInflected('КИЕВ', 'пр', 'КИЕВЕ')
 
 class TestPluralizeInflected(MorphTestCase):
 
@@ -70,44 +71,44 @@ class TestPluralizeInflected(MorphTestCase):
         self.assertEqualRu(morphed_word, result)
 
     def test_parrots(self):
-        self.assertInflectedPlural(u"ПОПУГАЙ", 1, u"ПОПУГАЙ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 2, u"ПОПУГАЯ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 3, u"ПОПУГАЯ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 4, u"ПОПУГАЯ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 5, u"ПОПУГАЕВ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 7, u"ПОПУГАЕВ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 9, u"ПОПУГАЕВ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 0, u"ПОПУГАЕВ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 10, u"ПОПУГАЕВ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 11, u"ПОПУГАЕВ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 12, u"ПОПУГАЕВ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 15, u"ПОПУГАЕВ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 19, u"ПОПУГАЕВ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 21, u"ПОПУГАЙ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 32, u"ПОПУГАЯ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 38, u"ПОПУГАЕВ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 232, u"ПОПУГАЯ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 111, u"ПОПУГАЕВ")
-        self.assertInflectedPlural(u"ПОПУГАЙ", 101, u"ПОПУГАЙ")
+        self.assertInflectedPlural("ПОПУГАЙ", 1, "ПОПУГАЙ")
+        self.assertInflectedPlural("ПОПУГАЙ", 2, "ПОПУГАЯ")
+        self.assertInflectedPlural("ПОПУГАЙ", 3, "ПОПУГАЯ")
+        self.assertInflectedPlural("ПОПУГАЙ", 4, "ПОПУГАЯ")
+        self.assertInflectedPlural("ПОПУГАЙ", 5, "ПОПУГАЕВ")
+        self.assertInflectedPlural("ПОПУГАЙ", 7, "ПОПУГАЕВ")
+        self.assertInflectedPlural("ПОПУГАЙ", 9, "ПОПУГАЕВ")
+        self.assertInflectedPlural("ПОПУГАЙ", 0, "ПОПУГАЕВ")
+        self.assertInflectedPlural("ПОПУГАЙ", 10, "ПОПУГАЕВ")
+        self.assertInflectedPlural("ПОПУГАЙ", 11, "ПОПУГАЕВ")
+        self.assertInflectedPlural("ПОПУГАЙ", 12, "ПОПУГАЕВ")
+        self.assertInflectedPlural("ПОПУГАЙ", 15, "ПОПУГАЕВ")
+        self.assertInflectedPlural("ПОПУГАЙ", 19, "ПОПУГАЕВ")
+        self.assertInflectedPlural("ПОПУГАЙ", 21, "ПОПУГАЙ")
+        self.assertInflectedPlural("ПОПУГАЙ", 32, "ПОПУГАЯ")
+        self.assertInflectedPlural("ПОПУГАЙ", 38, "ПОПУГАЕВ")
+        self.assertInflectedPlural("ПОПУГАЙ", 232, "ПОПУГАЯ")
+        self.assertInflectedPlural("ПОПУГАЙ", 111, "ПОПУГАЕВ")
+        self.assertInflectedPlural("ПОПУГАЙ", 101, "ПОПУГАЙ")
 
     def test_butyavka(self):
-        self.assertInflectedPlural(u"БУТЯВКА", 1, u"БУТЯВКА")
-        self.assertInflectedPlural(u"БУТЯВКА", 2, u"БУТЯВКИ")
-        self.assertInflectedPlural(u"БУТЯВКА", 5, u"БУТЯВОК")
+        self.assertInflectedPlural("БУТЯВКА", 1, "БУТЯВКА")
+        self.assertInflectedPlural("БУТЯВКА", 2, "БУТЯВКИ")
+        self.assertInflectedPlural("БУТЯВКА", 5, "БУТЯВОК")
 
     def test_adjective(self):
-        self.assertInflectedPlural(u'АКТИВНЫЙ', 1, u'АКТИВНЫЙ')
-        self.assertInflectedPlural(u'АКТИВНЫЙ', 2, u'АКТИВНЫХ')
-        self.assertInflectedPlural(u'АКТИВНЫЙ', 5, u'АКТИВНЫХ')
+        self.assertInflectedPlural('АКТИВНЫЙ', 1, 'АКТИВНЫЙ')
+        self.assertInflectedPlural('АКТИВНЫЙ', 2, 'АКТИВНЫХ')
+        self.assertInflectedPlural('АКТИВНЫЙ', 5, 'АКТИВНЫХ')
 
-        self.assertInflectedPlural(u'АКТИВНАЯ', 1, u'АКТИВНАЯ')
-        self.assertInflectedPlural(u'АКТИВНАЯ', 2, u'АКТИВНЫХ')
-        self.assertInflectedPlural(u'АКТИВНАЯ', 5, u'АКТИВНЫХ')
+        self.assertInflectedPlural('АКТИВНАЯ', 1, 'АКТИВНАЯ')
+        self.assertInflectedPlural('АКТИВНАЯ', 2, 'АКТИВНЫХ')
+        self.assertInflectedPlural('АКТИВНАЯ', 5, 'АКТИВНЫХ')
 
     def test_gerund(self):
-        self.assertInflectedPlural(u'ИДУЩИЙ', 1, u'ИДУЩИЙ')
-        self.assertInflectedPlural(u'ИДУЩИЙ', 2, u'ИДУЩИХ')
-        self.assertInflectedPlural(u'ИДУЩИЙ', 5, u'ИДУЩИХ')
+        self.assertInflectedPlural('ИДУЩИЙ', 1, 'ИДУЩИЙ')
+        self.assertInflectedPlural('ИДУЩИЙ', 2, 'ИДУЩИХ')
+        self.assertInflectedPlural('ИДУЩИЙ', 5, 'ИДУЩИХ')
 
 
 if __name__ == '__main__':

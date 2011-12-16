@@ -1,5 +1,5 @@
 #coding: utf-8
-
+from __future__ import unicode_literals
 import codecs
 from pymorphy.backends.base import DictDataSource
 from pymorphy.constants import PRODUCTIVE_CLASSES
@@ -33,7 +33,7 @@ class MrdDataSource(DictDataSource):
         lines_count = int(file.readline())
         for i in xrange(0, lines_count):
             if self.strip_EE:
-                yield file.readline().replace(u'Ё',u'Е')
+                yield file.readline().replace('Ё','Е')
             else:
                 yield file.readline()
 

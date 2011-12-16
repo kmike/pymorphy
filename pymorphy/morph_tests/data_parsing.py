@@ -1,8 +1,8 @@
 #coding: utf-8
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals, print_function
 
-from dicts import morph_ru
-from data.basic import BASIC_TESTS
+from .dicts import morph_ru
+from .data.basic import BASIC_TESTS
 
 def parse_test_data(test):
     lines = test.splitlines()
@@ -11,17 +11,17 @@ def parse_test_data(test):
     for line in lines:
         parts = line.split()
         if len(parts) == 1:
-            word = parts[0].upper().replace(u'Ё', u'Е')
+            word = parts[0].upper().replace('Ё', 'Е')
             data[word] = []
         elif len(parts) == 2:
             data[word].append({'norm': parts[0], 'class': parts[1], 'info': ''})
         elif len(parts) == 3:
             data[word].append({'norm': parts[0], 'class': parts[1], 'info': parts[2]})
         else:
-            print "!!====", line
+            print ("!!====", line)
     for word in data:
         for form in data[word]:
-            form['norm'] = form['norm'].upper().replace(u'Ё', u'Е')
+            form['norm'] = form['norm'].upper().replace('Ё', 'Е')
     return data
 
 def _normal_form_match(expected_norm, actual_norm):
@@ -55,7 +55,7 @@ def forms_match(expected, actual):
 
 if __name__ == '__main__':
 
-#    print _gram_info_match(u'[imper,1p,pl]', u'1p,pl,imper')
+#    print _gram_info_match('[imper,1p,pl]', '1p,pl,imper')
 #    exit()
 
     all = 0
@@ -75,9 +75,9 @@ if __name__ == '__main__':
                 match = any([forms_match(expected_form, actual_form) for actual_form in actual_results])
                 if not match:
                     failed1 += 1
-                    print ' ----', word, expected_form['class'], expected_form['norm'], expected_form['info']
+                    print (' ----', word, expected_form['class'], expected_form['norm'], expected_form['info'])
                     for actual_form in actual_results:
-                        print u"   \____ %s %s %s %s" % (word, actual_form['class'], actual_form['norm'], actual_form['info'])
+                        print ("   \____ %s %s %s %s" % (word, actual_form['class'], actual_form['norm'], actual_form['info']))
                 all += 1
 
             # проверяем, нет ли у нас лишних (неправильных) вариантов разбора
@@ -86,7 +86,7 @@ if __name__ == '__main__':
                 # хотя бы 1 разбор в стандарте
                 match = any([forms_match(expected_form, actual_form) for expected_form in expected_results])
                 if not match:
-                    print u" ++++ %s %s %s %s" % (word, actual_form['class'], actual_form['norm'], actual_form['info'])
+                    print (" ++++ %s %s %s %s" % (word, actual_form['class'], actual_form['norm'], actual_form['info']))
                     failed2 += 1
 
-    print ' total: %d, failed: %d, extra: %d' % (all, failed1, failed2)
+    print (' total: %d, failed: %d, extra: %d' % (all, failed1, failed2))

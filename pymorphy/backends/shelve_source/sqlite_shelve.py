@@ -1,7 +1,8 @@
 #coding: utf-8
+from __future__ import absolute_import
 import sqlite3
-from shelf_with_hooks import ShelfWithHooks
 from shelve import Shelf
+from .shelf_with_hooks import ShelfWithHooks
 
 
 class SqliteDict(object):

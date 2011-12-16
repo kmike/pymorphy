@@ -101,7 +101,7 @@ if __name__ == '__main__':
     dest_dir = 'dicts/converted'
 
     LANGUAGES = 'en', 'ru'
-    FORMATS = 'cdb', 'tch', 'tcb', 'sqlite', 'tinycdb', 'cdblib', 'shelve',
+    FORMATS = 'cdb', 'tch', 'tcb', 'sqlite', 'tinycdb', 'cdblib', # 'shelve',
 
     for lang in LANGUAGES:
         convert_dicts(src_dir, dest_dir, lang)

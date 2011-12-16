@@ -1,4 +1,5 @@
 #coding: utf-8
+from __future__ import print_function
 from pymorphy.utils import pprint
 
 class DictDataSource(object):
@@ -90,56 +91,56 @@ class DictDataSource(object):
         """ Проверить словарь на корректность """
         paradigm_ids = self.rules.keys()
 
-        print 'checking paradigms...'
+        print('checking paradigms...')
         # правила
         for paradigm_id, paradigm_rules in self.rules.iteritems():
             if not paradigm_rules:
-                print '  no rules for paradigm %d' % paradigm_id
-        print '%d paradigms were checked' % len(paradigm_ids)
+                print ('  no rules for paradigm %d' % paradigm_id)
+        print ('%d paradigms were checked' % len(paradigm_ids))
 
-        print 'checking lemmas...'
+        print ('checking lemmas...')
         # леммы
         for base, paradigms in self.lemmas.iteritems():
             for id in paradigms:
                 if id not in paradigm_ids:
-                    print '  invalid paradigm %d for lemma %s' % (id, base)
-        print '%d lemmas were checked' % len(self.lemmas.keys())
+                    print ('  invalid paradigm %d for lemma %s' % (id, base))
+        print ('%d lemmas were checked' % len(self.lemmas.keys()))
 
     def _check_other(self, other):
         """ Сравнить свои данные с данными из другого источника, считая
         самого себя непогрешимым.  """
 
-        print "checking other's paradigms..."
+        print ("checking other's paradigms...")
         errors = 0
         for paradigm_id, rules in self.rules.iteritems():
             if paradigm_id not in other.rules:
-                print "  paradigm %d doesn't exist" % paradigm_id
+                print ("  paradigm %d doesn't exist" % paradigm_id)
                 errors += 1
                 continue
 
             # приводим все к tuple
             other_rules = [tuple(r) for r in other.rules[paradigm_id]]
             if rules != other_rules:
-                print '  paradigm %s is incorrect:' % paradigm_id
+                print ('  paradigm %s is incorrect:' % paradigm_id)
                 pprint(rules)
-                print '!='
+                print ('!=')
                 pprint(other_rules)
-                print '--------------------'
+                print ('--------------------')
                 errors += 1
         if errors:
-            print '%d errors found.' % errors
+            print ('%d errors found.' % errors)
 
         errors = 0
-        print "checking other's lemmas..."
+        print ("checking other's lemmas...")
         for base, paradigms in self.lemmas.iteritems():
             if base not in other.lemmas:
-                print "  lemma %s doesn't exist" % base
+                print ("  lemma %s doesn't exist" % base)
                 errors += 1
                 continue
             other_paradigms = other.lemmas[base]
             if paradigms != other_paradigms:
-                print '  lemma %s is incorrect: %s != %s' % (base, other_paradigms, paradigms)
+                print ('  lemma %s is incorrect: %s != %s' % (base, other_paradigms, paradigms))
                 errors += 1
         if errors:
-            print '%d errors found.' % errors
+            print ('%d errors found.' % errors)
 

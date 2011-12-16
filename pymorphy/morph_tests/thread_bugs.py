@@ -1,6 +1,6 @@
 # coding: utf8
+from __future__ import unicode_literals
 import random
-from pymorphy.morph import get_morph
 from pymorphy.morph_tests.base import MorphTestCase
 from pymorphy.morph_tests.dicts import morph_ru
 
@@ -20,7 +20,7 @@ def test_concurrently(times):
             def call_test_func():
                 try:
                     test_func(*args, **kwargs)
-                except Exception, e:
+                except Exception as e:
                     exceptions.append(e)
                     raise
             threads = []
@@ -40,8 +40,8 @@ class SqliteThreadingTest(MorphTestCase):
 
     @test_concurrently(100)
     def test_sqlite(self):
-        words = {1: u'КОММЕНТАРИЙ', 2: u'КОММЕНТАРИЯ'}
+        words = {1: 'КОММЕНТАРИЙ', 2: 'КОММЕНТАРИЯ'}
         num = random.choice([1,2])
-        inflected = morph_ru.pluralize_inflected_ru(u'КОММЕНТАРИЙ', num)
+        inflected = morph_ru.pluralize_inflected_ru('КОММЕНТАРИЙ', num)
         self.assertEqualRu(inflected, words[num])
 

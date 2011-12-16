@@ -1,4 +1,5 @@
 #coding: utf-8
+from __future__ import unicode_literals
 
 def get_graminfo_scan(morph, word, standard=False):
     ''' Вернуть грам. информацию, считая, что текст - после сканирования. '''
@@ -7,12 +8,12 @@ def get_graminfo_scan(morph, word, standard=False):
     # пробуя различные характерные для отсканированных документов замены.
 
     gram = []
-    word = word.replace(u'0', u'О')  # заменяем всегда
+    word = word.replace('0', 'О')  # заменяем всегда
     forms = morph.get_graminfo(word, standard, False, predict_hyphenated=False)
     if forms:
         return forms
 
-    replaces = [(u'4', u'А'), (u'Ф', u'О'), (u'J', u'А'), (u'Ы', u'А')]
+    replaces = [('4', 'А'), ('Ф', 'О'), ('J', 'А'), ('Ы', 'А')]
     # сначала пробуем найти все в словаре после замен
     for bad, good in replaces:
         if bad in word:

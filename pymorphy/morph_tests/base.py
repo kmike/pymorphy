@@ -1,28 +1,40 @@
 #coding: utf-8
+from __future__ import unicode_literals, absolute_import
 try:
     from django.utils import unittest as unittest2
 except ImportError:
-    import unittest2
+    try:
+        import unittest2
+    except ImportError:
+        import unittest as unittest2
+        assert hasattr(unittest2, 'expectedFailure')
 
-from dicts import morph_en, morph_ru
+from pymorphy.py3k import PY3
+
+from .dicts import morph_en, morph_ru
 from pymorphy.morph import GramForm
 from pymorphy.contrib.scan import get_graminfo_scan
 
 class MorphTestCase(unittest2.TestCase):
 
+    def _msg(self, fmt, w1, w2):
+        if PY3:
+            return fmt % (w1, w2)
+
+        # console fix for python 2
+        return fmt.encode('utf8') % (w1.encode('utf8'), w2.encode('utf8'))
+
     def assertEqualRu(self, word1, word2):
-        w1, w2 = word1.encode('utf8'), word2.encode('utf8')
-        self.assertEqual(word1, word2, '%s != %s' % (w1, w2,))
+        self.assertEqual(word1, word2, self._msg('%s != %s', word1, word2))
 
     def assertNotEqualRu(self, word1, word2):
-        w1, w2 = word1.encode('utf8'), word2.encode('utf8')
-        self.assertNotEqual(word1, word2, '%s == %s' % (w1, w2,))
+        self.assertNotEqual(word1, word2, self._msg('%s == %s', word1, word2))
 
     def assertNormal(self, input, output):
         norm_forms = morph_ru.normalize(input)
         correct_norm_forms = set(output)
 
-        msg = u"[%s] != [%s]" % (u", ".join(norm_forms), u", ".join(correct_norm_forms))
+        msg = "[%s] != [%s]" % (", ".join(norm_forms), ", ".join(correct_norm_forms))
         self.assertEqual(norm_forms, correct_norm_forms, msg.encode('utf8'))
 
     def assertNormalEn(self, input, output):
@@ -65,101 +77,101 @@ class MorphTestCase(unittest2.TestCase):
 class TestMorph(MorphTestCase):
 
     def test_normalize(self):
-        self.assertNormal(u'КОШКА', [u'КОШКА'])
-        self.assertNormal(u'КОШКЕ', [u'КОШКА'])
-        self.assertNormal(u'СТАЛИ', [u'СТАЛЬ', u'СТАТЬ'])
+        self.assertNormal('КОШКА', ['КОШКА'])
+        self.assertNormal('КОШКЕ', ['КОШКА'])
+        self.assertNormal('СТАЛИ', ['СТАЛЬ', 'СТАТЬ'])
 
-        self.assertNormalEn(u'SOLD', [u'SELL'])
-        self.assertNormalEn(u'COMPUTERS', [u'COMPUTER'])
+        self.assertNormalEn('SOLD', ['SELL'])
+        self.assertNormalEn('COMPUTERS', ['COMPUTER'])
 
     def test_global_prefix_normalize(self):
-        self.assertNormal(u'ПСЕВДОКОШКА', [u'ПСЕВДОКОШКА'])
-        self.assertNormal(u'ПСЕВДОКОШКОЙ', [u'ПСЕВДОКОШКА'])
+        self.assertNormal('ПСЕВДОКОШКА', ['ПСЕВДОКОШКА'])
+        self.assertNormal('ПСЕВДОКОШКОЙ', ['ПСЕВДОКОШКА'])
 
     def test_rule_prefix_normalize(self):
-        self.assertNormal(u'НАИСТАРЕЙШИЙ', [u'СТАРЫЙ'])
-        self.assertNormal(u'СВЕРХНАИСТАРЕЙШИЙ', [u'СВЕРХСТАРЫЙ'])
-        self.assertNormal(u'СВЕРХНАИСТАРЕЙШИЙ', [u'СВЕРХСТАРЫЙ'])
-        self.assertNormal(u'КВАЗИПСЕВДОНАИСТАРЕЙШЕГО', [u'КВАЗИПСЕВДОСТАРЫЙ'])
-        self.assertNormal(u'НЕБЕСКОНЕЧЕН', [u'НЕБЕСКОНЕЧНЫЙ'])
+        self.assertNormal('НАИСТАРЕЙШИЙ', ['СТАРЫЙ'])
+        self.assertNormal('СВЕРХНАИСТАРЕЙШИЙ', ['СВЕРХСТАРЫЙ'])
+        self.assertNormal('СВЕРХНАИСТАРЕЙШИЙ', ['СВЕРХСТАРЫЙ'])
+        self.assertNormal('КВАЗИПСЕВДОНАИСТАРЕЙШЕГО', ['КВАЗИПСЕВДОСТАРЫЙ'])
+        self.assertNormal('НЕБЕСКОНЕЧЕН', ['НЕБЕСКОНЕЧНЫЙ'])
 
     def test_prefix_predict(self):
-        self.assertNormal(u'МЕГАКОТУ', [u'МЕГАКОТ'])
-        self.assertNormal(u'МЕГАСВЕРХНАИСТАРЕЙШЕМУ', [u'МЕГАСВЕРХСТАРЫЙ'])
+        self.assertNormal('МЕГАКОТУ', ['МЕГАКОТ'])
+        self.assertNormal('МЕГАСВЕРХНАИСТАРЕЙШЕМУ', ['МЕГАСВЕРХСТАРЫЙ'])
 
     def test_EE_bug(self):
-        self.assertNormal(u'КОТЕНОК', [u'КОТЕНОК'])
-        self.assertNormal(u'ТЯЖЕЛЫЙ', [u'ТЯЖЕЛЫЙ'])
-        self.assertNormal(u'ЛЕГОК', [u'ЛЕГКИЙ'])
+        self.assertNormal('КОТЕНОК', ['КОТЕНОК'])
+        self.assertNormal('ТЯЖЕЛЫЙ', ['ТЯЖЕЛЫЙ'])
+        self.assertNormal('ЛЕГОК', ['ЛЕГКИЙ'])
         # fix dict for this? done.
         # should fail if dictionaries are converted using strip_EE=False option
 
     def test_pronouns(self):
 
-        self.assertNormalEn(u'SHE', [u'SHE'])
-        self.assertNormalEn(u'I', [u'I'])
-        self.assertNormalEn(u'ME', [u'I'])
+        self.assertNormalEn('SHE', ['SHE'])
+        self.assertNormalEn('I', ['I'])
+        self.assertNormalEn('ME', ['I'])
 
-        self.assertNormal(u'ОНА', [u'ОНА'])
-        self.assertNormal(u'ЕЙ', [u'ОНА'])
-        self.assertNormal(u'Я', [u'Я'])
-        self.assertNormal(u'МНЕ', [u'Я'])
-#        self.assertNormal(u'ЕГО', [u'ОН', u'ОНО'])
-#        self.assertNormal(u'ЕМУ', [u'ОН', u'ОНО'])
+        self.assertNormal('ОНА', ['ОНА'])
+        self.assertNormal('ЕЙ', ['ОНА'])
+        self.assertNormal('Я', ['Я'])
+        self.assertNormal('МНЕ', ['Я'])
+#        self.assertNormal('ЕГО', ['ОН', 'ОНО'])
+#        self.assertNormal('ЕМУ', ['ОН', 'ОНО'])
 
     def test_no_base(self):
-        self.assertNormal(u'НАИНЕВЕРОЯТНЕЙШИЙ', [u'ВЕРОЯТНЫЙ'])
-        self.assertNormal(u'ЛУЧШИЙ', [u'ХОРОШИЙ'])
-        self.assertNormal(u'НАИЛУЧШИЙ', [u'ХОРОШИЙ'])
-        self.assertNormal(u'ЧЕЛОВЕК', [u'ЧЕЛОВЕК'])
-        self.assertNormal(u'ЛЮДИ', [u'ЧЕЛОВЕК'])
+        self.assertNormal('НАИНЕВЕРОЯТНЕЙШИЙ', ['ВЕРОЯТНЫЙ'])
+        self.assertNormal('ЛУЧШИЙ', ['ХОРОШИЙ'])
+        self.assertNormal('НАИЛУЧШИЙ', ['ХОРОШИЙ'])
+        self.assertNormal('ЧЕЛОВЕК', ['ЧЕЛОВЕК'])
+        self.assertNormal('ЛЮДИ', ['ЧЕЛОВЕК'])
 
     def test_predict(self):
-        self.assertNormal(u'ТРИЖДЫЧЕРЕЗПИЛЮЛЮОКНАМИ', [u'ТРИЖДЫЧЕРЕЗПИЛЮЛЮОКНА'])
-        self.assertNormal(u'РАЗКВАКАЛИСЬ',[u'РАЗКВАКАТЬСЯ'])
-        self.assertNormal(u'КАШИВАРНЕЕ', [u'КАШИВАРНЫЙ'])
-        self.assertNormal(u'ДЕПЫРТАМЕНТОВ',[u'ДЕПЫРТАМЕНТ'])
-        self.assertNormal(u'ИЗМОХРАТИЛСЯ',[u'ИЗМОХРАТИТЬСЯ'])
+        self.assertNormal('ТРИЖДЫЧЕРЕЗПИЛЮЛЮОКНАМИ', ['ТРИЖДЫЧЕРЕЗПИЛЮЛЮОКНА'])
+        self.assertNormal('РАЗКВАКАЛИСЬ',['РАЗКВАКАТЬСЯ'])
+        self.assertNormal('КАШИВАРНЕЕ', ['КАШИВАРНЫЙ'])
+        self.assertNormal('ДЕПЫРТАМЕНТОВ',['ДЕПЫРТАМЕНТ'])
+        self.assertNormal('ИЗМОХРАТИЛСЯ',['ИЗМОХРАТИТЬСЯ'])
 
     def test_no_prod_classes_in_prediction(self):
-        self.assertNormal(u'БУТЯВКОЙ',[u'БУТЯВКА']) # и никаких местоимений!
-        self.assertNormal(u'САПАЮТ',[u'САПАТЬ']) # и никаких местоимений!
+        self.assertNormal('БУТЯВКОЙ',['БУТЯВКА']) # и никаких местоимений!
+        self.assertNormal('САПАЮТ',['САПАТЬ']) # и никаких местоимений!
 
     def test_female(self):
-        self.assertNormal(u'КЛЮЕВУ', [u'КЛЮЕВ'])
-        self.assertNormal(u'КЛЮЕВА', [u'КЛЮЕВ'])
+        self.assertNormal('КЛЮЕВУ', ['КЛЮЕВ'])
+        self.assertNormal('КЛЮЕВА', ['КЛЮЕВ'])
 
     def test_verbs(self):
-        self.assertNormal(u'ГУЛЯЛ', [u'ГУЛЯТЬ'])
-        self.assertNormal(u'ГУЛЯЛА', [u'ГУЛЯТЬ'])
-        self.assertNormal(u'ГУЛЯЕТ', [u'ГУЛЯТЬ'])
-        self.assertNormal(u'ГУЛЯЮТ', [u'ГУЛЯТЬ'])
-        self.assertNormal(u'ГУЛЯЛИ', [u'ГУЛЯТЬ'])
-        self.assertNormal(u'ГУЛЯТЬ', [u'ГУЛЯТЬ'])
+        self.assertNormal('ГУЛЯЛ', ['ГУЛЯТЬ'])
+        self.assertNormal('ГУЛЯЛА', ['ГУЛЯТЬ'])
+        self.assertNormal('ГУЛЯЕТ', ['ГУЛЯТЬ'])
+        self.assertNormal('ГУЛЯЮТ', ['ГУЛЯТЬ'])
+        self.assertNormal('ГУЛЯЛИ', ['ГУЛЯТЬ'])
+        self.assertNormal('ГУЛЯТЬ', ['ГУЛЯТЬ'])
 
     def test_verb_products(self):
-        self.assertNormal(u'ГУЛЯЮЩИЙ', [u'ГУЛЯТЬ'])
-        self.assertNormal(u'ГУЛЯВШИ', [u'ГУЛЯТЬ'])
-        self.assertNormal(u'ГУЛЯЯ', [u'ГУЛЯТЬ'])
-        self.assertNormal(u'ГУЛЯЮЩАЯ', [u'ГУЛЯТЬ'])
-        self.assertNormal(u'ЗАГУЛЯВШИЙ', [u'ЗАГУЛЯТЬ'])
+        self.assertNormal('ГУЛЯЮЩИЙ', ['ГУЛЯТЬ'])
+        self.assertNormal('ГУЛЯВШИ', ['ГУЛЯТЬ'])
+        self.assertNormal('ГУЛЯЯ', ['ГУЛЯТЬ'])
+        self.assertNormal('ГУЛЯЮЩАЯ', ['ГУЛЯТЬ'])
+        self.assertNormal('ЗАГУЛЯВШИЙ', ['ЗАГУЛЯТЬ'])
 
     def test_drop_gender(self):
-        self.assertNormal(u'КРАСИВЫЙ', [u'КРАСИВЫЙ'])
-        self.assertNormal(u'КРАСИВАЯ', [u'КРАСИВЫЙ'])
-        self.assertNormal(u'КРАСИВОМУ', [u'КРАСИВЫЙ'])
-        self.assertNormal(u'КРАСИВЫЕ', [u'КРАСИВЫЙ'])
+        self.assertNormal('КРАСИВЫЙ', ['КРАСИВЫЙ'])
+        self.assertNormal('КРАСИВАЯ', ['КРАСИВЫЙ'])
+        self.assertNormal('КРАСИВОМУ', ['КРАСИВЫЙ'])
+        self.assertNormal('КРАСИВЫЕ', ['КРАСИВЫЙ'])
 
     def test_encoding_bugs(self):
-        self.assertNormal(u'ДЕЙСТВИЕ', [u'ДЕЙСТВИЕ'])
+        self.assertNormal('ДЕЙСТВИЕ', ['ДЕЙСТВИЕ'])
 
 
 class TestGramInfo(unittest2.TestCase):
 
     def test_lemma_graminfo(self):
-        info = morph_ru.get_graminfo(u'СУСЛИКАМИ')
+        info = morph_ru.get_graminfo('СУСЛИКАМИ')
         self.assertEqual(len(info), 1)
         info = info[0]
         gram_form = GramForm(info['info'])
-        self.assertEqual(gram_form.form, set([u'мр', u'тв', u'мн']))
-        self.assertEqual(info['norm'], u'СУСЛИК')
+        self.assertEqual(gram_form.form, set(['мр', 'тв', 'мн']))
+        self.assertEqual(info['norm'], 'СУСЛИК')

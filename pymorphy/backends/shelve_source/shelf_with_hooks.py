@@ -7,6 +7,8 @@ try:
 except ImportError:
     import json
 
+from pymorphy.py3k import text_type
+
 def json_dumps(value):
     return json.dumps(value, ensure_ascii=False).encode('utf8')
 
@@ -26,8 +28,8 @@ class ShelfWithHooks(DbfilenameShelf):
 
     KEY_TRANSFORM_METHODS = {
          'unicode': {
-             'encode': lambda key: unicode(key).encode('utf8'),
-             'decode': lambda key: unicode(key, 'utf8'),
+             'encode': lambda key: text_type(key),#.encode('utf8'),
+             'decode': lambda key: text_type(key),#, 'utf8'),
           },
          'int': {
              'encode': lambda key: pack("H", int(key)),

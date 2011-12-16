@@ -1,43 +1,43 @@
 #coding: utf-8
-from dicts import morph_ru
-from pymorphy.morph_tests.base import MorphTestCase, unittest2
+from __future__ import absolute_import, unicode_literals
+from .base import MorphTestCase, unittest2
 
 class TestScans(MorphTestCase):
 
     def test_basic(self):
-        self.assertHasInfo(u'РАСШИФР0ВКИ', u'РАСШИФРОВКА', u'С', scan=True)
+        self.assertHasInfo('РАСШИФР0ВКИ', 'РАСШИФРОВКА', 'С', scan=True)
 
     def test_junky_variants_bug(self):
-        self.assertStandard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='pl')
-        self.assertStandard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='pl', scan=True)
+        self.assertStandard('КАБИНЕТЫ', 'КАБИНЕТ', 'S', form='pl')
+        self.assertStandard('КАБИНЕТЫ', 'КАБИНЕТ', 'S', form='pl', scan=True)
 
-        self.assertStandard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='sg', has_info=False)
-        self.assertStandard(u'КАБИНЕТЫ', u'КАБИНЕТ', u'S', form='sg', has_info=False, scan=True)
+        self.assertStandard('КАБИНЕТЫ', 'КАБИНЕТ', 'S', form='sg', has_info=False)
+        self.assertStandard('КАБИНЕТЫ', 'КАБИНЕТ', 'S', form='sg', has_info=False, scan=True)
 
 
 class HyphenScanTest(MorphTestCase):
 
     def test_scan(self):
-        self.assertHasInfo(u'ИНТЕРНЕТ-МАГJЗИНА', u'ИНТЕРНЕТ-МАГАЗИН', u'С', u'hyphen-prefix', True)
-        self.assertHasInfo(u'PDF-ДФКУМЕНТ0В', u'PDF-ДОКУМЕНТ', u'С', u'hyphen-prefix', True)
-        self.assertHasInfo(u'АММИАЧНФ-СЕЛИТР0ВФГО', u'АММИАЧНО-СЕЛИТРОВЫЙ', u'П', u'hyphen-prefix', True)
-        self.assertHasInfo(u'БЫСТРО-БЫСТРФ', u'БЫСТРО-БЫСТРО', u'Н', u'word-formation', True)
+        self.assertHasInfo('ИНТЕРНЕТ-МАГJЗИНА', 'ИНТЕРНЕТ-МАГАЗИН', 'С', 'hyphen-prefix', True)
+        self.assertHasInfo('PDF-ДФКУМЕНТ0В', 'PDF-ДОКУМЕНТ', 'С', 'hyphen-prefix', True)
+        self.assertHasInfo('АММИАЧНФ-СЕЛИТР0ВФГО', 'АММИАЧНО-СЕЛИТРОВЫЙ', 'П', 'hyphen-prefix', True)
+        self.assertHasInfo('БЫСТРО-БЫСТРФ', 'БЫСТРО-БЫСТРО', 'Н', 'word-formation', True)
 
     def test_scan_dict(self):
-        self.assertHasInfo(u'САНКТ-ПЕТЕРБУРГ4', u'САНКТ-ПЕТЕРБУРГ', u'С', u'lemma(С).suffix(АНКТ-ПЕТЕРБУРГА)', True)
-        self.assertHasInfo(u'КJКИХ-ТО', u'КАКОЙ-ТО', u'МС-П', u'suffix(ИХ-ТО)', True)
+        self.assertHasInfo('САНКТ-ПЕТЕРБУРГ4', 'САНКТ-ПЕТЕРБУРГ', 'С', 'lemma(С).suffix(АНКТ-ПЕТЕРБУРГА)', True)
+        self.assertHasInfo('КJКИХ-ТО', 'КАКОЙ-ТО', 'МС-П', 'suffix(ИХ-ТО)', True)
 
     def test_scan_error_in_left(self):
-        self.assertHasInfo(u'КОМJНД-УЧАСТНИЦ', u'КОМАНДА-УЧАСТНИЦА', u'С', u'word-formation', True)
+        self.assertHasInfo('КОМJНД-УЧАСТНИЦ', 'КОМАНДА-УЧАСТНИЦА', 'С', 'word-formation', True)
 
     @unittest2.expectedFailure
     def test_scan_no_error(self):
-        self.assertHasInfo(u'ФЕСТИВАЛЬ-КОНКУРС', u'ФЕСТИВАЛЬ-КОНКУРС', u'С', u'word-formation', True)
-        self.assertNormal(u'ФИЗИКО-ХИМИЯ', u'ФИЗИКО-ХИМИЯ', scan=True)
+        self.assertHasInfo('ФЕСТИВАЛЬ-КОНКУРС', 'ФЕСТИВАЛЬ-КОНКУРС', 'С', 'word-formation', True)
+        self.assertNormal('ФИЗИКО-ХИМИЯ', 'ФИЗИКО-ХИМИЯ', scan=True)
 
     @unittest2.expectedFailure
     def test_scan_needs_left_prediction(self):
-        self.assertHasInfo(u'КОВАБJНД-УЧАСТНИЦ', u'КОВАБАНДА-УЧАСТНИЦА', u'С', u'word-formation', True)
+        self.assertHasInfo('КОВАБJНД-УЧАСТНИЦ', 'КОВАБАНДА-УЧАСТНИЦА', 'С', 'word-formation', True)
 
 
 
