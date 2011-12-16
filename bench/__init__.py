@@ -6,7 +6,6 @@ import re
 import os
 import codecs
 import timeit
-from pympler.muppy import get_objects, get_size
 
 import pymorphy
 from pymorphy.contrib.tokenizers import extract_words
@@ -41,6 +40,7 @@ def do_all(words, morph):
 
 def print_memory_diff():
     return
+    from pympler.muppy import get_objects, get_size
     usage = get_size(get_objects())
     if print_memory_diff._usage:
         print u"Memory usage diff: %d Kb" % ((usage-print_memory_diff._usage)/1024)

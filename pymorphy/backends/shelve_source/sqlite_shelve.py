@@ -1,5 +1,4 @@
 #coding: utf-8
-
 import sqlite3
 from shelf_with_hooks import ShelfWithHooks
 from shelve import Shelf
@@ -51,10 +50,15 @@ class SqliteDict(object):
             self.conn.commit()
 
     def close(self):
-        if self.conn is not None:
+        if self.conn is None:
+            return
+
+        try:
             self.conn.commit()
             self.conn.close()
             self.conn = None
+        except (sqlite3.ProgrammingError, sqlite3.OperationalError):
+            pass
 
     def __del__(self):
         self.close()
