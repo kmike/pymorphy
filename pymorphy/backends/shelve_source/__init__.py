@@ -72,7 +72,7 @@ class ShelveDataSource(DictDataSource):
 
     def _get_shelf_class(self):
 
-        def old_cdb():
+        def python_cdb():
             from cdb_shelve import CdbShelf
             return CdbShelf
 
@@ -80,21 +80,27 @@ class ShelveDataSource(DictDataSource):
             from tinycdb_shelve import TinycdbShelf
             return TinycdbShelf
 
+        def cdblib():
+            from cdblib_shelve import CdblibShelf
+            return CdblibShelf
+
         if self.db_type == 'cdb':
             try:
-                return tinycdb()
+                return python_cdb()
             except ImportError:
-                return old_cdb()
+                try:
+                    return tinycdb()
+                except ImportError:
+                    return cdblib()
 
         elif self.db_type == 'tinycdb':
             return tinycdb()
 
-        elif self.db_type == 'oldcdb':
-            return old_cdb()
+        elif self.db_type == 'python-cdb':
+            return python_cdb()
 
         elif self.db_type == 'cdblib':
-            from cdblib_shelve import CdblibShelf
-            return CdblibShelf
+            return cdblib()
 
         elif self.db_type == 'tch':
             from pytc_shelve import PytcHashShelf

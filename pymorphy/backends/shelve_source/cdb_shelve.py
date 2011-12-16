@@ -1,13 +1,7 @@
 #coding: utf-8
-
 import cdb
-import warnings
 from shelf_with_hooks import ShelfWithHooks
 from shelve import Shelf
-
-warnings.warn("python-cdb support in pymorphy is deprecated and will be removed soon "
-              "because of license issues. Please install tinycdb instead: it doesn't have "
-              "licensing issues, just as fast as python-cdb and uses less memory.", DeprecationWarning)
 
 class CdbWriteDict(object):
 
