@@ -1,5 +1,5 @@
 #coding: utf-8
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals, print_function
 import cProfile
 from datetime import datetime
 import re
@@ -43,9 +43,9 @@ def print_memory_diff():
     from pympler.muppy import get_objects, get_size
     usage = get_size(get_objects())
     if print_memory_diff._usage:
-        print u"Memory usage diff: %d Kb" % ((usage-print_memory_diff._usage)/1024)
+        print ("Memory usage diff: %d Kb" % ((usage-print_memory_diff._usage)/1024))
     else:
-        print u"Memory usage: %d Kb" % (usage/1024)
+        print ("Memory usage: %d Kb" % (usage/1024))
     print_memory_diff._usage = usage
 print_memory_diff._usage = None
 
@@ -69,7 +69,7 @@ def bench(filename, backend='shelve', use_psyco=True, use_cache=True, profile=Tr
 
     if profile:
         words = load_words(filename)
-        print 'Text is loaded (%d words)' % len(words)
+        print ('Text is loaded (%d words)' % len(words))
         print_memory_diff()
 
         morph = get_morph(backend, cached=use_cache)
@@ -97,8 +97,8 @@ def bench(filename, backend='shelve', use_psyco=True, use_cache=True, profile=Tr
         parse_time = total_seconds(parsed-loaded)
         wps = len(words)/parse_time
 
-        print '%s => %s (cache: %s) => load: %.2f sec, parse: %0.2f sec (%d words/sec)' % (
-            filename, backend, use_cache, load_time, parse_time, wps)
+        print ('%s => %s (cache: %s) => load: %.2f sec, parse: %0.2f sec (%d words/sec)' % (
+            filename, backend, use_cache, load_time, parse_time, wps))
 
     print_memory_diff()
 
