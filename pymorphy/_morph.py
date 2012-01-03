@@ -88,6 +88,10 @@ class GramForm(object):
         self.form.difference_update(RU_VOICES)
         return self
 
+    def clear_animacy(self):
+        ''' убрать информацию о одушевленности '''
+        self.form.difference_update(RU_ANIMACY)
+
     def update(self, form_string):
         """ Обновляет параметры, по возможности оставляя все, что можно. """
         requested_form = [a for a in form_string.split(',') if a and a[0]!='!']
@@ -117,6 +121,9 @@ class GramForm(object):
 
             if item in RU_VOICES:
                 self.clear_voice()
+
+            if item in RU_ANIMACY:
+                self.clear_animacy()
 
         self.form.update(requested_form)
         return self

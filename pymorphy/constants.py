@@ -79,6 +79,8 @@ RU_PERSONS = RU_PERSONS_STANDARD.keys()
 RU_TENSES = RU_TENSES_STANDARD.keys()
 RU_VOICES = RU_VOICES_STANDARD.keys()
 
+RU_ANIMACY = ['од', 'но']  # для этого стандартных обозначений нет
+
 RU_GRAMINFO_STANDARD = dict(list(RU_GENDERS_STANDARD.items()) + list(RU_CASES_STANDARD.items()) +\
                             list(RU_NUMBERS_STANDARD.items()) + list(RU_PERSONS_STANDARD.items()) + \
                             list(RU_TENSES_STANDARD.items()) + list(RU_VOICES_STANDARD.items()))

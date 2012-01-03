@@ -64,6 +64,12 @@ class TestInflectRu(MorphTestCase):
     def test_improper_guess2(self):
         self.assertInflected('КИЕВ', 'пр', 'КИЕВЕ')
 
+    def test_animacy(self):
+        self.assertInflected('СЛАБЫЙ', u'мр,вн,но', 'СЛАБЫЙ')
+        self.assertInflected('СЛАБЫЙ', u'мр,вн,од', 'СЛАБОГО')
+        self.assertInflected('СЛАБЫЙ', u'мр,ед,вн,но', 'СЛАБЫЙ')
+        self.assertInflected('СЛАБЫЙ', u'мр,ед,вн,од', 'СЛАБОГО')
+
 class TestPluralizeInflected(MorphTestCase):
 
     def assertInflectedPlural(self, word, count, result, *args, **kwargs):
