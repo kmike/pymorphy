@@ -65,10 +65,10 @@ class TestInflectRu(MorphTestCase):
         self.assertInflected('КИЕВ', 'пр', 'КИЕВЕ')
 
     def test_animacy(self):
-        self.assertInflected('СЛАБЫЙ', u'мр,вн,но', 'СЛАБЫЙ')
-        self.assertInflected('СЛАБЫЙ', u'мр,вн,од', 'СЛАБОГО')
-        self.assertInflected('СЛАБЫЙ', u'мр,ед,вн,но', 'СЛАБЫЙ')
-        self.assertInflected('СЛАБЫЙ', u'мр,ед,вн,од', 'СЛАБОГО')
+        self.assertInflected('СЛАБЫЙ', 'мр,вн,но', 'СЛАБЫЙ')
+        self.assertInflected('СЛАБЫЙ', 'мр,вн,од', 'СЛАБОГО')
+        self.assertInflected('СЛАБЫЙ', 'мр,ед,вн,но', 'СЛАБЫЙ')
+        self.assertInflected('СЛАБЫЙ', 'мр,ед,вн,од', 'СЛАБОГО')
 
 class TestPluralizeInflected(MorphTestCase):
 
