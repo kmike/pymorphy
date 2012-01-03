@@ -6,7 +6,7 @@ from shelve import Shelf
 class CdbWriteDict(object):
 
     def __init__(self, filename):
-        self.db = cdb.cdbmake(filename, filename+'.tmp')
+        self.db = cdb.cdbmake(filename.encode('utf8'), filename+'.tmp')
 
     def __setitem__(self, key, value):
         self.db.add(key, value)
@@ -18,7 +18,7 @@ class CdbWriteDict(object):
 class CdbReadDict(object):
 
     def __init__(self, filename):
-        self.db = cdb.init(filename)
+        self.db = cdb.init(filename.encode('utf8'))
 
     def __getitem__(self, key):
         return self.db[key]

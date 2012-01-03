@@ -24,20 +24,20 @@ class ShelveDataSource(DictDataSource):
         super(ShelveDataSource, self).__init__()
 
     def load(self):
-        self.lemmas = self._get_shelf('lemmas', 'r', 'unicode')
+        self.lemmas = self._get_shelf('lemmas', 'r')
         self.rules = self._get_shelf('rules', 'r', 'int')
-        self.endings = self._get_shelf('endings', 'r', 'unicode')
+        self.endings = self._get_shelf('endings', 'r')
 
-        misc = self._get_shelf('misc', 'r', 'unicode')
+        misc = self._get_shelf('misc', 'r')
         self.gramtab = misc['gramtab']
 
         self.prefixes = set(misc['prefixes'])
         self.possible_rule_prefixes = set(misc['possible_rule_prefixes'])
 
     def convert_and_save(self, data_obj):
-        lemma_shelve = self._get_shelf('lemmas', 'c', 'unicode')
+        lemma_shelve = self._get_shelf('lemmas', 'c')
         rules_shelve = self._get_shelf('rules', 'c', 'int')
-        endings_shelve = self._get_shelf('endings', 'c', 'unicode')
+        endings_shelve = self._get_shelf('endings', 'c')
 
         for lemma in data_obj.lemmas:
             lemma_shelve[lemma] = data_obj.lemmas[lemma]
@@ -48,7 +48,7 @@ class ShelveDataSource(DictDataSource):
         for end in data_obj.endings:
             endings_shelve[end] = data_obj.endings[end]
 
-        misc_shelve = self._get_shelf('misc', 'c', 'unicode')
+        misc_shelve = self._get_shelf('misc', 'c')
         misc_shelve['gramtab'] = data_obj.gramtab
         misc_shelve['prefixes'] = list(data_obj.prefixes)
         misc_shelve['possible_rule_prefixes'] = list(data_obj.possible_rule_prefixes)

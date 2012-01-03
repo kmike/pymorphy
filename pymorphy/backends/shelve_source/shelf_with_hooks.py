@@ -7,7 +7,13 @@ try:
 except ImportError:
     import json
 
-from pymorphy.py3k import text_type
+from pymorphy.py3k import text_type, binary_type
+
+def _to_utf8(s):
+    if isinstance(s, binary_type):
+        return s
+    return s.encode('utf8')
+
 
 def json_dumps(value):
     return json.dumps(value, ensure_ascii=False).encode('utf8')
@@ -27,18 +33,18 @@ class ShelfWithHooks(DbfilenameShelf):
     }
 
     KEY_TRANSFORM_METHODS = {
-         'unicode': {
+        'unicode': {
              'encode': lambda key: text_type(key),#.encode('utf8'),
              'decode': lambda key: text_type(key),#, 'utf8'),
-          },
-         'int': {
+        },
+        'int': {
              'encode': lambda key: pack("H", int(key)),
              'decode': lambda key: unpack('H', key),
-          },
-          'str': {
-             'encode': lambda key: key,
+        },
+        'str': {
+             'encode': _to_utf8,
              'decode': lambda key: key,
-          }
+        }
     }
 
     DEFAULT_DUMP_METHOD = 'json'
@@ -76,7 +82,8 @@ class ShelfWithHooks(DbfilenameShelf):
     def _contains__cached(self, key):
         if key in self.cache:
             return True
-        return self.dict.has_key(self._encode_key(key))
+        key = self._encode_key(key)
+        return self.dict.has_key(key)
 
     def _getitem__cached(self, key):
         if key in self.cache:
@@ -86,9 +93,9 @@ class ShelfWithHooks(DbfilenameShelf):
         return value
 
     # а эти методы нам не нужны
-    def keys(self):
-        raise NotImplementedError
     def has_key(self, key):
+        raise NotImplementedError
+    def keys(self):
         raise NotImplementedError
     def get(self, key, default=None):
         raise NotImplementedError

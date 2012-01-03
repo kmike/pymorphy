@@ -67,7 +67,7 @@ class SqliteDict(object):
 
 class SqliteShelf(ShelfWithHooks):
 
-    def __init__(self, filename=None, flag='', key_type='str',
+    def __init__(self, filename=None, flag='', key_type='unicode',
                  dump_method=None, cached=True,
                  connection=None, table='shelf',):
         Shelf.__init__(self, SqliteDict(filename, connection, table))
