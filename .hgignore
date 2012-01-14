@@ -28,6 +28,7 @@ MANIFEST
 pymorphy.egg-info/
 
 #project-specific files
+.tox
 my_tests.py
 stuff
 *.sqlite
