@@ -1,6 +1,7 @@
 #coding: utf-8
 from __future__ import absolute_import
 import sqlite3
+import threading
 from shelve import Shelf
 from .shelf_with_hooks import ShelfWithHooks
 
@@ -9,10 +10,14 @@ class SqliteDict(object):
     "A dictionary that stores its data in a table in sqlite3 database"
 
     def __init__(self, filename=None, connection=None, table='shelf'):
+
+        self._lock = threading.RLock()
+
         if connection is not None:
             self.conn = connection
         else:
             self.conn = sqlite3.connect(filename, check_same_thread = False)
+
         self.conn.text_factory = str
 
         self._table = table
@@ -23,40 +28,48 @@ class SqliteDict(object):
         self.CLEAR_ALL = 'DELETE FROM %s;  VACUUM;' % self._table
         self.HAS_ITEM = 'SELECT 1 FROM %s WHERE key = ?' % self._table
 
-        self.conn.execute(self.MAKE_SHELF)
-        self.conn.commit()
+        with self._lock:
+            self.conn.execute(self.MAKE_SHELF)
+            self.conn.commit()
 
     def has_key(self, key):
-        return self.conn.execute(self.HAS_ITEM, (key,)).fetchone() is not None
+        with self._lock:
+            return self.conn.execute(self.HAS_ITEM, (key,)).fetchone() is not None
 
     def __contains__(self, key):
         return self.has_key(key)
 
     def __getitem__(self, key):
-        item = self.conn.execute(self.GET_ITEM, (key,)).fetchone()
+        with self._lock:
+            item = self.conn.execute(self.GET_ITEM, (key,)).fetchone()
+
         if item is None:
             raise KeyError(key)
         return item[0]
 
     def __setitem__(self, key, value):
-        self.conn.execute(self.ADD_ITEM, (key, value)) #sqlite3.Binary(value)))
+        with self._lock:
+            self.conn.execute(self.ADD_ITEM, (key, value)) #sqlite3.Binary(value)))
 #        self.conn.commit()
 
     def clear(self):
-        self.conn.executescript(self.CLEAR_ALL)
-        self.conn.commit()
+        with self._lock:
+            self.conn.executescript(self.CLEAR_ALL)
+            self.conn.commit()
 
     def sync(self):
-        if self.conn is not None:
-            self.conn.commit()
+        with self._lock:
+            if self.conn is not None:
+                self.conn.commit()
 
     def close(self):
         if self.conn is None:
             return
 
         try:
-            self.conn.commit()
-            self.conn.close()
+            with self._lock:
+                self.conn.commit()
+                self.conn.close()
             self.conn = None
         except (sqlite3.ProgrammingError, sqlite3.OperationalError):
             pass

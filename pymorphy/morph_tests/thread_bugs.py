@@ -1,8 +1,8 @@
 # coding: utf8
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import
 import random
-from pymorphy.morph_tests.base import MorphTestCase
-from pymorphy.morph_tests.dicts import morph_ru
+from .base import MorphTestCase
+from .dicts import morph_ru
 
 # http://www.caktusgroup.com/blog/2009/05/26/testing-django-views-for-concurrency-issues/
 def test_concurrently(times):
