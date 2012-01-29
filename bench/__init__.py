@@ -38,17 +38,6 @@ def do_all(words, morph):
 #    do_pluralize(words, morph)
 
 
-def print_memory_diff():
-    return
-    from pympler.muppy import get_objects, get_size
-    usage = get_size(get_objects())
-    if print_memory_diff._usage:
-        print ("Memory usage diff: %d Kb" % ((usage-print_memory_diff._usage)/1024))
-    else:
-        print ("Memory usage: %d Kb" % (usage/1024))
-    print_memory_diff._usage = usage
-print_memory_diff._usage = None
-
 
 def load_words(fn):
     filename = os.path.abspath(os.path.join('text', fn))
@@ -62,6 +51,22 @@ def get_morph(backend, **kwargs):
     else:
         path = os.path.join(DICT_PATH,'ru')
     return pymorphy.get_morph(path, backend, **kwargs)
+
+def get_mem_usage():
+    import psutil
+    proc = psutil.Process(os.getpid())
+    return proc.get_memory_info()
+
+def print_memory_usage(old=None):
+    info = get_mem_usage()
+    M = 1024*1024.0
+
+    if old:
+        print("RSS: %0.1fM (+%0.1fM), VMS: %0.1fM (+%0.1fM)" % (
+            info.rss/M, (info.rss-old.rss)/M, info.vms/M, (info.vms-old.vms)/M),
+        )
+    else:
+        print("RSS: %0.1fM, VMS: %0.1fM" % (info.rss/M, info.vms/M))
 
 
 def bench(filename, backend='shelve', use_psyco=True, use_cache=True, profile=True):
@@ -87,6 +92,7 @@ def bench(filename, backend='shelve', use_psyco=True, use_cache=True, profile=Tr
 
         start = datetime.now()
         words = load_words(filename)
+        usage = get_mem_usage()
         morph = get_morph(backend, cached=use_cache)
         loaded = datetime.now()
         do_all(words, morph)
@@ -98,8 +104,8 @@ def bench(filename, backend='shelve', use_psyco=True, use_cache=True, profile=Tr
 
         print ('%s => %s (cache: %s) => load: %.2f sec, parse: %0.2f sec (%d words/sec)' % (
             filename, backend, use_cache, load_time, parse_time, wps))
+        print_memory_usage(usage)
 
-    print_memory_diff()
 
 
 
