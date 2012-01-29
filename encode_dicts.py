@@ -18,8 +18,10 @@ def _unlink(fn):
         pass
 
 def convert_file(in_file, out_file, in_charset, out_charset):
-    text = codecs.open(in_file, 'r', in_charset).read()
-    codecs.open(out_file, 'w', out_charset ).write(text)
+    with codecs.open(in_file, 'r', in_charset) as f:
+        text = f.read()
+    with codecs.open(out_file, 'w', out_charset ) as f:
+        f.write(text)
 
 
 def load_mrd(dir):

@@ -129,3 +129,6 @@ class ShelveDataSource(DictDataSource):
 
     def _check_other(self, data_source):
         raise NotImplementedError()
+
+    def __str__(self):
+        return 'DataSource [%s] (%s)' % (self.db_type, self.path)

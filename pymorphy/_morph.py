@@ -680,6 +680,9 @@ class Morph(object):
 
         return gram
 
+    def __str__(self):
+        return 'Morph [%s]' % self.data
+
 
 def get_morph(path, backend='sqlite', cached=True, **kwargs):
     """

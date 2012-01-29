@@ -103,17 +103,15 @@ class MrdDataSource(DictDataSource):
             self.gramtab[ancode] = (type, info, letter,)
 
     def _load(self, filename, gramfile):
-        dict_file = codecs.open(filename, 'r', 'utf8')
-        self._load_rules(dict_file)
-        self._load_accents(dict_file)
-        self._load_logs(dict_file)
-        self._load_prefixes(dict_file)
-        self._load_lemmas(dict_file)
-        dict_file.close()
+        with codecs.open(filename, 'r', 'utf8') as dict_file:
+            self._load_rules(dict_file)
+            self._load_accents(dict_file)
+            self._load_logs(dict_file)
+            self._load_prefixes(dict_file)
+            self._load_lemmas(dict_file)
 
-        gram_file = codecs.open(gramfile, 'r', 'utf8')
-        self._load_gramtab(gram_file)
-        gram_file.close()
+        with codecs.open(gramfile, 'r', 'utf8') as gram_file:
+            self._load_gramtab(gram_file)
 
     def _calculate_endings(self):
         """

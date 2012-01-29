@@ -17,24 +17,27 @@ class PickleDataSource(DictDataSource):
         super(PickleDataSource, self).__init__()
 
     def load(self):
-        pickle_file = open(self.file,'rb')
-        p = Unpickler(pickle_file)
-        self.lemmas = p.load()
-        self.rules = p.load()
-        self.gramtab = p.load()
-        self.prefixes = p.load()
-        self.possible_rule_prefixes = p.load()
-        self.endings = p.load()
-        self.rule_freq = p.load or {}
+        with open(self.file,'rb') as pickle_file:
+            p = Unpickler(pickle_file)
+            self.lemmas = p.load()
+            self.rules = p.load()
+            self.gramtab = p.load()
+            self.prefixes = p.load()
+            self.possible_rule_prefixes = p.load()
+            self.endings = p.load()
+            self.rule_freq = p.load or {}
 
     def convert_and_save(self, data_obj):
-        pickle_file = open(self.file,'wb')
-        p = Pickler(pickle_file, -1)
-        p.dump(data_obj.lemmas)
-        p.dump(data_obj.rules)
-        p.dump(data_obj.gramtab)
-        p.dump(data_obj.prefixes)
-        p.dump(data_obj.possible_rule_prefixes)
-        p.dump(data_obj.endings)
-        if data_obj.rule_freq:
-            p.dump(data_obj.rule_freq)
+        with open(self.file,'wb') as pickle_file:
+            p = Pickler(pickle_file, -1)
+            p.dump(data_obj.lemmas)
+            p.dump(data_obj.rules)
+            p.dump(data_obj.gramtab)
+            p.dump(data_obj.prefixes)
+            p.dump(data_obj.possible_rule_prefixes)
+            p.dump(data_obj.endings)
+            if data_obj.rule_freq:
+                p.dump(data_obj.rule_freq)
+
+    def __str__(self):
+        return 'PickleDataSource (%s)' % self.file

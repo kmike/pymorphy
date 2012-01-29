@@ -52,9 +52,8 @@ print_memory_diff._usage = None
 
 def load_words(fn):
     filename = os.path.abspath(os.path.join('text', fn))
-    f = codecs.open(filename, encoding='utf-8')
-    text = f.read()
-    f.close()
+    with codecs.open(filename, encoding='utf-8') as f:
+        text = f.read()
     return get_words(text)
 
 def get_morph(backend, **kwargs):
