@@ -407,6 +407,8 @@ class Morph(object):
         правила, смотрим, есть ли среди них такие, которые приводят к
         образованию слов с подходящими окончаниями.
         """
+
+        # небольшая оптимизация - доступ к атрибутам вынесен за цикл
         rules = self.data.rules
         gramtab = self.data.gramtab
         lemma_paradigms = self.data.lemmas[lemma or '#']
@@ -433,6 +435,7 @@ class Morph(object):
                         'method': method_format_str % (lemma, suffix)
                     }
                     # не допускаем дубликатов
+                    # FIXME: это нужно исправить в словарях
                     if not data in gram:
                         gram.append(data)
         return gram

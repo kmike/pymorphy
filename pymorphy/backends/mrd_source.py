@@ -71,11 +71,22 @@ class MrdDataSource(DictDataSource):
         for line in self._section_lines(file):
             record = line.split()
             base, paradigm_id = record[0], record[1]
+
+            # Информацию об ударениях, пользовательских сессиях,
+            # общий для всех парадигм анкод и наборы префиксов мы тут не
+            # учитываем.
+            # Сессии - специфичная для aot-редактора информация,
+            # анкод можно получить из парадигмы, префикс все равно
+            # дублирует "префиксы" self.prefixes (?).
+            # accent_model_no, session_no, type_ancode, prefix_set_no = record[2:]
+
             if base not in self.lemmas:
                 self.lemmas[base] = []
 
-            self.rule_freq[paradigm_id] = self.rule_freq.get(paradigm_id,0)+1
+            self.rule_freq[paradigm_id] = self.rule_freq.get(paradigm_id, 0)+1
 
+            # FIXME: т.к. мы отбрасываем анкод, у нас тут могут быть
+            # дубликаты парадигм (и будут, для ДУМА, например).
             self.lemmas[base].append(int(paradigm_id))
 
     def _load_accents(self, file):
