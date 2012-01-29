@@ -1,6 +1,7 @@
 #coding: utf-8
 from __future__ import print_function
-from pymorphy.utils import pprint
+from pymorphy.utils import pprint, get_split_variants
+
 
 class DictDataSource(object):
     '''
@@ -88,6 +89,41 @@ class DictDataSource(object):
             for paradigm_id in self.lemmas[lemma]:
                 self.rule_freq[paradigm_id] = self.rule_freq.get(paradigm_id, 0)+1
 
+#    @profile
+    def analyze(self, word):
+        """
+        Возвращает (lemma, paradigm_id, rule) со всеми вариантами разбора слова.
+
+        lemma - с какой леммой слово разобрали;
+        paradigm_id - номер парадигмы;
+        rule - подходящее правило в парадигме.
+
+        Подклассы, использующие специализированные структуры для хранения
+        словарей, могут реализовать этот метод эффективнее.
+        """
+
+        rules = self.rules
+        lemmas = self.lemmas
+
+        # Основная проверка по словарю: разбиваем слово на 2 части,
+        # считаем одну из них леммой, другую окончанием, пробуем найти
+        # лемму в словаре; если нашли, то пробуем найти вариант разбора
+        # с подходящим окончанием.
+        for lemma, suffix in get_split_variants(word):
+            if lemma in lemmas:
+                for paradigm_id in lemmas[lemma]:
+                    paradigm = rules[paradigm_id]
+                    for rule in paradigm:
+                        if rule[0] == suffix:
+                            yield lemma, paradigm_id, rule
+
+        # Вариант с пустой леммой (например, ЧЕЛОВЕК - ЛЮДИ).
+        # У таких слов в словарях основа записана как "#".
+        for paradigm_id in lemmas['#']:
+            paradigm = rules[paradigm_id]
+            for rule in paradigm:
+                if rule[0] == word:
+                    yield '', paradigm_id, rule
 
 
     def _check_self(self):

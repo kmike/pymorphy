@@ -1,3 +1,4 @@
+#coding: utf-8
 import sys
 from pprint import PrettyPrinter
 
@@ -15,3 +16,10 @@ class MyPrettyPrinter(PrettyPrinter):
 def pprint(obj, stream=None, indent=1, width=80, depth=None):
     printer = MyPrettyPrinter(stream=stream, indent=indent, width=width, depth=depth)
     printer.pprint(obj)
+
+def get_split_variants(word):
+    """ Вернуть все варианты разбиения слова на 2 части """
+    l = len(word)
+    vars = [(word[:i], word[i:]) for i in range(1,l)]
+    vars.append((word, '',))
+    return vars

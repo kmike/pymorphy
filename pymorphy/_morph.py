@@ -5,14 +5,7 @@ from copy import deepcopy
 
 from pymorphy.constants import *
 from pymorphy.backends import PickleDataSource, ShelveDataSource
-from pymorphy.utils import pprint
-
-def _get_split_variants(word):
-    """ Вернуть все варианты разбиения слова на 2 части """
-    l = len(word)
-    vars = [(word[0:i], word[i:l]) for i in range(1,l)]
-    vars.append((word, '',))
-    return vars
+from pymorphy.utils import pprint, get_split_variants
 
 def _array_match(arr, filter):
     '''
@@ -139,7 +132,7 @@ class GramForm(object):
         return True
 
     def match_string(self, str_form):
-        return (str_form if self.match(GramForm(str_form)) else None)
+        return str_form if self.match(GramForm(str_form)) else None
 
 
 def _guess_best_form(forms):
@@ -400,53 +393,33 @@ class Morph(object):
                 })
         return forms
 
-
-    def _get_lemma_graminfo(self, lemma, lemma_paradigms, suffix, require_prefix, method_format_str):
+    def _analyzed_word_information(self, lemma, paradigm_id, rule):
         """
-        Получить грам. информацию по лемме и суффиксу. Для леммы перебираем все
-        правила, смотрим, есть ли среди них такие, которые приводят к
-        образованию слов с подходящими окончаниями.
+        Для результата разбора возвращает словарь с подробной информацией
         """
+        paradigm = self.data.rules[paradigm_id]
+        norm_form = lemma + paradigm[0][0]
+        rule_suffix, rule_ancode, rule_prefix = rule
+        gram_class, info, _ = self.data.gramtab[rule_ancode]
+        data = {
+            'norm': norm_form,
+            'class': gram_class,
+            'info': info,
+            'paradigm_id': paradigm_id,
+            'ancode': rule_ancode,
+            'lemma': lemma,
+            'method': 'lemma(%s).suffix(%s)' % (lemma, rule_suffix)
+        }
+        return data
 
-        # небольшая оптимизация - доступ к атрибутам вынесен за цикл
-        rules = self.data.rules
-        gramtab = self.data.gramtab
-        lemma_paradigms = self.data.lemmas[lemma or '#']
-        gram = []
-        # для леммы смотрим все доступные парадигмы
-        for paradigm_id in lemma_paradigms:
-            paradigm = rules[paradigm_id]
-
-            norm_form = lemma + paradigm[0][0]
-
-            # все правила в парадигме
-            for rule_suffix, rule_ancode, rule_prefix in paradigm:
-                # если по правилу выходит, что окончание такое, как надо,
-                # то значит нашли, что искали
-                if rule_suffix==suffix and rule_prefix==require_prefix:
-                    gram_class, info, _ = gramtab[rule_ancode]
-                    data = {
-                        'norm': norm_form,
-                        'class': gram_class,
-                        'info': info,
-                        'paradigm_id': paradigm_id,
-                        'ancode': rule_ancode,
-                        'lemma': lemma,
-                        'method': method_format_str % (lemma, suffix)
-                    }
-                    # не допускаем дубликатов
-                    # FIXME: это нужно исправить в словарях
-                    if not data in gram:
-                        gram.append(data)
-        return gram
-
-
-    def _flexion_graminfo(self, word, require_prefix):
-        """ Вернуть грам. информацию для слова, предполагая, что все
-            слово - это окончание, а основа пустая. Например, ЧЕЛОВЕК - ЛЮДИ.
-            У таких слов в словарях основа записывается как "#".
+    def _word_graminfo(self, word, require_prefix):
         """
-        return [info for info in self._get_lemma_graminfo('', word, require_prefix, '%snobase(%s)')]
+        Возвращает результаты основного разбора слова по словарю.
+        """
+        for lemma, paradigm_id, rule in self.data.analyze(word):
+            if rule[2] == require_prefix:
+               yield self._analyzed_word_information(lemma, paradigm_id, rule)
+
 
     def _do_predict_by_suffix(self, word):
         """
@@ -513,15 +486,16 @@ class Morph(object):
         return gram
 
 
-    def _static_prefix_graminfo(self, variants, require_prefix=''):
+    def _static_prefix_graminfo(self, word, require_prefix=''):
         """
         Определить грамматическую форму слова, пробуя отбросить
-        фиксированные префиксы. В функцию передается уже подготовленный
-        список вариантов разбиения слова.
+        фиксированные префиксы.
         """
         gram = []
         if not self.check_prefixes:
             return gram
+
+        variants = get_split_variants(word)
 
         for (prefix, suffix) in variants:
 
@@ -628,6 +602,7 @@ class Morph(object):
             gram.extend(base_forms)
         return gram
 
+
     def _handle_EE(self, word, require_prefix):
         '''
         Обработка буквы Ё. Пробуем проверить, не получится ли определить
@@ -644,35 +619,21 @@ class Morph(object):
             info['method'] = info['method'].replace('Ё', 'Е')
         return gram
 
-
     def _get_graminfo(self, word, require_prefix='', predict = True,
                       predict_EE = True, predict_hyphenated=True):
         """
-        Получить грам. информацию о слове.
+        Получить грамматическую информацию о слове.
         Внутренний вариант для поддержки рекурсии с возможностью временно
         отключать предсказатель и возможностью требовать наличие
         определенного префикса у результата.
         """
         gram = []
 
-        # вариант с пустой основой слова
-        gram.extend(self._flexion_graminfo(word, require_prefix))
-
-        # основная проверка по словарю: разбиваем слово на 2 части,
-        # считаем одну из них основой, другую окончанием
-        # (префикс считаем пустым, его обработаем отдельно)
-        variants = _get_split_variants(word)
-        for (lemma, suffix) in variants:
-            if lemma in self.data.lemmas:
-                gram.extend(
-                    [info for info in
-                        self._get_lemma_graminfo(lemma, suffix, require_prefix,
-                                                 'lemma(%s).suffix(%s)')
-                    ]
-                )
+        # основной разбор
+        gram.extend(self._word_graminfo(word, require_prefix))
 
         # вариант с фиксированным префиксом
-        gram.extend(self._static_prefix_graminfo(variants, require_prefix))
+        gram.extend(self._static_prefix_graminfo(word, require_prefix))
 
         # обработка буквы Ё, если требуется
         if not gram and self.handle_EE and predict_EE:
