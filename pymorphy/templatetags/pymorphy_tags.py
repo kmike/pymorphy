@@ -40,8 +40,9 @@ def _process_phrase(phrase, process_func, *args, **kwargs):
 
 
 def _process_marked_phrase(phrase, process_func, *args, **kwargs):
-    """ Обработать фразу. В фразе обрабатываются только куски, заключенные
-        в двойные квадратные скобки (например, "[[лошадь]] Пржевальского").
+    """
+    Обработать фразу. В фразе обрабатываются только куски, заключенные
+    в двойные квадратные скобки (например, "[[лошадь]] Пржевальского").
     """
     def process(m):
         return _process_phrase(m.group(1)[2:-2],
@@ -50,8 +51,9 @@ def _process_marked_phrase(phrase, process_func, *args, **kwargs):
 
 
 def _process_unmarked_phrase(phrase, process_func, *args, **kwargs):
-    """ Обработать фразу. В фразе не обрабатываются куски, заключенные
-        в двойные квадратные скобки (например, "лошадь [[Пржевальского]]").
+    """
+    Обработать фразу. В фразе не обрабатываются куски, заключенные
+    в двойные квадратные скобки (например, "лошадь [[Пржевальского]]").
     """
     def process(part):
         if not re.match(markup_re, part):

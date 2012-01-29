@@ -3,58 +3,59 @@ from __future__ import print_function
 from pymorphy.utils import pprint
 
 class DictDataSource(object):
-    ''' Absctract base class for dictionary data source.
-        Subclasses should make class variables (rules, lemmas, prefixes,
-        gramtab, endings, possible_rule_prefixes) accessible through dict
-        or list syntax ("duck typing")
+    '''
+    Absctract base class for dictionary data source.
+    Subclasses should make class variables (rules, lemmas, prefixes,
+    gramtab, endings, possible_rule_prefixes) accessible through dict
+    or list syntax ("duck typing")
 
-        Абстрактный базовый класс для источников данных pymorphy.
-        У подклассов должны быть свойства rules, lemmas, prefixes,
-        gramtab, endings, possible_rule_prefixes, к которым можно было бы
-        обращаться как к словарям, спискам или множествам.
+    Абстрактный базовый класс для источников данных pymorphy.
+    У подклассов должны быть свойства rules, lemmas, prefixes,
+    gramtab, endings, possible_rule_prefixes, к которым можно было бы
+    обращаться как к словарям, спискам или множествам.
 
-        .. glossary::
+    .. glossary::
 
-            rules
-                для каждой парадигмы - список правил (приставка, грам. информация,
-                префикс)::
+        rules
+            для каждой парадигмы - список правил (приставка, грам. информация,
+            префикс)::
 
-                    {paradigm_id->[ (suffix, ancode, prefix) ]}
+                {paradigm_id->[ (suffix, ancode, prefix) ]}
 
-            lemmas
-                для каждой леммы - список номеров парадигм (способов
-                образования слов), доступных для данной леммы (основы слова)::
+        lemmas
+            для каждой леммы - список номеров парадигм (способов
+            образования слов), доступных для данной леммы (основы слова)::
 
-                    {base -> [paradigm_id]}
+                {base -> [paradigm_id]}
 
-            prefixes
-                фиксированые префиксы::
+        prefixes
+            фиксированые префиксы::
 
-                    set([prefix])
+                set([prefix])
 
-            gramtab
-                грамматическая информация: словарь, ключи которого - индексы грам.
-                информации (анкоды), значения - кортежи
-                (часть речи, информация о грам. форме, какая-то непонятная буква)::
+        gramtab
+            грамматическая информация: словарь, ключи которого - индексы грам.
+            информации (анкоды), значения - кортежи
+            (часть речи, информация о грам. форме, какая-то непонятная буква)::
 
-                    {ancode->(type,info,letter)}
+                {ancode->(type,info,letter)}
 
-            rule_freq
-                частоты для правил, используется при подготовке словарей::
+        rule_freq
+            частоты для правил, используется при подготовке словарей::
 
-                    {paradigm_id->freq}
+                {paradigm_id->freq}
 
-            endings
-                для каждого возможного 5 буквенного окончания - словарь, в котором
-                ключи - номера возможных парадигм, а значения - номера возможных
-                правил::
+        endings
+            для каждого возможного 5 буквенного окончания - словарь, в котором
+            ключи - номера возможных парадигм, а значения - номера возможных
+            правил::
 
-                    {word_end->{paradigm_id->(possible_paradigm_ids)}}
+                {word_end->{paradigm_id->(possible_paradigm_ids)}}
 
-            possible_rule_prefixes
-                набор всех возможных приставок к леммам::
+        possible_rule_prefixes
+            набор всех возможных приставок к леммам::
 
-                    [prefix]
+                [prefix]
     '''
     def __init__(self):
         self.rules={}
@@ -85,7 +86,9 @@ class DictDataSource(object):
         """
         for lemma in self.lemmas:
             for paradigm_id in self.lemmas[lemma]:
-                self.rule_freq[paradigm_id] = self.rule_freq.get(paradigm_id,0)+1
+                self.rule_freq[paradigm_id] = self.rule_freq.get(paradigm_id, 0)+1
+
+
 
     def _check_self(self):
         """ Проверить словарь на корректность """

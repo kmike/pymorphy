@@ -6,10 +6,11 @@ from pymorphy.constants import PRODUCTIVE_CLASSES
 
 
 class MrdDataSource(DictDataSource):
-    """ Источник данных для морфологического анализатора pymorphy,
-        берущий информацию из оригинальных mrd-файлов (в которых кодировка
-        была изменена с 1251 на utf-8). Используется для конвертации
-        оригинальных данных в простые для обработки ShelveDict или PickledDict.
+    """
+    Источник данных для морфологического анализатора pymorphy,
+    берущий информацию из оригинальных mrd-файлов (в которых кодировка
+    была изменена с 1251 на utf-8). Используется для конвертации
+    оригинальных данных в простые для обработки ShelveDict или PickledDict.
     """
 
     def __init__(self, dict_name, gramtab_name, strip_EE=True):

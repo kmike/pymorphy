@@ -7,9 +7,10 @@ except ImportError:
 from pymorphy.backends.base import DictDataSource
 
 class PickleDataSource(DictDataSource):
-    """ Источник данных для морфологического анализатора pymorphy,
-        берущий информацию из файлов, куда с помощью pickle были
-        сохранены данные. Самый быстрый, но ест уйму памяти (> 100 MB).
+    """
+    Источник данных для морфологического анализатора pymorphy,
+    берущий информацию из файлов, куда с помощью pickle были
+    сохранены данные. Самый быстрый, но ест уйму памяти (> 100 MB).
     """
 
     def __init__(self, file):
