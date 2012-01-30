@@ -74,13 +74,14 @@ def bench(filename, backend='shelve', use_psyco=True, use_cache=True, profile=Tr
     if profile:
         words = load_words(filename)
         print ('Text is loaded (%d words)' % len(words))
-        print_memory_diff()
+        usage = get_mem_usage()
 
         morph = get_morph(backend, cached=use_cache)
 
         prof = cProfile.Profile()
         prof = prof.runctx('do_all(words, morph)', globals = globals(), locals=locals())
         prof.print_stats(1)
+        print_memory_usage(usage)
     else:
 #        prep = """
 #from bench import do_all, load_words, get_morph
