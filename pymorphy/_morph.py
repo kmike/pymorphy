@@ -348,13 +348,6 @@ class Morph(object):
 
 #----------- internal methods -------------
 
-    def _drop_cache(self):
-        """ Освободить память, выделенную под внутренний кэш """
-        self.data.lemmas.cache = {}
-        self.data.rules.cache = {}
-        self.data.endings.cache = {}
-
-
     def _decline(self, src_word):
         """ Просклонять: вернуть все грам. формы с информацией про них """
 
@@ -376,41 +369,53 @@ class Morph(object):
 
         # перебираем все возможные парадигмы и правила в них,
         # составляем варианты слов и возвращаем их
-        for paradigm_id, base_form in variants:
+        gramtab = self.data.gramtab
+        rules = self.data.rules
 
+        for paradigm_id, base_form in variants:
             lemma = base_form['lemma']
             pre_prefix = ''.join(base_form.get('prefixes', []))
-            paradigm = self.data.rules[paradigm_id]
-
-            for suffix, ancode, prefix in paradigm:
-                cls, info, _letter  = self.data.gramtab[ancode]
-                word = pre_prefix + prefix + lemma + suffix
-                forms.append({
-                    'word': word,
-                    'class': cls,
-                    'info': info,
-                    'lemma': lemma,
-                })
+            paradigm = rules[paradigm_id]
+            for suffix in paradigm:
+                ending = lemma + suffix
+                for ancode, prefix in paradigm[suffix]:
+                    cls, info, _letter  = gramtab[ancode]
+                    word = pre_prefix + prefix + ending
+                    forms.append({
+                        'word': word,
+                        'class': cls,
+                        'info': info,
+                        'lemma': lemma,
+                    })
         return forms
 
     def _analyzed_word_information(self, lemma, paradigm_id, rule):
         """
         Для результата разбора возвращает словарь с подробной информацией
         """
-        paradigm = self.data.rules[paradigm_id]
-        norm_form = lemma + paradigm[0][0]
-        rule_suffix, rule_ancode, rule_prefix = rule
-        gram_class, info, _ = self.data.gramtab[rule_ancode]
+        norm_form = self._get_normal_form(lemma, paradigm_id)
+
+        suffix, ancode, prefix = rule
+        gram_class, info, _ = self.data.gramtab[ancode]
+
         data = {
             'norm': norm_form,
             'class': gram_class,
             'info': info,
             'paradigm_id': paradigm_id,
-            'ancode': rule_ancode,
+            'ancode': ancode,
             'lemma': lemma,
-            'method': 'lemma(%s).suffix(%s)' % (lemma, rule_suffix)
+            'method': 'lemma(%s).suffix(%s)' % (lemma, suffix)
         }
         return data
+
+    def _get_normal_form(self, lemma, paradigm_id):
+        """
+        Собирает из леммы и номера парадигмы слова его нормальную форму.
+        """
+        suffix, ancode, prefix = self.data.normal_forms[paradigm_id]
+        # XXX: а префикса тут почему нет?
+        return lemma + suffix
 
     def _word_graminfo(self, word, require_prefix):
         """
@@ -426,45 +431,38 @@ class Morph(object):
         Предсказать грамматическую форму и парадигму неизвестного слова
         по последним 5 буквам.
         """
-        data_source = self.data
+        endings = self.data.endings
+        gramtab = self.data.gramtab
 
         gram=[]
-        for i in (5,4,3,2,1):
+        for i in 5,4,3,2,1:
             end = word[-i:]
-            if end in data_source.endings:
+            if end in endings:
 
                 # парадигмы, по которым могут образовываться слова с таким
                 # завершением
-                paradigms = data_source.endings[end]
+                paradigms = endings[end]
 
                 for paradigm_id in paradigms:
+                    rules = paradigms[paradigm_id]
+                    for suffix, ancode, prefix in rules:
 
-                    # номера возможных правил
-                    rules_id_list = paradigms[paradigm_id]
-                    # lookup-словарь для правил
-                    rules_list = data_source.rules[paradigm_id]
-
-                    # для всех правил определяем часть речи, если она
-                    # продуктивная, то добавляем вариант слова
-                    for id in rules_id_list:
-                        rule = rules_list[id]
-                        suffix, ancode = rule[0], rule[1]
-                        graminfo = data_source.gramtab[ancode]
-                        if graminfo[0] in PRODUCTIVE_CLASSES:
+                        gram_class, info, _ = gramtab[ancode]
+                        if gram_class in PRODUCTIVE_CLASSES:
                             # норм. форма слова получается заменой суффикса
                             # на суффикс начальной формы
                             suffix_len = len(suffix)
                             predicted_lemma = word[0:-suffix_len] if suffix_len else word
-                            norm_form = predicted_lemma + rules_list[0][0]
+                            norm_form = self._get_normal_form(predicted_lemma, paradigm_id)
                             gram.append({
-                                         'norm': norm_form,
-                                         'class':graminfo[0],
-                                         'info': graminfo[1],
-                                         'paradigm_id': paradigm_id,
-                                         'ancode': ancode,
-                                         'lemma': predicted_lemma,
-                                         'method': 'predict(...%s)' % end
-                                       })
+                                'norm': norm_form,
+                                'class': gram_class,
+                                'info': info,
+                                'paradigm_id': paradigm_id,
+                                'ancode': ancode,
+                                'lemma': predicted_lemma,
+                                'method': 'predict(...%s)' % end
+                            })
 
                 # нашли хотя бы одно окончание слова данной длины, больше не ищем
                 if gram:
@@ -581,10 +579,14 @@ class Morph(object):
             return gram
 
         # все варианты разбиений с учетом ограничений на длину префикса и окончания
-        split_indexes = range(1, 1+min(self.prediction_max_prefix_len,
-                                       len(word)-self.prediction_min_suffix_len))
+        max_split = min(
+            self.prediction_max_prefix_len,
+            len(word)-self.prediction_min_suffix_len
+        )
+        split_indexes = range(1, 1+max_split)
         variants = [(word[:i], word[i:]) for i in split_indexes]
-        for (prefix, suffix) in variants:
+
+        for prefix, suffix in variants:
             # оторвали префикс, смотрим, удастся ли что-то узнать
             base_forms = self._get_graminfo(suffix,
                                             require_prefix=require_prefix,

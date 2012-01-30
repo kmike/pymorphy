@@ -45,26 +45,34 @@ class MrdDataSource(DictDataSource):
 
     def _load_rules(self, file):
         """ Загрузить все парадигмы слов"""
-        i=0
-        for line in self._section_lines(file):
+        for paradigm_id, line in enumerate(self._section_lines(file)):
             line_rules = line.strip().split('%')
             for rule in line_rules:
                 if not rule:
                     continue
+
                 #parts: suffix, ancode, prefix
                 parts = rule.split('*')
                 if len(parts)==2:
                     parts.append('')
 
-                parts[1] = parts[1][:2]
-                (suffix, ancode, prefix) = parts
-                if i not in self.rules:
-                    self.rules[i]=[]
-                self.rules[i].append(tuple(parts))
+                suffix, ancode, prefix = parts
+                ancode = ancode[:2]
+
+                if paradigm_id not in self.rules:
+                    self.rules[paradigm_id] = {}
+                    # первое встреченное правило считаем за нормальную форму
+                    self.normal_forms[paradigm_id] = parts
+                paradigm = self.rules[paradigm_id]
+
+                if suffix not in paradigm:
+                    paradigm[suffix] = []
+
+                paradigm[suffix].append((ancode, prefix))
 
                 if prefix:
                     self.possible_rule_prefixes.add(prefix)
-            i += 1
+
 
     def _load_lemmas(self, file):
         """ Загрузить текущую секцию как секцию с леммами """
@@ -83,7 +91,7 @@ class MrdDataSource(DictDataSource):
             if base not in self.lemmas:
                 self.lemmas[base] = []
 
-            self.rule_freq[paradigm_id] = self.rule_freq.get(paradigm_id, 0)+1
+            self.rule_freq[paradigm_id] = self.rule_freq.get(paradigm_id, 0) + 1
 
             # FIXME: т.к. мы отбрасываем анкод, у нас тут могут быть
             # дубликаты парадигм (и будут, для ДУМА, например).
@@ -139,22 +147,23 @@ class MrdDataSource(DictDataSource):
             for paradigm_id in self.lemmas[lemma]:
                 paradigm = self.rules[paradigm_id]
 
-                # все правила в парадигме
-                for index, rule in enumerate(paradigm):
-                    rule_suffix, rule_ancode, rule_prefix = rule
+                for suffix in paradigm:
+                    for ancode, prefix in paradigm[suffix]:
+                        # формируем слово
+                        word = ''.join((prefix, lemma, suffix))
 
-                    # формируем слово
-                    word = ''.join((rule_prefix, lemma, rule_suffix))
+                        # добавляем окончания и номера правил их получения в словарь
+                        for i in 1,2,3,4,5:
+                            word_end = word[-i:]
+                            if word_end:
+                                if word_end not in self.endings:
+                                    self.endings[word_end] = {}
+                                ending = self.endings[word_end]
 
-                    # добавляем окончания и номера правил их получения в словарь
-                    for i in range(1,6):  #1,2,3,4,5
-                        word_end = word[-i:]
-                        if word_end:
-                            if word_end not in self.endings:
-                                self.endings[word_end] = {}
-                            if paradigm_id not in self.endings[word_end]:
-                                self.endings[word_end][paradigm_id]=set()
-                            self.endings[word_end][paradigm_id].add(index)
+                                if paradigm_id not in ending:
+                                    ending[paradigm_id]=set()
+
+                                ending[paradigm_id].add((suffix, ancode, prefix))
 
 
     def _cleanup_endings(self):
@@ -164,28 +173,33 @@ class MrdDataSource(DictDataSource):
         для каждого окончания оставляем только по 1 самому популярному правилу
         на каждую часть речи.
         """
-        for end in self.endings:
-            paradigms = self.endings[end]
-            result_paradigms = {}
+        for word_end in self.endings:
+            ending_info = self.endings[word_end]
+            result_info = {}
             best_paradigms = {}
-            for paradigm_id in paradigms:
-                paradigm = self.rules[paradigm_id]
-                base_ancode = paradigm[0][1]
+
+            for paradigm_id in ending_info:
+
+                base_suffix, base_ancode, base_prefix = self.normal_forms[paradigm_id]
                 base_gram = self.gramtab[base_ancode]
                 word_class = base_gram[0]
-                if word_class in PRODUCTIVE_CLASSES:
-                    if word_class not in best_paradigms:
-                        best_paradigms[word_class]=paradigm_id
-                    else:
-                        new_freq = self.rule_freq[paradigm_id]
-                        old_freq = self.rule_freq[best_paradigms[word_class]]
-                        if new_freq > old_freq:
-                            best_paradigms[word_class]=paradigm_id
 
-            for wc in best_paradigms:
-                paradigm_id = best_paradigms[wc]
-                result_paradigms[paradigm_id] = tuple(paradigms[paradigm_id])
-            self.endings[end] = result_paradigms
+                if word_class not in PRODUCTIVE_CLASSES:
+                    continue
+
+                if word_class not in best_paradigms:
+                    best_paradigms[word_class] = paradigm_id
+                else:
+                    new_freq = self.rule_freq[paradigm_id]
+                    old_freq = self.rule_freq[best_paradigms[word_class]]
+                    if new_freq > old_freq:
+                        best_paradigms[word_class] = paradigm_id
+
+            for word_class in best_paradigms:
+                paradigm_id = best_paradigms[word_class]
+                # приводим к tuple, т.к. set плохо сериализуется
+                result_info[paradigm_id] = tuple(ending_info[paradigm_id])
+            self.endings[word_end] = result_info
 
     @staticmethod
     def setup_psyco():

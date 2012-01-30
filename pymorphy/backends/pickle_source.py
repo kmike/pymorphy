@@ -1,8 +1,8 @@
 #coding: utf-8
 try:
-    from cPickle import Pickler, Unpickler
+    import cPickle as pickle
 except ImportError:
-    from pickle import Pickler, Unpickler
+    import pickle
 
 from pymorphy.backends.base import DictDataSource
 
@@ -19,24 +19,26 @@ class PickleDataSource(DictDataSource):
 
     def load(self):
         with open(self.file,'rb') as pickle_file:
-            p = Unpickler(pickle_file)
+            p = pickle.Unpickler(pickle_file)
             self.lemmas = p.load()
             self.rules = p.load()
             self.gramtab = p.load()
             self.prefixes = p.load()
             self.possible_rule_prefixes = p.load()
             self.endings = p.load()
+            self.normal_forms = p.load()
             self.rule_freq = p.load or {}
 
     def convert_and_save(self, data_obj):
         with open(self.file,'wb') as pickle_file:
-            p = Pickler(pickle_file, -1)
+            p = pickle.Pickler(pickle_file, pickle.HIGHEST_PROTOCOL)
             p.dump(data_obj.lemmas)
             p.dump(data_obj.rules)
             p.dump(data_obj.gramtab)
             p.dump(data_obj.prefixes)
             p.dump(data_obj.possible_rule_prefixes)
             p.dump(data_obj.endings)
+            p.dump(data_obj.normal_forms)
             if data_obj.rule_freq:
                 p.dump(data_obj.rule_freq)
 

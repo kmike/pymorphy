@@ -28,6 +28,7 @@ class ShelveDataSource(DictDataSource):
         self.lemmas = self._get_shelf('lemmas', 'r')
         self.rules = self._get_shelf('rules', 'r', 'int')
         self.endings = self._get_shelf('endings', 'r')
+        self.normal_forms = self._get_shelf('normal_forms', 'r', 'int')
 
         misc = self._get_shelf('misc', 'r')
         self.gramtab = misc['gramtab']
@@ -39,6 +40,7 @@ class ShelveDataSource(DictDataSource):
         lemma_shelve = self._get_shelf('lemmas', 'c')
         rules_shelve = self._get_shelf('rules', 'c', 'int')
         endings_shelve = self._get_shelf('endings', 'c')
+        normal_forms_shelve = self._get_shelf('normal_forms', 'c', 'int')
 
         for lemma in data_obj.lemmas:
             lemma_shelve[lemma] = data_obj.lemmas[lemma]
@@ -48,6 +50,9 @@ class ShelveDataSource(DictDataSource):
 
         for end in data_obj.endings:
             endings_shelve[end] = data_obj.endings[end]
+
+        for rule in data_obj.normal_forms:
+            normal_forms_shelve[rule] = data_obj.normal_forms[rule]
 
         misc_shelve = self._get_shelf('misc', 'c')
         misc_shelve['gramtab'] = data_obj.gramtab
@@ -64,6 +69,7 @@ class ShelveDataSource(DictDataSource):
         misc_shelve.close()
         rules_shelve.close()
         endings_shelve.close()
+        normal_forms_shelve.close()
 
 
     def _path(self, name):
