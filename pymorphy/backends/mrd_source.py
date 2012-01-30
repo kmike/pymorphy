@@ -47,11 +47,12 @@ class MrdDataSource(DictDataSource):
         """ Загрузить все парадигмы слов"""
         for paradigm_id, line in enumerate(self._section_lines(file)):
             line_rules = line.strip().split('%')
+
+            index = 0 # не enumerate, чтоб не считать пустые строки
             for rule in line_rules:
                 if not rule:
                     continue
 
-                #parts: suffix, ancode, prefix
                 parts = rule.split('*')
                 if len(parts)==2:
                     parts.append('')
@@ -68,10 +69,12 @@ class MrdDataSource(DictDataSource):
                 if suffix not in paradigm:
                     paradigm[suffix] = []
 
-                paradigm[suffix].append((ancode, prefix))
+                paradigm[suffix].append((ancode, prefix, index))
 
                 if prefix:
                     self.possible_rule_prefixes.add(prefix)
+
+                index += 1
 
 
     def _load_lemmas(self, file):
@@ -148,7 +151,7 @@ class MrdDataSource(DictDataSource):
                 paradigm = self.rules[paradigm_id]
 
                 for suffix in paradigm:
-                    for ancode, prefix in paradigm[suffix]:
+                    for ancode, prefix, index in paradigm[suffix]:
                         # формируем слово
                         word = ''.join((prefix, lemma, suffix))
 

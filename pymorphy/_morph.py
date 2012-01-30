@@ -376,17 +376,21 @@ class Morph(object):
             lemma = base_form['lemma']
             pre_prefix = ''.join(base_form.get('prefixes', []))
             paradigm = rules[paradigm_id]
+            paradigm_forms = []
+
             for suffix in paradigm:
                 ending = lemma + suffix
-                for ancode, prefix in paradigm[suffix]:
+                for ancode, prefix, index in paradigm[suffix]:
                     cls, info, _letter  = gramtab[ancode]
                     word = pre_prefix + prefix + ending
-                    forms.append({
+                    paradigm_forms.append({
                         'word': word,
                         'class': cls,
                         'info': info,
                         'lemma': lemma,
+                        '_index': index,
                     })
+            forms.extend(sorted(paradigm_forms, key=lambda f: f['_index']))
         return forms
 
     def _analyzed_word_information(self, lemma, paradigm_id, rule):
