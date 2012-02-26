@@ -19,7 +19,7 @@ class MorphTestCase(unittest2.TestCase):
 
     def _msg(self, fmt, w1, w2):
         if PY3:
-            return fmt % (w1, w2)
+            return None
 
         # console fix for python 2
         return fmt.encode('utf8') % (w1.encode('utf8'), w2.encode('utf8'))
