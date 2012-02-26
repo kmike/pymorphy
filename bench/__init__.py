@@ -53,9 +53,14 @@ def get_morph(backend, **kwargs):
     return pymorphy.get_morph(path, backend, **kwargs)
 
 def get_mem_usage():
-    import psutil
-    proc = psutil.Process(os.getpid())
-    return proc.get_memory_info()
+    try:
+        import psutil
+        proc = psutil.Process(os.getpid())
+        return proc.get_memory_info()
+    except ImportError:
+        from collections import namedtuple
+        Info = namedtuple('Info', 'vms rss')
+        return Info(0, 0)
 
 def print_memory_usage(old=None):
     info = get_mem_usage()
