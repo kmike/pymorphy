@@ -10,7 +10,7 @@
 класса :class:`pymorphy.Morph <Morph>`::
 
     from pymorphy import get_morph
-    morph = get_morph('dicts/ru')
+    morph = get_morph('dicts/ru', 'sqlite')
 
 Аргументы :meth:`pymorphy.get_morph <get_morph>`:
 
@@ -29,6 +29,11 @@
 
     $ export PYMORPHY_DICTIONARY_PATH = /usr/share/dicts/ru
     $ export PYMORPHY_DICTIONARY_BACKEND = cdb
+
+и потом::
+
+    from pymorphy import get_morph
+    morph = get_morph()
 
 .. note::
 

@@ -8,7 +8,7 @@ pymorphy
    И.п. для существительных)::
 
         >>> from pymorphy import get_morph
-        >>> morph = get_morph('dicts/ru')
+        >>> morph = get_morph('dicts/ru', 'sqlite')
         >>> print morph.normalize(u"ЛЮДЕЙ")
         ЧЕЛОВЕК
 
@@ -55,9 +55,8 @@ pymorphy
 
 2. Скачиваем словари. Для начала можно скачать
    `файл <https://bitbucket.org/kmike/pymorphy/downloads/ru.sqlite-json.zip>`_
-   с русскими словарями в sqlite.
-
-   Все словари лежат тут: https://bitbucket.org/kmike/pymorphy/downloads/
+   с русскими словарями в sqlite. Подробнее о словарях можно почитать
+   :doc:`тут<ref/storages>`.
 
 3. Распаковываем скачанный файл.
 
@@ -69,7 +68,7 @@ pymorphy
 
     from pymorphy import get_morph
 
-    morph = get_morph('<путь/до/папки/в/которую/были/распакованы/скачанные/словари>')
+    morph = get_morph('<путь/до/папки/в/которую/были/распакованы/скачанные/словари>', 'sqlite')
 
     #слова должны быть в юникоде и ЗАГЛАВНЫМИ
     info = morph.get_graminfo(u'ВАСЯ')
