@@ -1,8 +1,9 @@
 #coding: utf-8
-
+from __future__ import unicode_literals, absolute_import
 import re
 from django import template
 
+from pymorphy.py3k import text_type
 from pymorphy.django_conf import default_morph, MARKER_OPEN, MARKER_CLOSE
 from pymorphy.contrib import tokenizers
 from pymorphy.contrib.word_case import restore_word_case
@@ -57,13 +58,13 @@ def _process_unmarked_phrase(phrase, process_func, *args, **kwargs):
 def inflect(phrase, form):
     if not phrase:
         return phrase
-    return _process_unmarked_phrase(unicode(phrase), default_morph.inflect_ru, unicode(form))
+    return _process_unmarked_phrase(text_type(phrase), default_morph.inflect_ru, text_type(form))
 
 @register.filter
 def inflect_marked(phrase, form):
     if not phrase:
         return phrase
-    return _process_marked_phrase(unicode(phrase), default_morph.inflect_ru, unicode(form))
+    return _process_marked_phrase(text_type(phrase), default_morph.inflect_ru, text_type(form))
 
 @register.filter
 def plural(phrase, amount):
