@@ -24,6 +24,20 @@
 .. _nltk.tokenize: http://nltk.googlecode.com/svn/trunk/doc/api/nltk.tokenize-module.html
 
 
+Восстановление регистра слов
+----------------------------
+
+После обработки слов морфологическим анализатором может теряться информация о
+том, как это слово было написано в оригинале (заглавные-строчные буквы).
+Чтоб восстановить эту информацию, можно воспользоваться функцией
+:func:`pymorphy.contrib.word_case.restore_word_case`.
+
+
+.. automodule:: pymorphy.contrib.word_case
+
+    .. autofunction:: restore_word_case
+
+
 .. _names-inflection:
 
 Склонение имен и фамилий

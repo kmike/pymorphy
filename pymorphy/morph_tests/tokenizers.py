@@ -1,4 +1,4 @@
-#coding: utf-8
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 from pymorphy.morph_tests.base import unittest2
 from pymorphy.contrib.tokenizers import extract_tokens, extract_words

@@ -10,6 +10,7 @@ from pymorphy.morph_tests.hyphen import *
 from pymorphy.morph_tests.tokenizers import *
 from pymorphy.morph_tests.thread_bugs import *
 from pymorphy.morph_tests.lastnames_ru import *
+from pymorphy.morph_tests.word_case import *
 
 if __name__ == '__main__':
     unittest2.main()
