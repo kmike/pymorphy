@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# XXX: или все-таки лучше завязаться на nltk?
-
 import re
 
 SPACE_REGEX = re.compile('[^\w_-]|[+]', re.U)

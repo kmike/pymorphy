@@ -4,24 +4,17 @@
 Разбиение текста на слова и токены
 ----------------------------------
 
-.. note::
-
-    В библиотеке `nltk <nltk.org>`_ реализовано большое число классов
-    для разбора текста на токены (см. `nltk.tokenize`_), которыми можно
-    пользоваться, если функции из pymorphy чем-то не подходят.
-
-    Установка nltk не всегда тривиальная, а в написанном по-быстрому
-    регэкспе можно легко не учесть какие-то детали, поэтому в pymorphy
-    все-таки появился :mod:`pymorphy.contrib.tokenizers`.
-
-
 .. automodule:: pymorphy.contrib.tokenizers
 
     .. autofunction:: extract_tokens
 
     .. autofunction:: extract_words
 
-.. _nltk.tokenize: http://nltk.googlecode.com/svn/trunk/doc/api/nltk.tokenize-module.html
+.. note::
+
+    См. также `nltk.tokenize`_.
+
+.. _nltk.tokenize: https://github.com/nltk/nltk/tree/master/nltk/tokenize
 
 
 Восстановление регистра слов
