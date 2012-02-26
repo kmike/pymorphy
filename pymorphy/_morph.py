@@ -1,7 +1,9 @@
 # coding: utf-8
 ## cython: profile=True
-from __future__ import unicode_literals
+from __future__ import unicode_literals, absolute_import
 from copy import deepcopy
+import os
+import warnings
 
 from pymorphy.constants import *
 from pymorphy.backends import PickleDataSource, ShelveDataSource
@@ -663,20 +665,37 @@ class Morph(object):
         return 'Morph [%s]' % self.data
 
 
-def get_morph(path, backend='sqlite', cached=True, **kwargs):
+def get_morph(path=None, backend=None, cached=True, **kwargs):
     """
     Вернуть объект с морфологическим анализатором (Morph).
 
     Параметры:
 
-    * path - путь к папке с файлами словарей (или полное имя файла со словарем, в случае pickle)
-    * backend - тип словарей. Может быть 'shelve', 'tch', 'tcb', 'cdb', 'pickle', 'sqlite'.
+    * path - путь к папке с файлами словарей (или полное имя файла со
+      словарем, в случае pickle). Если path=None, то путь берется из переменной
+      окружения PYMORPHY_DICTIONARY_PATH.
+    * backend - тип словарей. Может быть 'cdb', 'sqlite',
+      'pickle' или None; если backend - None, то в качестве бэкенда берется
+      либо значение переменной окружения PYMORPHY_DICTIONARY_BACKEND.
     * cached - кешировать ли данные в оперативной памяти
 
     Также можно указывать все параметры, которые принимает конструктор класса
     Morph.
 
     """
+    if path is None:
+        path = os.environ['PYMORPHY_DICTIONARY_PATH']
+
+    if backend is None:
+        try:
+            backend = os.environ['PYMORPHY_DICTIONARY_BACKEND']
+        except KeyError:
+            msg = "Default value for `backed` argument ('sqlite') is deprecated. " \
+                  "Please pass backend='sqlite' or use " \
+                  "PYMORPHY_DICTIONARY_BACKEND environment variable."
+            warnings.warn(msg, DeprecationWarning)
+            backend = 'sqlite'
+
     if backend == 'pickle':
         return Morph(PickleDataSource(path), **kwargs)
     return Morph(ShelveDataSource(path, backend, cached=cached), **kwargs)

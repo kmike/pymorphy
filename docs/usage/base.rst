@@ -15,11 +15,20 @@
 Аргументы :meth:`pymorphy.get_morph <get_morph>`:
 
 * ``path`` - обязательный параметр, путь до папки с файлами;
-* ``backend`` - используемое key-value хранилище ('sqlite' по умолчанию);
+* ``backend`` - используемое key-value хранилище ('sqlite' или 'cdb');
 * ``cached`` - использовать ли кэш (True по умолчанию).
 
 Можно также передавать любые дополнительные аргументы, которые принимает
 конструктор класса :class:`pymorphy.Morph <Morph>`.
+
+Вместо явной передачи параметров ``path`` и ``backend`` можно использовать
+переменные окружения ``PYMORPHY_DICTIONARY_PATH`` и ``PYMORPHY_DICTIONARY_BACKEND``,
+например (в shell):
+
+.. code-block:: bash
+
+    $ export PYMORPHY_DICTIONARY_PATH = /usr/share/dicts/ru
+    $ export PYMORPHY_DICTIONARY_BACKEND = cdb
 
 .. note::
 
@@ -37,7 +46,6 @@
     ресурсов для создания, не уничтожаются сборщиком мусора и не закрывают
     за собой файловые дескрипторы, поэтому постоянное создание
     анализаторов будет приводить к утечке ресурсов.
-
 
 
 Получение информации о слове
