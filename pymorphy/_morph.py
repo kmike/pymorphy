@@ -326,11 +326,10 @@ class Morph(object):
 
         if (num % 10 == 1) and (num % 100 != 11):
             index = 0
+        elif (num % 10 >= 2) and (num % 10 <= 4) and (num % 100 < 10 or num % 100 >= 20):
+            index = 1
         else:
-            if (num % 10 >= 2) and (num % 10 <= 4) and (num % 100 < 10 or num % 100 >= 20):
-                index = 1
-            else:
-                index = 2
+            index = 2
 
         if gram_class is None:
             forms = self.get_graminfo(word)
