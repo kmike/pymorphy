@@ -70,6 +70,10 @@ class TestInflectRu(MorphTestCase):
         self.assertInflected('СЛАБЫЙ', 'мр,ед,вн,но', 'СЛАБЫЙ')
         self.assertInflected('СЛАБЫЙ', 'мр,ед,вн,од', 'СЛАБОГО')
 
+    def test_comparative(self):
+        self.assertInflected('БЫСТРЫЙ', 'сравн', 'БЫСТРЕЕ')
+        self.assertInflected('ХОРОШАЯ', 'сравн', 'ЛУЧШЕ')
+
 class TestPluralizeInflected(MorphTestCase):
 
     def assertInflectedPlural(self, word, count, result, *args, **kwargs):

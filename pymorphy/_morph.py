@@ -123,6 +123,11 @@ class GramForm(object):
             if item in RU_ANIMACY:
                 self.clear_animacy()
 
+            if item == 'сравн':
+                self.clear_case()
+                self.clear_number()
+                self.clear_gender()
+
         self.form.update(requested_form)
         return self
 
