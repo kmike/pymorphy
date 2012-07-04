@@ -1,8 +1,8 @@
 #coding: utf-8
-from __future__ import absolute_import, unicode_literals, print_function
+from __future__ import unicode_literals, print_function
 
-from .dicts import morph_ru
-from .data.basic import BASIC_TESTS
+from dicts import morph_ru
+from data.basic import BASIC_TESTS
 
 def parse_test_data(test):
     lines = test.splitlines()
@@ -52,9 +52,14 @@ def forms_match(expected, actual):
            _normal_form_match(expected['norm'], actual['norm']) and \
            _gram_info_match(expected['info'], actual['info'])
 
+def _format_tag(tag):
+    return ",".join([tag['class']]+(tag['info'].split(',') or []))
 
-if __name__ == '__main__':
 
+def _format_row(word, expected, actual):
+    return "['%s', '%s', '%s']," % (word, _format_tag(expected), _format_tag(actual))
+
+def main():
 #    print _gram_info_match('[imper,1p,pl]', '1p,pl,imper')
 #    exit()
 
@@ -68,7 +73,8 @@ if __name__ == '__main__':
         collection = parse_test_data(test_data)
         for word in collection:
             expected_results = collection[word]
-            actual_results = morph_ru.get_graminfo(word, True)
+            actual_results = morph_ru.get_graminfo(word, standard=True)
+            actual_results_aot = morph_ru.get_graminfo(word)
 
             # проверяем, что все стандартные варианты разбора учтены
             for expected_form in expected_results:
@@ -81,12 +87,19 @@ if __name__ == '__main__':
                 all += 1
 
             # проверяем, нет ли у нас лишних (неправильных) вариантов разбора
-            for actual_form in actual_results:
+            for actual_form, actual_form_aot in zip(actual_results, actual_results_aot):
                 # для каждого варианта разбора смотрим, соответствует ли ему
                 # хотя бы 1 разбор в стандарте
                 match = any([forms_match(expected_form, actual_form) for expected_form in expected_results])
                 if not match:
                     print (" ++++ %s %s %s %s" % (word, actual_form['class'], actual_form['norm'], actual_form['info']))
                     failed2 += 1
+#                else:
+#                    for expected_form in expected_results:
+#                        if forms_match(expected_form, actual_form):
+#                            print(_format_row(word, expected_form, actual_form_aot))
 
     print (' total: %d, failed: %d, extra: %d' % (all, failed1, failed2))
+
+if __name__ == '__main__':
+    main()
