@@ -27,8 +27,8 @@ def plural(phrase, amount):
     return _process_unmarked_phrase(phrase, default_morph.pluralize_inflected_ru, amount)
 
 
-@register.tag(name='inflect')
-def do_inflect(parser, token):
+@register.tag
+def blockinflect(parser, token):
     """
     Analizes Russian and English morphology and converts phrases to the
     specified forms.
@@ -58,7 +58,7 @@ def do_inflect(parser, token):
 
     См. также саму функцию.
     """
-    nodelist = parser.parse(('endinflect',))
+    nodelist = parser.parse(('endblockinflect',))
     parser.delete_first_token()
     return InflectNode(nodelist)
 
