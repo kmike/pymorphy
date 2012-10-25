@@ -1,6 +1,7 @@
 #coding: utf-8
 import re
 from django import template
+from django.utils.encoding import force_unicode
 
 from pymorphy.django_conf import default_morph, MARKER_OPEN, MARKER_CLOSE
 from pymorphy.contrib import tokenizers
@@ -40,7 +41,7 @@ def inflect(text):
     """
     if not text:
         return text
-    return _process_marked_inplace_phrase(unicode(text),
+    return _process_marked_inplace_phrase(force_unicode(text),
                                           default_morph.inflect_ru)
 
 
