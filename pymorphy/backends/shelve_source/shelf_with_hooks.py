@@ -1,4 +1,4 @@
-#coding: utf8
+#coding: utf-8
 from shelve import DbfilenameShelf
 from struct import pack, unpack
 import marshal

@@ -1,4 +1,4 @@
-# coding: utf8
+# coding: utf-8
 import random
 from pymorphy.morph import get_morph
 from pymorphy.morph_tests.base import MorphTestCase
