@@ -1,6 +1,7 @@
 #coding: utf-8
 import re
 from django import template
+from django.utils.encoding import force_unicode
 
 from pymorphy.django_conf import default_morph, MARKER_OPEN, MARKER_CLOSE
 from pymorphy.contrib import tokenizers
@@ -33,14 +34,14 @@ def inflect(text):
     В других языках можно просто не использовать маркер "двойные скобки",
     чтобы не обрабатывать фразу.
 
-    См. также блочный тег {% inflate %} для шаблонов, дающий возможность
+    См. также блочный тег {% blockinflect %} для шаблонов, дающий возможность
     обернуть любой текст в эту функцию, в том числе и теги trans/blocktrans.
     Это опять таки позволяет отправить информацию о форме слова в файл
     переводов, и изменять ее там же, не касаясь шаблонов.
     """
     if not text:
         return text
-    return _process_marked_inplace_phrase(unicode(text),
+    return _process_marked_inplace_phrase(force_unicode(text),
                                           default_morph.inflect_ru)
 
 

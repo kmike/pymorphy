@@ -33,7 +33,7 @@ def blockinflect(parser, token):
     Analizes Russian and English morphology and converts phrases to the
     specified forms.
 
-    Обертка вокруг функции django_utils.inplace.
+    Обертка вокруг функции django_utils.inflect.
 
     Позволяет указывать форму слова прямо в тексте, в том числе внутри боков
     trans/blocktrans. Таким образом информация о форме слова отправляется
@@ -45,11 +45,11 @@ def blockinflect(parser, token):
     чтобы не обрабатывать фразу.
 
     Пример использования в шаблоне:
-        {% blockinflate %}
+        {% blockinflect %}
             {% blocktrans %}
                 Buy the {{ product_name }}
             {% endblocktrans %}
-        {% endblockinflate %}
+        {% endblockinflect %}
 
     Пример использования в файле переводов:
 
