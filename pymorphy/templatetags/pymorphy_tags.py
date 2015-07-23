@@ -62,6 +62,7 @@ def blockinflect(parser, token):
     parser.delete_first_token()
     return InflectNode(nodelist)
 
+
 class InflectNode(template.Node):
 
     def __init__(self, nodelist):
@@ -72,3 +73,31 @@ class InflectNode(template.Node):
         output = inflect_inplace(output)
         return output
 
+
+@register.tag
+def blockplural(parser, token):
+    """
+    Same as plural filter
+
+    Example:
+        {% blockplural amount %}{% trans "Book" %}{% endblockplural %}
+    """
+    nodelist = parser.parse(('endblockplural',))
+    parser.delete_first_token()
+    tag_name, amount = token.split_contents()
+    return PluralNode(nodelist, amount)
+
+
+class PluralNode(template.Node):
+
+    def __init__(self, nodelist, amount):
+        self.nodelist = nodelist
+        self.amount = template.Variable(amount)
+
+    def render(self, context):
+        output = self.nodelist.render(context)
+        if not output:
+            return output
+        return _process_unmarked_phrase(
+            output, default_morph.pluralize_inflected_ru,
+            self.amount.resolve(context))
